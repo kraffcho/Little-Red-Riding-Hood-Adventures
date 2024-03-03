@@ -1,0 +1,89 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+html {
+  background-color: #72940b;
+  background: linear-gradient(0deg, #72940b, #a2d016);
+}
+
+body {
+  min-height: 100vh;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ForestGrid {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: url(../public/assets/images/grass.png) center center / 30%;
+  border-radius: 5px;
+  border: 5px solid #8ab211;
+  box-shadow: inset 0 0 20px 0 #111;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+}
+
+.tile {
+  width: 4.3vh;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  transition: 0.2s ease-in-out;
+}
+
+.player {
+  background: url(../public/assets/images/player.png) no-repeat bottom center /
+    80%;
+  transform: scale(1.2);
+}
+
+.enemy {
+  background: url(../public/assets/images/enemy.png) no-repeat center center /
+    contain;
+  transform: scale(1.3);
+}
+
+.enemy-overlap {
+  transform: scale(1.8) rotate(10deg);
+  transition: transform 1s ease-in-out;
+}
+
+.player,
+.enemy,
+.tree,
+.granny-house {
+  -webkit-filter: drop-shadow(-1px -3px 2px #22222230);
+  filter: drop-shadow(-1px -3px 2px #22222230);
+}
+
+.tree {
+  background: url(../public/assets/images/tree.png) no-repeat center center /
+    contain;
+  transform: scale(2);
+}
+
+.granny-house {
+  background: url(../public/assets/images/house.png) no-repeat center center /
+    contain;
+  transform: scale(2) translate(2px, 4px);
+}
+
+iframe {
+  display: none;
+}
