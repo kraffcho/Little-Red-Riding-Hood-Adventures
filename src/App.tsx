@@ -4,6 +4,7 @@ import "./styles.css";
 import ForestGrid from "./ForestGrid";
 
 const GRID_SIZE = 20; // Assuming a 20x20 grid
+const NUM_TREES = 50; // Number of trees to spawn
 const NUM_FLOWERS = 30; // Number of flowers to spawn
 const MOVEMENT_DELAY = 100; // Delay in milliseconds between consecutive player movements
 
@@ -35,19 +36,20 @@ const App: React.FC = () => {
     const newTreePositions: Array<{ x: number; y: number }> = [];
     const grannyHouseX = GRID_SIZE - 1; // x-coordinate of the granny's house
     const grannyHouseY = GRID_SIZE - 1; // y-coordinate of the granny's house
-    for (let i = 0; i < GRID_SIZE * 2; i++) {
-      let x = Math.floor(Math.random() * GRID_SIZE);
-      let y = Math.floor(Math.random() * GRID_SIZE);
-      // Exclude the first cell (0, 0) from the list of tree positions
-      // because it is the player's starting position
-      // Exclude cells closest to the granny's house
-      while (
-        (x === 0 && y === 0) || // Exclude the player's starting position
-        (Math.abs(x - grannyHouseX) <= 1 && Math.abs(y - grannyHouseY) <= 1)
-      ) {
+    const middlePosition = Math.floor(GRID_SIZE / 2);
+    let newEnemyPosition = { x: middlePosition, y: middlePosition };
+    // Generate trees excluding the enemy's initial position
+    for (let i = 0; i < NUM_TREES; i++) {
+      let x, y;
+      do {
         x = Math.floor(Math.random() * GRID_SIZE);
         y = Math.floor(Math.random() * GRID_SIZE);
-      }
+
+      } while (
+        (x === newEnemyPosition.x && y === newEnemyPosition.y) || // Exclude the enemy's initial position
+        (x === 0 && y === 0) || // Exclude the player's starting position
+        (Math.abs(x - grannyHouseX) <= 1 && Math.abs(y - grannyHouseY) <= 1) // Exclude cells closest to the granny's house
+      );
       newTreePositions.push({ x, y });
     }
     setTreePositions(newTreePositions);
@@ -278,7 +280,7 @@ const App: React.FC = () => {
         }
         // Move the enemy along the path
         if (path.length > 1) {
-          const nextPosition = path[1];
+          const nextPosition = path[0];
           setEnemyPosition(nextPosition);
           return;
         }

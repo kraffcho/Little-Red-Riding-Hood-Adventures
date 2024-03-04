@@ -55,27 +55,32 @@ body {
 .tree {
   background: url(../public/assets/images/tree.png) no-repeat center center /
     contain;
-  transform: scale(2);
+  transform: scaleX(0) scaleY(0);
+  animation: scaleTree 2s forwards;
+}
+
+@keyframes scaleTree {
+  from {
+    transform: scaleX(0) scaleY(0);
+  }
+  to {
+    transform: scaleX(2) scaleY(2);
+  }
 }
 
 .flower {
-  background: url(https://cdn-icons-png.flaticon.com/512/5533/5533763.png)
-    no-repeat center center / 70%;
-  animation-name: moving;
-  animation-duration: 3s;
-  animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
+  background: url(../public/assets/images/flower.png) no-repeat center center /
+    contain;
+  transform: scaleX(0) scaleY(0);
+  animation: scaleFlower 1s forwards;
 }
 
-@keyframes moving {
+@keyframes scaleFlower {
   from {
-    transform: translate(0, 0px) rotate(-10deg);
-  }
-  65% {
-    transform: translate(2px, 0px) rotate(10deg);
+    transform: scaleX(0) scaleY(0);
   }
   to {
-    transform: translate(0, -0px) rotate(-10deg);
+    transform: scaleX(1) scaleY(1);
   }
 }
 

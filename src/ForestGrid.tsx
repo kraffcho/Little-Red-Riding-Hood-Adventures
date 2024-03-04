@@ -10,8 +10,8 @@ interface Props {
   enemyDirection: string;
   isPlayerEnemyOverlap: boolean;
   grannyHousePosition: { x: number; y: number };
-  flowers: Array<{ x: number; y: number }>; // Add this line
-  collectedFlowers: number; // Add this line
+  flowers: Array<{ x: number; y: number }>;
+  collectedFlowers: number;
 }
 
 const ForestGrid: React.FC<Props> = ({
