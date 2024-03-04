@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useRef } from "react";
 import "./styles.css";
 import ForestGrid from "./ForestGrid";
 
 const GRID_SIZE = 20; // Assuming a 20x20 grid
 const NUM_FLOWERS = 30; // Number of flowers to spawn
+const MOVEMENT_DELAY = 100; // Delay in milliseconds between consecutive player movements
 
 const App: React.FC = () => {
   const [playerPosition, setPlayerPosition] = useState<{
@@ -114,17 +116,42 @@ const App: React.FC = () => {
     // Check if new position is valid...
     if (isValidPosition(newPosition.x, newPosition.y)) {
       // Check if the new position has a flower
-      const isFlower = flowers.find(flower => flower.x === newPosition.x && flower.y === newPosition.y);
+      const isFlower = flowers.find(
+        (flower) => flower.x === newPosition.x && flower.y === newPosition.y
+      );
       if (isFlower) {
         // Remove the flower from the flowers array
-        setFlowers(prevFlowers => prevFlowers.filter(flower => !(flower.x === newPosition.x && flower.y === newPosition.y)));
+        setFlowers((prevFlowers) =>
+          prevFlowers.filter(
+            (flower) => !(flower.x === newPosition.x && flower.y === newPosition.y)
+          )
+        );
         // Increment the collected flowers count
-        setCollectedFlowers(prevCount => prevCount + 1);
+        setCollectedFlowers((prevCount) => prevCount + 1);
       }
       setPlayerPosition(newPosition);
       checkCollision(newPosition);
     }
   };
+
+  // Debounce function
+  const useDebounce = (callback: Function, delay: number) => {
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Specify the correct type
+
+    const debounce = (...args: any[]) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => {
+        callback(...args);
+      }, delay);
+    };
+
+    return debounce;
+  };
+
+  // Debounced player movement function
+  const debouncedMovePlayer = useDebounce(movePlayer, MOVEMENT_DELAY);
 
   // Function to check if a position is valid in the forest grid
   const isValidPosition = (x: number, y: number): boolean => {
@@ -150,16 +177,16 @@ const App: React.FC = () => {
   const handleKeyDown = (event: KeyboardEvent) => {
     switch (event.key) {
       case "ArrowUp":
-        movePlayer("up");
+        debouncedMovePlayer("up");
         break;
       case "ArrowDown":
-        movePlayer("down");
+        debouncedMovePlayer("down");
         break;
       case "ArrowLeft":
-        movePlayer("left");
+        debouncedMovePlayer("left");
         break;
       case "ArrowRight":
-        movePlayer("right");
+        debouncedMovePlayer("right");
         break;
       default:
         break;
