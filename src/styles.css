@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
 * {
   margin: 0;
   padding: 0;
@@ -22,6 +24,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
 }
 
 .ForestGrid {
@@ -33,6 +37,7 @@ body {
   border: 5px solid #8ab211;
   box-shadow: inset 0 0 20px 0 #111;
   border-radius: 6px;
+  /* transform: perspective(1200px) rotateX(45deg); */
   overflow: hidden;
 }
 
@@ -45,6 +50,33 @@ body {
   height: auto;
   aspect-ratio: 1 / 1;
   transition: 0.2s ease-in-out;
+}
+
+.tree {
+  background: url(../public/assets/images/tree.png) no-repeat center center /
+    contain;
+  transform: scale(2);
+}
+
+.flower {
+  background: url(https://cdn-icons-png.flaticon.com/512/5533/5533763.png)
+    no-repeat center center / 70%;
+  animation-name: moving;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes moving {
+  from {
+    transform: translate(0, 0px) rotate(-10deg);
+  }
+  65% {
+    transform: translate(2px, 0px) rotate(10deg);
+  }
+  to {
+    transform: translate(0, -0px) rotate(-10deg);
+  }
 }
 
 .player {
@@ -60,28 +92,31 @@ body {
 }
 
 .enemy-overlap {
-  transform: scale(1.8) rotate(10deg);
+  transform: scale(1.8);
   transition: transform 1s ease-in-out;
 }
 
 .player,
 .enemy,
 .tree,
-.granny-house {
+.granny-house,
+.flower {
   -webkit-filter: drop-shadow(-1px -3px 2px #22222230);
   filter: drop-shadow(-1px -3px 2px #22222230);
-}
-
-.tree {
-  background: url(../public/assets/images/tree.png) no-repeat center center /
-    contain;
-  transform: scale(2);
 }
 
 .granny-house {
   background: url(../public/assets/images/house.png) no-repeat center center /
     contain;
   transform: scale(2) translate(2px, 4px);
+}
+
+.collected-flowers {
+  padding: 0 7px 3px 7px;
+  font-size: 14px;
+  background: #8ab211;
+  border-radius: 0 0 5px 5px;
+  text-shadow: -1px 1px 1px #333;
 }
 
 iframe {

@@ -3,6 +3,7 @@ import "./styles.css";
 import ForestGrid from "./ForestGrid";
 
 const GRID_SIZE = 20; // Assuming a 20x20 grid
+const NUM_FLOWERS = 30; // Number of flowers to spawn
 
 const App: React.FC = () => {
   const [playerPosition, setPlayerPosition] = useState<{
@@ -24,6 +25,8 @@ const App: React.FC = () => {
   const [playerCanMove, setPlayerCanMove] = useState(true);
   const [enemyDirection, setEnemyDirection] = useState(""); // Track enemy's direction
   const [enemyMoving, setEnemyMoving] = useState(true); // Track if enemy is moving
+  const [flowers, setFlowers] = useState<Array<{ x: number; y: number }>>([]);
+  const [collectedFlowers, setCollectedFlowers] = useState<number>(0); // Track collected flowers
 
   // Function to generate random tree positions
   const generateRandomTrees = (): void => {
@@ -46,6 +49,42 @@ const App: React.FC = () => {
       newTreePositions.push({ x, y });
     }
     setTreePositions(newTreePositions);
+  };
+
+  // Function to generate random flower positions
+  const generateRandomFlowers = (): void => {
+    const availablePositions: Array<{ x: number; y: number }> = [];
+
+    // Generate all possible positions for flowers except (0, 0) and the bottom right corner
+    for (let i = 0; i < GRID_SIZE; i++) {
+      for (let j = 0; j < GRID_SIZE; j++) {
+        const isAdjacent = isAdjacentToTree(i, j);
+        const isGrannyHouse = i === GRID_SIZE - 1 && j === GRID_SIZE - 1;
+        if (!isAdjacent && !(i === 0 && j === 0) && !isGrannyHouse) {
+          availablePositions.push({ x: i, y: j });
+        }
+      }
+    }
+
+    const newFlowerPositions: Array<{ x: number; y: number }> = [];
+    const numFlowers = Math.min(NUM_FLOWERS, availablePositions.length);
+
+    // Randomly select positions from available positions
+    for (let i = 0; i < numFlowers; i++) {
+      const randomIndex = Math.floor(Math.random() * availablePositions.length);
+      newFlowerPositions.push(availablePositions[randomIndex]);
+      availablePositions.splice(randomIndex, 1);
+    }
+
+    setFlowers(newFlowerPositions);
+  };
+
+  // Function to check if a position is adjacent to a tree
+  const isAdjacentToTree = (x: number, y: number): boolean => {
+    return treePositions.some(
+      (treePosition) =>
+        Math.abs(treePosition.x - x) <= 1 && Math.abs(treePosition.y - y) <= 1
+    );
   };
 
   // Function to handle player movement
@@ -74,6 +113,14 @@ const App: React.FC = () => {
     }
     // Check if new position is valid...
     if (isValidPosition(newPosition.x, newPosition.y)) {
+      // Check if the new position has a flower
+      const isFlower = flowers.find(flower => flower.x === newPosition.x && flower.y === newPosition.y);
+      if (isFlower) {
+        // Remove the flower from the flowers array
+        setFlowers(prevFlowers => prevFlowers.filter(flower => !(flower.x === newPosition.x && flower.y === newPosition.y)));
+        // Increment the collected flowers count
+        setCollectedFlowers(prevCount => prevCount + 1);
+      }
       setPlayerPosition(newPosition);
       checkCollision(newPosition);
     }
@@ -280,6 +327,11 @@ const App: React.FC = () => {
     }, 10);
   }, []); // Empty dependency array to run once on component mount
 
+  // useEffect to generate flowers whenever tree positions change
+  useEffect(() => {
+    generateRandomFlowers();
+  }, [treePositions]);
+
   // useEffect for moving the enemy every second
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -302,7 +354,12 @@ const App: React.FC = () => {
           playerPosition.x === enemyPosition.x &&
           playerPosition.y === enemyPosition.y
         }
+        flowers={flowers}
+        collectedFlowers={collectedFlowers}
       />
+      <div className="collected-flowers">
+        <p>Collected Flowers: {collectedFlowers}/{NUM_FLOWERS}</p>
+      </div>
     </div>
   );
 };

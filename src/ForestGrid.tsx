@@ -10,6 +10,8 @@ interface Props {
   enemyDirection: string;
   isPlayerEnemyOverlap: boolean;
   grannyHousePosition: { x: number; y: number };
+  flowers: Array<{ x: number; y: number }>; // Add this line
+  collectedFlowers: number; // Add this line
 }
 
 const ForestGrid: React.FC<Props> = ({
@@ -18,9 +20,10 @@ const ForestGrid: React.FC<Props> = ({
   gridSize,
   treePositions,
   isPlayerEnemyOverlap,
+  flowers,
 }) => {
   // Generate the forest grid with tiles
-  const ForestGrid = [...Array(gridSize)].map((_, rowIndex) => (
+  const forestGrid = [...Array(gridSize)].map((_, rowIndex) => (
     <div key={rowIndex} className="row">
       {[...Array(gridSize)].map((_, columnIndex) => {
         const isWall = treePositions.some(
@@ -28,6 +31,9 @@ const ForestGrid: React.FC<Props> = ({
         );
         const isGrannyHouse =
           rowIndex === gridSize - 1 && columnIndex === gridSize - 1; // Check if current tile is granny's house
+        const isFlower = flowers.some(
+          (position) => position.x === rowIndex && position.y === columnIndex
+        );
         return (
           <Tile
             key={`${rowIndex}-${columnIndex}`}
@@ -38,6 +44,7 @@ const ForestGrid: React.FC<Props> = ({
               enemyPosition.x === rowIndex && enemyPosition.y === columnIndex
             }
             isTree={isWall}
+            isFlower={isFlower}
             isOverlap={isPlayerEnemyOverlap}
             isGrannyHouse={isGrannyHouse}
           />
@@ -46,7 +53,7 @@ const ForestGrid: React.FC<Props> = ({
     </div>
   ));
 
-  return <div className="ForestGrid">{ForestGrid}</div>;
+  return <div className="ForestGrid">{forestGrid}</div>;
 };
 
 export default ForestGrid;
