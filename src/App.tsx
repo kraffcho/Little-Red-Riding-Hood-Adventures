@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useRef } from "react";
 import "./styles.css";
 import ForestGrid from "./ForestGrid";
+import useSound from "./hooks/useSound";
 
 const GRID_SIZE = 20; // Assuming a 20x20 grid
 const NUM_TREES = 60; // Number of trees to spawn
 const NUM_FLOWERS = 30; // Number of flowers to spawn
 const PLAYER_DELAY = 100; // Delay in milliseconds between consecutive player movements
 const ENEMY_DELAY = 500; // Delay in milliseconds before enemy AI makes its next move
+const BACKGROUND_MUSIC = "../assets/audio/background.mp3"; // Background music file path
 
 const App: React.FC = () => {
   const [playerPosition, setPlayerPosition] = useState<{
@@ -31,6 +33,27 @@ const App: React.FC = () => {
   const [enemyMoving, setEnemyMoving] = useState(true); // Track if enemy is moving
   const [flowers, setFlowers] = useState<Array<{ x: number; y: number }>>([]);
   const [collectedFlowers, setCollectedFlowers] = useState<number>(0); // Track collected flowers
+  const [isPlayingMusic, setIsPlayingMusic] = useState(false); // State for background music playing status
+  const [volume, setVolume] = useState(1); // Default volume level (between 0 and 1)
+  const playSound = useSound(); // Custom hook to handle sound effects
+  const handleToggleSound = () => {
+    if (isPlayingMusic) {
+      // Pause the sound
+      setIsPlayingMusic(false);
+      if (playSound) playSound("", false);
+    } else {
+      // Play the sound
+      setIsPlayingMusic(true);
+      playSound(BACKGROUND_MUSIC, true, volume);
+    }
+  };
+
+  const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(event.target.value);
+    setVolume(newVolume);
+    // If there is a current sound effect being played, update
+    if (isPlayingMusic && playSound) playSound(BACKGROUND_MUSIC, true, newVolume);
+  };
 
   // Function to generate random tree positions
   const generateRandomTrees = (): void => {
@@ -432,6 +455,21 @@ const App: React.FC = () => {
       />
       <div className="collected-flowers">
         <p>Collected Flowers: {collectedFlowers}/{NUM_FLOWERS}</p>
+      </div>
+      <div className="sound-controls">
+        <label htmlFor="volumeSlider">Volume:</label>
+        <input
+          type="range"
+          id="volumeSlider"
+          min="0"
+          max="1"
+          step="0.1"
+          value={volume}
+          onChange={handleVolumeChange}
+        />
+        <button onClick={handleToggleSound}>
+          {isPlayingMusic ? "Stop Sound" : "Play Sound"}
+        </button>
       </div>
     </div>
   );
