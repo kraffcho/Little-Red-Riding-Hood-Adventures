@@ -11,6 +11,11 @@ const ENEMY_DELAY = 500; // Delay in milliseconds before enemy AI makes its next
 const BACKGROUND_MUSIC = "../assets/audio/background.mp3"; // Background music file path
 const SOUND_COLLECT_ITEM = "../assets/audio/collect-item.mp3"; // Sound effect for collecting an item
 const SOUND_QUEST_COMPLETED = "../assets/audio/quest-completed.mp3"; // Sound effect for completing a quest
+const SOUND_ENEMY_VICTORY = [ // Sound effects for when the enemy wins
+  "../assets/audio/enemy-victory1.mp3",
+  "../assets/audio/enemy-victory2.mp3",
+  "../assets/audio/enemy-victory3.mp3",
+];
 
 const App: React.FC = () => {
   const [playerPosition, setPlayerPosition] = useState<{
@@ -32,6 +37,7 @@ const App: React.FC = () => {
   const [playerCanMove, setPlayerCanMove] = useState(true);
   const [enemyDirection, setEnemyDirection] = useState(""); // Track enemy's direction
   const [enemyMoving, setEnemyMoving] = useState(true); // Track if enemy is moving
+  const [enemyWon, setEnemyWon] = useState(false); // Flag indicating whether the enemy has won
   const [flowers, setFlowers] = useState<Array<{ x: number; y: number }>>([]);
   const [collectedFlowers, setCollectedFlowers] = useState<number>(0); // Track collected flowers
   const [isPlayingMusic, setIsPlayingMusic] = useState(false); // State for background music playing status
@@ -85,6 +91,18 @@ const App: React.FC = () => {
     }
   }, [collectedFlowers]); // Run effect whenever collectedFlowers state changes
 
+  useEffect(() => {
+    // Check if the enemy has gotten close enough to the player
+    if (enemyWon) {
+      const randomIndex = Math.floor(Math.random() * SOUND_ENEMY_VICTORY.length);
+      const randomSoundPath = SOUND_ENEMY_VICTORY[randomIndex];
+      const sound = new Audio(randomSoundPath);
+      sound.volume = volume;
+      sound.play().catch((error) => {
+        console.error("Failed to play enemy victory sound:", error);
+      });
+    }
+  }, [enemyWon]);
 
   const playFlowerCollectSound = () => {
     if (flowerCollectSoundBuffer) {
@@ -305,6 +323,7 @@ const App: React.FC = () => {
       setPlayerPosition({ x: -1, y: -1 }); // Remove player from grid
       setEnemyMoving(false); // Stop enemy movement
       setPlayerCanMove(false); // Prevent player from moving
+      setEnemyWon(true); // Enemy has won
     }
   };
 
@@ -412,13 +431,15 @@ const App: React.FC = () => {
           current = current.parent;
         }
         // Move the enemy along the path
-        if (path.length > 1) {
+        if (path.length > 0) {
           const nextPosition = path[0];
           setEnemyPosition(nextPosition);
           return;
         }
         // If the enemy is already at the player's position, no need to move
         setPlayerCanMove(false);
+        // Check for collision between enemy and player
+        checkCollision(playerPosition);
         return;
       }
 
@@ -522,8 +543,8 @@ const App: React.FC = () => {
       <div className="quest-wrapper">
         <p dangerouslySetInnerHTML={{
           __html: collectedFlowers === NUM_FLOWERS
-            ? "<b>Congratulations!</b><br />You've completed the Flower Quest! Granny's house is now unlocked.<br /><br /><b>Quest updated:</b><br />Make your way to Granny's house to complete the level."
-            : `RedHood, you have a new mission! Collect all the flowers scattered throughout the forest to complete your quest.<br /><br /><b>Collected Flowers:</b> ${collectedFlowers}/${NUM_FLOWERS}`
+            ? "🎉 <b>Well done, RedHood!</b><br />The Flower Quest is complete! Granny's house doors swing open for you.<br /><br /><b>📣 Quest updated:</b><br />Make your way to Granny's house to complete the level."
+            : `👋 <b>RedHood</b>,<br />you have a new mission!<br />Collect all the flowers scattered throughout the forest to complete your quest.<br /><br />💐 <b>Collected Flowers:</b> ${collectedFlowers}/${NUM_FLOWERS}`
         }} />
       </div>
 
