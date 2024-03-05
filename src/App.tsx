@@ -4,7 +4,7 @@ import "./styles.css";
 import ForestGrid from "./ForestGrid";
 
 const GRID_SIZE = 20; // Assuming a 20x20 grid
-const NUM_TREES = 50; // Number of trees to spawn
+const NUM_TREES = 60; // Number of trees to spawn
 const NUM_FLOWERS = 30; // Number of flowers to spawn
 const MOVEMENT_DELAY = 100; // Delay in milliseconds between consecutive player movements
 
