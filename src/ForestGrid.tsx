@@ -14,6 +14,12 @@ interface Props {
   collectedFlowers: number;
 }
 
+// Check if viewport width is smaller than viewport height
+const isViewportWidthSmaller = window.innerWidth < window.innerHeight;
+
+// Conditionally apply custom class based on viewport width
+const gridClassName = isViewportWidthSmaller ? "ForestGrid Mobile" : "ForestGrid";
+
 const ForestGrid: React.FC<Props> = ({
   playerPosition,
   enemyPosition,
@@ -22,12 +28,9 @@ const ForestGrid: React.FC<Props> = ({
   isPlayerEnemyOverlap,
   flowers,
 }) => {
-  // Check if viewport width is smaller than viewport height
-  const isViewportWidthSmaller = window.innerWidth < window.innerHeight;
-
   // Generate the forest grid with tiles
   const forestGrid = [...Array(gridSize)].map((_, rowIndex) => (
-    <div key={rowIndex} className="row">
+    <div className="row" key={rowIndex}>
       {[...Array(gridSize)].map((_, columnIndex) => {
         const isWall = treePositions.some(
           (position) => position.x === rowIndex && position.y === columnIndex
@@ -55,9 +58,6 @@ const ForestGrid: React.FC<Props> = ({
       })}
     </div>
   ));
-
-  // Conditionally apply custom class based on viewport width
-  const gridClassName = isViewportWidthSmaller ? "ForestGrid Mobile" : "ForestGrid";
 
   return <div className={gridClassName}>{forestGrid}</div>;
 };

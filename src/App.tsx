@@ -6,7 +6,8 @@ import ForestGrid from "./ForestGrid";
 const GRID_SIZE = 20; // Assuming a 20x20 grid
 const NUM_TREES = 60; // Number of trees to spawn
 const NUM_FLOWERS = 30; // Number of flowers to spawn
-const MOVEMENT_DELAY = 100; // Delay in milliseconds between consecutive player movements
+const PLAYER_DELAY = 100; // Delay in milliseconds between consecutive player movements
+const ENEMY_DELAY = 500; // Delay in milliseconds before enemy AI makes its next move
 
 const App: React.FC = () => {
   const [playerPosition, setPlayerPosition] = useState<{
@@ -136,6 +137,49 @@ const App: React.FC = () => {
     }
   };
 
+  // Previous touch position for swipe detection
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+
+  // Function to handle touch start event
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length === 1) {
+      touchStartPos.current = {
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      };
+    }
+  };
+
+  // Function to handle touch end event and detect swipe direction
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartPos.current && event.changedTouches.length === 1) {
+      const touchEndPos = {
+        x: event.changedTouches[0].clientX,
+        y: event.changedTouches[0].clientY,
+      };
+
+      const deltaX = touchEndPos.x - touchStartPos.current.x;
+      const deltaY = touchEndPos.y - touchStartPos.current.y;
+
+      // Check if swipe is horizontal or vertical and determine the direction
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX > 0) {
+          movePlayer("right");
+        } else {
+          movePlayer("left");
+        }
+      } else {
+        if (deltaY > 0) {
+          movePlayer("down");
+        } else {
+          movePlayer("up");
+        }
+      }
+
+      touchStartPos.current = null;
+    }
+  };
+
   // Debounce function
   const useDebounce = (callback: Function, delay: number) => {
     const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Specify the correct type
@@ -153,7 +197,7 @@ const App: React.FC = () => {
   };
 
   // Debounced player movement function
-  const debouncedMovePlayer = useDebounce(movePlayer, MOVEMENT_DELAY);
+  const debouncedMovePlayer = useDebounce(movePlayer, PLAYER_DELAY);
 
   // Function to check if a position is valid in the forest grid
   const isValidPosition = (x: number, y: number): boolean => {
@@ -365,12 +409,12 @@ const App: React.FC = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       moveEnemyTowardsPlayer(); // Move enemy towards player
-    }, 1000);
+    }, ENEMY_DELAY);
     return () => clearInterval(intervalId);
   }, [enemyPosition, enemyMoving]); // Re-run effect when enemy position or movement changes
 
   return (
-    <div className="App">
+    <div className="App" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <ForestGrid
         gridSize={GRID_SIZE}
         playerPosition={playerPosition}
