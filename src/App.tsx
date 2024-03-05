@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useRef } from "react";
 import "./styles.css";
 import ForestGrid from "./ForestGrid";
-import useSound from "./hooks/useSound";
 
 const GRID_SIZE = 20; // Assuming a 20x20 grid
 const NUM_TREES = 60; // Number of trees to spawn
@@ -10,6 +9,7 @@ const NUM_FLOWERS = 30; // Number of flowers to spawn
 const PLAYER_DELAY = 100; // Delay in milliseconds between consecutive player movements
 const ENEMY_DELAY = 500; // Delay in milliseconds before enemy AI makes its next move
 const BACKGROUND_MUSIC = "../assets/audio/background.mp3"; // Background music file path
+const SOUND_COLLECT_ITEM = "../assets/audio/collect-item.mp3"; // Sound effect for collecting an item
 
 const App: React.FC = () => {
   const [playerPosition, setPlayerPosition] = useState<{
@@ -34,25 +34,75 @@ const App: React.FC = () => {
   const [flowers, setFlowers] = useState<Array<{ x: number; y: number }>>([]);
   const [collectedFlowers, setCollectedFlowers] = useState<number>(0); // Track collected flowers
   const [isPlayingMusic, setIsPlayingMusic] = useState(false); // State for background music playing status
-  const [volume, setVolume] = useState(1); // Default volume level (between 0 and 1)
-  const playSound = useSound(); // Custom hook to handle sound effects
+  const [volume, setVolume] = useState(.3); // Default volume level (between 0 and 1)
+  const backgroundMusicRef = useRef<HTMLAudioElement | null>(null); // Ref for background music audio element
+  const [flowerCollectSoundBuffer, setFlowerCollectSoundBuffer] = useState<AudioBuffer | null>(null); // State to store the flower collect sound buffer
+
+  useEffect(() => {
+    // Initialize background music audio element
+    backgroundMusicRef.current = new Audio(BACKGROUND_MUSIC);
+    backgroundMusicRef.current.volume = volume;
+    backgroundMusicRef.current.loop = true;
+  }, []);
+
+  const playBackgroundMusic = () => {
+    if (backgroundMusicRef.current) {
+      backgroundMusicRef.current.play().catch((error) => {
+        console.error("Failed to play background music:", error);
+      });
+      setIsPlayingMusic(true);
+    }
+  };
+
+  useEffect(() => {
+    // Load the flower collect sound effect
+    const loadFlowerCollectSound = async () => {
+      try {
+        const response = await fetch(SOUND_COLLECT_ITEM);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioContext = new (window.AudioContext || window.AudioContext)();
+        audioContext.decodeAudioData(arrayBuffer, (buffer) => {
+          setFlowerCollectSoundBuffer(buffer);
+        });
+      } catch (error) {
+        console.error("Failed to load flower collect sound:", error);
+      }
+    };
+
+    loadFlowerCollectSound();
+  }, []);
+
+  const playFlowerCollectSound = () => {
+    if (flowerCollectSoundBuffer) {
+      const audioContext = new (window.AudioContext || window.AudioContext)();
+      const source = audioContext.createBufferSource();
+      source.buffer = flowerCollectSoundBuffer;
+      source.connect(audioContext.destination);
+      source.start();
+    }
+  };
+
+  const stopBackgroundMusic = () => {
+    if (backgroundMusicRef.current) {
+      backgroundMusicRef.current.pause();
+      setIsPlayingMusic(false);
+    }
+  };
+
   const handleToggleSound = () => {
     if (isPlayingMusic) {
-      // Pause the sound
-      setIsPlayingMusic(false);
-      if (playSound) playSound("", false);
+      stopBackgroundMusic();
     } else {
-      // Play the sound
-      setIsPlayingMusic(true);
-      playSound(BACKGROUND_MUSIC, true, volume);
+      playBackgroundMusic();
     }
   };
 
   const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(event.target.value);
     setVolume(newVolume);
-    // If there is a current sound effect being played, update
-    if (isPlayingMusic && playSound) playSound(BACKGROUND_MUSIC, true, newVolume);
+    if (backgroundMusicRef.current) {
+      backgroundMusicRef.current.volume = newVolume;
+    }
   };
 
   // Function to generate random tree positions
@@ -154,6 +204,8 @@ const App: React.FC = () => {
         );
         // Increment the collected flowers count
         setCollectedFlowers((prevCount) => prevCount + 1);
+        // Play the flower collect sound effect
+        playFlowerCollectSound();
       }
       setPlayerPosition(newPosition);
       checkCollision(newPosition);
@@ -468,7 +520,7 @@ const App: React.FC = () => {
           onChange={handleVolumeChange}
         />
         <button onClick={handleToggleSound}>
-          {isPlayingMusic ? "Stop Sound" : "Play Sound"}
+          {isPlayingMusic ? "Pause Sound" : "Play Sound"}
         </button>
       </div>
     </div>
