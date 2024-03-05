@@ -120,12 +120,16 @@ body {
   transform: scale(2) translate(2px, 4px);
 }
 
-.collected-flowers {
-  padding: 0 7px 3px 7px;
+.quest-wrapper {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  max-width: 220px;
+  padding: 7px 10px;
   font-size: 14px;
   background: #8ab211;
-  border-radius: 0 0 5px 5px;
-  text-shadow: -1px 1px 1px #333;
+  border-radius: 5px;
+  text-shadow: -1px 1px 1px #555;
 }
 
 .sound-controls {

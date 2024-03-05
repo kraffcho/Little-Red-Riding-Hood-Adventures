@@ -10,6 +10,7 @@ const PLAYER_DELAY = 100; // Delay in milliseconds between consecutive player mo
 const ENEMY_DELAY = 500; // Delay in milliseconds before enemy AI makes its next move
 const BACKGROUND_MUSIC = "../assets/audio/background.mp3"; // Background music file path
 const SOUND_COLLECT_ITEM = "../assets/audio/collect-item.mp3"; // Sound effect for collecting an item
+const SOUND_QUEST_COMPLETED = "../assets/audio/quest-completed.mp3"; // Sound effect for completing a quest
 
 const App: React.FC = () => {
   const [playerPosition, setPlayerPosition] = useState<{
@@ -71,6 +72,19 @@ const App: React.FC = () => {
 
     loadFlowerCollectSound();
   }, []);
+
+  // Check if all flowers have been collected
+  useEffect(() => {
+    if (collectedFlowers === NUM_FLOWERS) {
+      // If the background music is playing and not muted, stop it
+      isPlayingMusic && stopBackgroundMusic();
+      // Play sound effect for completing the game
+      const completionSound = new Audio(SOUND_QUEST_COMPLETED);
+      completionSound.volume = volume;
+      completionSound.play();
+    }
+  }, [collectedFlowers]); // Run effect whenever collectedFlowers state changes
+
 
   const playFlowerCollectSound = () => {
     if (flowerCollectSoundBuffer) {
@@ -505,9 +519,14 @@ const App: React.FC = () => {
         flowers={flowers}
         collectedFlowers={collectedFlowers}
       />
-      <div className="collected-flowers">
-        <p>Collected Flowers: {collectedFlowers}/{NUM_FLOWERS}</p>
+      <div className="quest-wrapper">
+        <p dangerouslySetInnerHTML={{
+          __html: collectedFlowers === NUM_FLOWERS
+            ? "<b>Congratulations!</b><br />You've completed the Flower Quest! Granny's house is now unlocked.<br /><br /><b>Quest updated:</b><br />Make your way to Granny's house to complete the level."
+            : `RedHood, you have a new mission! Collect all the flowers scattered throughout the forest to complete your quest.<br /><br /><b>Collected Flowers:</b> ${collectedFlowers}/${NUM_FLOWERS}`
+        }} />
       </div>
+
       <div className="sound-controls">
         <label htmlFor="volumeSlider">Volume:</label>
         <input
