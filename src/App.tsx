@@ -11,6 +11,7 @@ const ENEMY_DELAY = 500; // Delay in milliseconds before enemy AI makes its next
 const BACKGROUND_MUSIC = "../assets/audio/background.mp3"; // Background music file path
 const SOUND_COLLECT_ITEM = "../assets/audio/collect-item.mp3"; // Sound effect for collecting an item
 const SOUND_QUEST_COMPLETED = "../assets/audio/quest-completed.mp3"; // Sound effect for completing a quest
+const QUEST_PANEL_OPEN_SOUND = "../assets/audio/menu-toggle.mp3"; // Sound effect for opening the quest panel
 const SOUND_ENEMY_VICTORY = [ // Sound effects for when the enemy wins
   "../assets/audio/enemy-victory1.mp3",
   "../assets/audio/enemy-victory2.mp3",
@@ -47,8 +48,17 @@ const App: React.FC = () => {
 
   const [isQuestPanelVisible, setIsVisible] = useState(false);
 
-  const toggleVisibility = () => {
+  const toggleQuestPanel = () => {
     setIsVisible(!isQuestPanelVisible);
+    playQuestPanelSound();
+  };
+
+  const playQuestPanelSound = () => {
+    const questPanelSound = new Audio(QUEST_PANEL_OPEN_SOUND);
+    questPanelSound.volume = volume;
+    questPanelSound.play().catch((error) => {
+      console.error("Failed to play quest panel open sound:", error);
+    });
   };
 
   useEffect(() => {
@@ -57,7 +67,7 @@ const App: React.FC = () => {
     backgroundMusicRef.current.volume = volume;
     backgroundMusicRef.current.loop = true;
     // Show quest info when page loads
-    toggleVisibility();
+    toggleQuestPanel();
   }, []);
 
   const playBackgroundMusic = () => {
@@ -96,10 +106,12 @@ const App: React.FC = () => {
       // Play sound effect for completing the game
       const completionSound = new Audio(SOUND_QUEST_COMPLETED);
       completionSound.volume = volume;
-      completionSound.play();
+      completionSound.play().catch((error) => {
+        console.error("Failed to play quest completion sound:", error);
+      });
 
       // If the quest panel is hidden, show it
-      !isQuestPanelVisible && toggleVisibility();
+      !isQuestPanelVisible && toggleQuestPanel();
     }
   }, [collectedFlowers]); // Run effect whenever collectedFlowers state changes
 
@@ -223,7 +235,7 @@ const App: React.FC = () => {
       // If it isn't, play the background music
       playBackgroundMusic();
     }
-    isQuestPanelVisible && collectedFlowers !== NUM_FLOWERS && toggleVisibility();
+    isQuestPanelVisible && collectedFlowers !== NUM_FLOWERS && toggleQuestPanel();
     const newPosition = { ...playerPosition };
     switch (direction) {
       case "up":
@@ -565,7 +577,7 @@ const App: React.FC = () => {
         collectedFlowers={collectedFlowers}
       />
       <div className={`quest-panel ${isQuestPanelVisible ? 'visible' : 'hidden'}`}>
-        <button onClick={toggleVisibility}>{isQuestPanelVisible ? '🙉' : '🙈'}</button>
+        <button onClick={toggleQuestPanel}>{isQuestPanelVisible ? '🙉' : '🙈'}</button>
         <p className="quest-wrapper" dangerouslySetInnerHTML={{
           __html: collectedFlowers === NUM_FLOWERS
             ? "🎉 <b>Well done, RedHood!</b><br />The Flower Quest is complete! Granny's house doors swing open for you.<br /><br /><b>📣 Quest updated:</b><br />Make your way to Granny's house to complete the level."
