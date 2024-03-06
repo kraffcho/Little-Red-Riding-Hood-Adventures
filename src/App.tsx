@@ -124,8 +124,12 @@ const App: React.FC = () => {
   const handleToggleSound = () => {
     if (isPlayingMusic) {
       stopBackgroundMusic();
+      // Remove session cookie
+      document.cookie = "backgroundMusicPaused=true; path=/";
     } else {
       playBackgroundMusic();
+      // Set session cookie
+      document.cookie = "backgroundMusicPaused=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     }
   };
 
@@ -200,6 +204,14 @@ const App: React.FC = () => {
   // Function to handle player movement
   const movePlayer = (direction: string) => {
     if (!playerCanMove) return; // Check if the player can move
+    // Check if the session cookie exists
+    const backgroundMusicPaused = document.cookie.includes("backgroundMusicPaused=true");
+    // Check if the background music is not already playing and the session cookie doesn't exist
+    console.log(backgroundMusicPaused)
+    if (!isPlayingMusic && !backgroundMusicPaused) {
+      // If it isn't, play the background music
+      playBackgroundMusic();
+    }
     const newPosition = { ...playerPosition };
     switch (direction) {
       case "up":
