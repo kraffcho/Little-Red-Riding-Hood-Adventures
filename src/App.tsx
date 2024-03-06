@@ -45,11 +45,19 @@ const App: React.FC = () => {
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null); // Ref for background music audio element
   const [flowerCollectSoundBuffer, setFlowerCollectSoundBuffer] = useState<AudioBuffer | null>(null); // State to store the flower collect sound buffer
 
+  const [isQuestPanelVisible, setIsVisible] = useState(false);
+
+  const toggleVisibility = () => {
+    setIsVisible(!isQuestPanelVisible);
+  };
+
   useEffect(() => {
     // Initialize background music audio element
     backgroundMusicRef.current = new Audio(BACKGROUND_MUSIC);
     backgroundMusicRef.current.volume = volume;
     backgroundMusicRef.current.loop = true;
+    // Show quest info when page loads
+    toggleVisibility();
   }, []);
 
   const playBackgroundMusic = () => {
@@ -83,11 +91,15 @@ const App: React.FC = () => {
   useEffect(() => {
     if (collectedFlowers === NUM_FLOWERS) {
       // If the background music is playing and not muted, stop it
-      isPlayingMusic && stopBackgroundMusic();
+      // isPlayingMusic && stopBackgroundMusic();
+
       // Play sound effect for completing the game
       const completionSound = new Audio(SOUND_QUEST_COMPLETED);
       completionSound.volume = volume;
       completionSound.play();
+
+      // If the quest panel is hidden, show it
+      !isQuestPanelVisible && toggleVisibility();
     }
   }, [collectedFlowers]); // Run effect whenever collectedFlowers state changes
 
@@ -207,11 +219,11 @@ const App: React.FC = () => {
     // Check if the session cookie exists
     const backgroundMusicPaused = document.cookie.includes("backgroundMusicPaused=true");
     // Check if the background music is not already playing and the session cookie doesn't exist
-    console.log(backgroundMusicPaused)
     if (!isPlayingMusic && !backgroundMusicPaused) {
       // If it isn't, play the background music
       playBackgroundMusic();
     }
+    isQuestPanelVisible && collectedFlowers !== NUM_FLOWERS && toggleVisibility();
     const newPosition = { ...playerPosition };
     switch (direction) {
       case "up":
@@ -552,28 +564,28 @@ const App: React.FC = () => {
         flowers={flowers}
         collectedFlowers={collectedFlowers}
       />
-      <div className="quest-wrapper">
-        <p dangerouslySetInnerHTML={{
+      <div className={`quest-panel ${isQuestPanelVisible ? 'visible' : 'hidden'}`}>
+        <button onClick={toggleVisibility}>{isQuestPanelVisible ? '🙉' : '🙈'}</button>
+        <p className="quest-wrapper" dangerouslySetInnerHTML={{
           __html: collectedFlowers === NUM_FLOWERS
             ? "🎉 <b>Well done, RedHood!</b><br />The Flower Quest is complete! Granny's house doors swing open for you.<br /><br /><b>📣 Quest updated:</b><br />Make your way to Granny's house to complete the level."
-            : `👋 <b>RedHood</b>,<br />you have a new mission!<br />Collect all the flowers scattered throughout the forest to complete your quest.<br /><br />💐 <b>Collected Flowers:</b> ${collectedFlowers}/${NUM_FLOWERS}`
+            : `👋 <b>RedHood</b>, you have a new mission! Collect all the flowers scattered throughout the forest to complete your quest.<br /><br />💐 <b>Collected Flowers:</b> ${collectedFlowers}/${NUM_FLOWERS}`
         }} />
-      </div>
-
-      <div className="sound-controls">
-        <label htmlFor="volumeSlider">Volume:</label>
-        <input
-          type="range"
-          id="volumeSlider"
-          min="0"
-          max="1"
-          step="0.1"
-          value={volume}
-          onChange={handleVolumeChange}
-        />
-        <button onClick={handleToggleSound}>
-          {isPlayingMusic ? "Pause Sound" : "Play Sound"}
-        </button>
+        <div className="sound-controls">
+          <label htmlFor="volumeSlider">🔊 Volume:</label>
+          <input
+            type="range"
+            id="volumeSlider"
+            min="0"
+            max="1"
+            step="0.1"
+            value={volume}
+            onChange={handleVolumeChange}
+          />
+          <button onClick={handleToggleSound}>
+            {isPlayingMusic ? "Pause Sound" : "Play Sound"}
+          </button>
+        </div>
       </div>
     </div>
   );
