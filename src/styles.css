@@ -106,19 +106,19 @@ body {
   transform: scale(1.2);
 }
 
-.enemy {
-  background: url(../public/assets/images/enemy.png) no-repeat center center /
+.wolf {
+  background: url(../public/assets/images/wolf.png) no-repeat center center /
     contain;
   transform: scale(1.3);
 }
 
-.enemy-overlap {
+.wolf-overlap {
   transform: scale(1.8);
   transition: transform 1s ease-in-out;
 }
 
 .player,
-.enemy,
+.wolf,
 .tree,
 .granny-house,
 .flower {

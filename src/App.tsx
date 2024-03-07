@@ -7,15 +7,15 @@ const GRID_SIZE = 20; // Assuming a 20x20 grid
 const NUM_TREES = 60; // Number of trees to spawn
 const NUM_FLOWERS = 30; // Number of flowers to spawn
 const PLAYER_DELAY = 100; // Delay in milliseconds between consecutive player movements
-const ENEMY_DELAY = 500; // Delay in milliseconds before enemy AI makes its next move
+const ENEMY_DELAY = 500; // Delay in milliseconds before wolf AI makes its next move
 const BACKGROUND_MUSIC = "../assets/audio/background.mp3"; // Background music file path
 const SOUND_COLLECT_ITEM = "../assets/audio/collect-item.mp3"; // Sound effect for collecting an item
 const SOUND_QUEST_COMPLETED = "../assets/audio/quest-completed.mp3"; // Sound effect for completing a quest
 const QUEST_PANEL_OPEN_SOUND = "../assets/audio/menu-toggle.mp3"; // Sound effect for opening the quest panel
-const SOUND_ENEMY_VICTORY = [ // Sound effects for when the enemy wins
-  "../assets/audio/enemy-victory1.mp3",
-  "../assets/audio/enemy-victory2.mp3",
-  "../assets/audio/enemy-victory3.mp3",
+const SOUND_ENEMY_VICTORY = [ // Sound effects for when the wolf wins
+  "../assets/audio/wolf-victory1.mp3",
+  "../assets/audio/wolf-victory2.mp3",
+  "../assets/audio/wolf-victory3.mp3",
 ];
 
 const App: React.FC = () => {
@@ -23,7 +23,7 @@ const App: React.FC = () => {
     x: number;
     y: number;
   }>({ x: -1, y: -1 });
-  const [enemyPosition, setEnemyPosition] = useState<{ x: number; y: number }>({
+  const [wolfPosition, setWolfPosition] = useState<{ x: number; y: number }>({
     x: -1,
     y: -1,
   });
@@ -36,9 +36,9 @@ const App: React.FC = () => {
   }>({ x: -1, y: -1 });
   const [playerDirection, setPlayerDirection] = useState(""); // Track player's direction
   const [playerCanMove, setPlayerCanMove] = useState(true);
-  const [enemyDirection, setEnemyDirection] = useState(""); // Track enemy's direction
-  const [enemyMoving, setEnemyMoving] = useState(true); // Track if enemy is moving
-  const [enemyWon, setEnemyWon] = useState(false); // Flag indicating whether the enemy has won
+  const [wolfDirection, setWolfDirection] = useState(""); // Track wolf's direction
+  const [wolfMoving, setWolfMoving] = useState(true); // Track if wolf is moving
+  const [wolfWon, setWolfWon] = useState(false); // Flag indicating whether the wolf has won
   const [flowers, setFlowers] = useState<Array<{ x: number; y: number }>>([]);
   const [collectedFlowers, setCollectedFlowers] = useState<number>(0); // Track collected flowers
   const [isPlayingMusic, setIsPlayingMusic] = useState(false); // State for background music playing status
@@ -122,17 +122,17 @@ const App: React.FC = () => {
   }, [collectedFlowers]); // Run effect whenever collectedFlowers state changes
 
   useEffect(() => {
-    // Check if the enemy has gotten close enough to the player
-    if (enemyWon) {
+    // Check if the wolf has gotten close enough to the player
+    if (wolfWon) {
       const randomIndex = Math.floor(Math.random() * SOUND_ENEMY_VICTORY.length);
       const randomSoundPath = SOUND_ENEMY_VICTORY[randomIndex];
       const sound = new Audio(randomSoundPath);
       sound.volume = volume;
       sound.play().catch((error) => {
-        console.error("Failed to play enemy victory sound:", error);
+        console.error("Failed to play wolf victory sound:", error);
       });
     }
-  }, [enemyWon]);
+  }, [wolfWon]);
 
   const playFlowerCollectSound = () => {
     if (flowerCollectSoundBuffer) {
@@ -177,8 +177,8 @@ const App: React.FC = () => {
     const grannyHouseX = GRID_SIZE - 1; // x-coordinate of the granny's house
     const grannyHouseY = GRID_SIZE - 1; // y-coordinate of the granny's house
     const middlePosition = Math.floor(GRID_SIZE / 2);
-    let newEnemyPosition = { x: middlePosition, y: middlePosition };
-    // Generate trees excluding the enemy's initial position
+    let newWolfPosition = { x: middlePosition, y: middlePosition };
+    // Generate trees excluding the wolf's initial position
     for (let i = 0; i < NUM_TREES; i++) {
       let x, y;
       do {
@@ -186,7 +186,7 @@ const App: React.FC = () => {
         y = Math.floor(Math.random() * GRID_SIZE);
 
       } while (
-        (x === newEnemyPosition.x && y === newEnemyPosition.y) || // Exclude the enemy's initial position
+        (x === newWolfPosition.x && y === newWolfPosition.y) || // Exclude the wolf's initial position
         (x === 0 && y === 0) || // Exclude the player's starting position
         (Math.abs(x - grannyHouseX) <= 1 && Math.abs(y - grannyHouseY) <= 1) // Exclude cells closest to the granny's house
       );
@@ -295,8 +295,8 @@ const App: React.FC = () => {
       if (newPosition.x === grannyHousePosition.x && newPosition.y === grannyHousePosition.y && isHouseOpen) {
         // Set playerEnteredHouse to true
         setPlayerEnteredHouse(true);
-        // Stop the enemy from moving
-        setEnemyMoving(false);
+        // Stop the wolf from moving
+        setWolfMoving(false);
       }
 
       setPlayerPosition(newPosition);
@@ -377,13 +377,13 @@ const App: React.FC = () => {
     );
   };
 
-  // Function to check for collision between player and enemy
+  // Function to check for collision between player and wolf
   const checkCollision = (playerPos: { x: number; y: number }) => {
-    if (playerPos.x === enemyPosition.x && playerPos.y === enemyPosition.y) {
+    if (playerPos.x === wolfPosition.x && playerPos.y === wolfPosition.y) {
       setPlayerPosition({ x: -1, y: -1 }); // Remove player from grid
-      setEnemyMoving(false); // Stop enemy movement
+      setWolfMoving(false); // Stop wolf movement
       setPlayerCanMove(false); // Prevent player from moving
-      setEnemyWon(true); // Enemy has won
+      setWolfWon(true); // Wolf has won
     }
   };
 
@@ -407,9 +407,9 @@ const App: React.FC = () => {
     }
   };
 
-  // Function to move the enemy towards the player's position using A* algorithm
-  const moveEnemyTowardsPlayer = () => {
-    // Check if the house is open or if the player has entered the house before moving the enemy
+  // Function to move the wolf towards the player's position using A* algorithm
+  const moveWolfTowardsPlayer = () => {
+    // Check if the house is open or if the player has entered the house before moving the wolf
     if (isHouseOpen && (playerPosition.x === grannyHousePosition.x && playerPosition.y === grannyHousePosition.y)) {
       return;
     }
@@ -435,11 +435,11 @@ const App: React.FC = () => {
       parent: any;
     }[] = [];
 
-    // Add the enemy's position as the starting node to the open list
+    // Add the wolf's position as the starting node to the open list
     openList.push({
-      position: enemyPosition,
+      position: wolfPosition,
       g: 0,
-      h: heuristic(enemyPosition),
+      h: heuristic(wolfPosition),
       parent: null,
     });
 
@@ -488,22 +488,22 @@ const App: React.FC = () => {
         currentNode.position.x === playerPosition.x &&
         currentNode.position.y === playerPosition.y
       ) {
-        // Reconstruct the path from the player to the enemy
+        // Reconstruct the path from the player to the wolf
         const path: { x: number; y: number }[] = [];
         let current = currentNode;
         while (current.parent) {
           path.unshift(current.position);
           current = current.parent;
         }
-        // Move the enemy along the path
+        // Move the wolf along the path
         if (path.length > 0) {
           const nextPosition = path[0];
-          setEnemyPosition(nextPosition);
+          setWolfPosition(nextPosition);
           return;
         }
-        // If the enemy is already at the player's position, no need to move
+        // If the wolf is already at the player's position, no need to move
         setPlayerCanMove(false);
-        // Check for collision between enemy and player
+        // Check for collision between wolf and player
         checkCollision(playerPosition);
         return;
       }
@@ -558,17 +558,17 @@ const App: React.FC = () => {
     };
   }, [playerPosition]);
 
-  // useEffect for generating random trees, player, and enemy
+  // useEffect for generating random trees, player, and wolf
   useEffect(() => {
     generateRandomTrees();
     setTimeout(() => {
       // Spawn player on the first cell (0, 0)
       let newPlayerPosition = { x: 0, y: 0 };
       setPlayerPosition(newPlayerPosition);
-      // Spawn enemy in the middle of the board
+      // Spawn wolf in the middle of the board
       const middlePosition = Math.floor(GRID_SIZE / 2);
-      let newEnemyPosition = { x: middlePosition, y: middlePosition };
-      setEnemyPosition(newEnemyPosition);
+      let newWolfPosition = { x: middlePosition, y: middlePosition };
+      setWolfPosition(newWolfPosition);
       // Spawn granny's house at the bottom right corner
       let newGrannyHousePosition = { x: GRID_SIZE - 1, y: GRID_SIZE - 1 };
       setGrannyHousePosition(newGrannyHousePosition);
@@ -580,25 +580,25 @@ const App: React.FC = () => {
     generateRandomFlowers();
   }, [treePositions]);
 
-  // useEffect for moving the enemy every second
+  // useEffect for moving the wolf every second
   useEffect(() => {
     const intervalId = setInterval(() => {
-      moveEnemyTowardsPlayer(); // Move enemy towards player
+      moveWolfTowardsPlayer(); // Move wolf towards player
     }, ENEMY_DELAY);
     return () => clearInterval(intervalId);
-  }, [enemyPosition, enemyMoving]); // Re-run effect when enemy position or movement changes
+  }, [wolfPosition, wolfMoving]); // Re-run effect when wolf position or movement changes
 
   const resetGameState = () => {
     // Reset all state variables to their initial values
     setPlayerPosition({ x: -1, y: -1 });
-    setEnemyPosition({ x: -1, y: -1 });
+    setWolfPosition({ x: -1, y: -1 });
     setTreePositions([]);
     setGrannyHousePosition({ x: -1, y: -1 });
     setPlayerDirection("");
     setPlayerCanMove(true);
-    setEnemyDirection("");
-    setEnemyMoving(true);
-    setEnemyWon(false);
+    setWolfDirection("");
+    setWolfMoving(true);
+    setWolfWon(false);
     setFlowers([]);
     setCollectedFlowers(0);
     setIsPlayingMusic(false);
@@ -613,10 +613,10 @@ const App: React.FC = () => {
     let newPlayerPosition = { x: 0, y: 0 };
     setPlayerPosition(newPlayerPosition);
 
-    // Spawn enemy in the middle of the board
+    // Spawn wolf in the middle of the board
     const middlePosition = Math.floor(GRID_SIZE / 2);
-    let newEnemyPosition = { x: middlePosition, y: middlePosition };
-    setEnemyPosition(newEnemyPosition);
+    let newWolfPosition = { x: middlePosition, y: middlePosition };
+    setWolfPosition(newWolfPosition);
 
     // Spawn granny's house at the bottom right corner
     let newGrannyHousePosition = { x: GRID_SIZE - 1, y: GRID_SIZE - 1 };
@@ -641,14 +641,14 @@ const App: React.FC = () => {
       <ForestGrid
         gridSize={GRID_SIZE}
         playerPosition={playerPosition}
-        enemyPosition={enemyPosition}
+        wolfPosition={wolfPosition}
         grannyHousePosition={grannyHousePosition}
         treePositions={treePositions}
         playerDirection={playerDirection}
-        enemyDirection={enemyDirection}
-        isPlayerEnemyOverlap={
-          playerPosition.x === enemyPosition.x &&
-          playerPosition.y === enemyPosition.y
+        wolfDirection={wolfDirection}
+        isPlayerWolfOverlap={
+          playerPosition.x === wolfPosition.x &&
+          playerPosition.y === wolfPosition.y
         }
         flowers={flowers}
         collectedFlowers={collectedFlowers}

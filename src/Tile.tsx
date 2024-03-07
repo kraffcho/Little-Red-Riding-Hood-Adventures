@@ -2,7 +2,7 @@ import React from "react";
 
 interface Props {
   isPlayer: boolean;
-  isEnemy: boolean;
+  isWolf: boolean;
   isTree: boolean;
   isFlower: boolean;
   isOverlap: boolean;
@@ -12,7 +12,7 @@ interface Props {
 
 const Tile: React.FC<Props> = ({
   isPlayer,
-  isEnemy,
+  isWolf,
   isTree,
   isFlower,
   isOverlap,
@@ -21,10 +21,10 @@ const Tile: React.FC<Props> = ({
 }) => {
   let className = "tile";
   if (isPlayer) className += " player";
-  if (isEnemy) className += " enemy";
+  if (isWolf) className += " wolf";
   if (isTree) className += " tree";
   if (isFlower) className += " flower";
-  if (isOverlap && isEnemy) className += " enemy-overlap";
+  if (isOverlap && isWolf) className += " wolf-overlap";
   if (isGrannyHouse) className += " granny-house";
   if (isGrannyHouse && playerEnteredHouse) className += " tooltip";
 
