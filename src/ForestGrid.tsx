@@ -4,10 +4,10 @@ import Tile from "./Tile";
 interface Props {
   playerPosition: { x: number; y: number };
   wolfPosition: { x: number; y: number };
-  gridSize: number;
-  treePositions: Array<{ x: number; y: number }>;
   playerDirection: string;
   wolfDirection: string;
+  gridSize: number;
+  treePositions: Array<{ x: number; y: number }>;
   isPlayerWolfOverlap: boolean;
   grannyHousePosition: { x: number; y: number }; // Add grannyHousePosition to Props
   flowers: Array<{ x: number; y: number }>;
@@ -25,6 +25,8 @@ const gridClassName = isViewportWidthSmaller ? "ForestGrid Mobile" : "ForestGrid
 const ForestGrid: React.FC<Props> = ({
   playerPosition,
   wolfPosition,
+  playerDirection,
+  wolfDirection,
   gridSize,
   treePositions,
   isPlayerWolfOverlap,
@@ -58,6 +60,8 @@ const ForestGrid: React.FC<Props> = ({
             isOverlap={isPlayerWolfOverlap}
             isGrannyHouse={isGrannyHouse}
             playerEnteredHouse={playerEnteredHouse}
+            playerDirection={playerDirection}
+            wolfDirection={wolfDirection}
           />
         );
       })}

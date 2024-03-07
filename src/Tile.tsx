@@ -8,6 +8,8 @@ interface Props {
   isOverlap: boolean;
   isGrannyHouse: boolean;
   playerEnteredHouse: boolean;
+  playerDirection?: string;
+  wolfDirection?: string;
 }
 
 const Tile: React.FC<Props> = ({
@@ -18,10 +20,20 @@ const Tile: React.FC<Props> = ({
   isOverlap,
   isGrannyHouse,
   playerEnteredHouse,
+  playerDirection,
+  wolfDirection,
 }) => {
   let className = "tile";
-  if (isPlayer) className += " player";
-  if (isWolf) className += " wolf";
+  if (isPlayer) {
+    className += " player";
+    if (playerDirection === "left") className += " player-left";
+    if (playerDirection === "right") className += " player-right";
+  }
+  if (isWolf) {
+    className += " wolf";
+    if (wolfDirection === "left") className += " wolf-left";
+    if (wolfDirection === "right") className += " wolf-right";
+  }
   if (isTree) className += " tree";
   if (isFlower) className += " flower";
   if (isOverlap && isWolf) className += " wolf-overlap";

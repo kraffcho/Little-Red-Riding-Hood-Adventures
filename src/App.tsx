@@ -514,6 +514,21 @@ const App: React.FC = () => {
         if (path.length > 0) {
           const nextPosition = path[0];
           setWolfPosition(nextPosition);
+
+          // Calculate horizontal and vertical differences
+          const deltaX = nextPosition.x - wolfPosition.x;
+          const deltaY = nextPosition.y - wolfPosition.y;
+
+          // Determine the direction based on differences
+          let wolfDirection = "";
+          if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            wolfDirection = deltaX > 0 ? "right" : "left";
+          } else {
+            wolfDirection = deltaY > 0 ? "right" : "up";
+          }
+
+          // Update wolf direction state
+          setWolfDirection(wolfDirection);
           return;
         }
         // If the wolf is already at the player's position, no need to move
@@ -611,7 +626,6 @@ const App: React.FC = () => {
     setGrannyHousePosition({ x: -1, y: -1 });
     setPlayerDirection("");
     setPlayerCanMove(true);
-    setWolfDirection("");
     setWolfMoving(true);
     setWolfWon(false);
     setFlowers([]);
@@ -661,10 +675,8 @@ const App: React.FC = () => {
         treePositions={treePositions}
         playerDirection={playerDirection}
         wolfDirection={wolfDirection}
-        isPlayerWolfOverlap={
-          playerPosition.x === wolfPosition.x &&
-          playerPosition.y === wolfPosition.y
-        }
+        isPlayerWolfOverlap={playerPosition.x === wolfPosition.x &&
+          playerPosition.y === wolfPosition.y}
         flowers={flowers}
         collectedFlowers={collectedFlowers}
         isHouseOpen={isHouseOpen}

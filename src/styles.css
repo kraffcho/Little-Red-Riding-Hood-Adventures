@@ -4,10 +4,8 @@ body {
   color: #222;
   font-family: "Poppins", sans-serif;
   font-weight: 400;
-  background-color: #72940b;
-  /* background: linear-gradient(0deg, #4b6207, #72940b); */
-  background: url(../public/assets/images/background.jpg) no-repeat center
-    center / cover;
+  background: #0179c5 url("../public/assets/images/background.jpg") no-repeat
+    center center / cover;
 }
 
 * {
@@ -31,10 +29,11 @@ body {
   height: auto;
   padding: 1rem;
   margin-top: 10px;
-  background: url(../public/assets/images/grass.png) center center / 30%;
+  background: url("../public/assets/images/grass.png") center center / 30%;
   border-radius: 5px;
-  border: 5px solid #8ab211;
-  box-shadow: inset 0 0 20px 0 #111;
+  border: 5px solid #9bca50;
+  outline: 1px solid #395c14;
+  box-shadow: inset 0 0 20px 0 #111, 0 0 8px #fff;
   border-radius: 6px;
   overflow: hidden;
   /* transform: perspective(1200px) rotateX(45deg); */
@@ -63,56 +62,54 @@ body {
 .tile {
   flex: 1;
   aspect-ratio: 1 / 1;
-  transition: 0.2s ease-in-out;
 }
 
 .tree {
-  background: url(../public/assets/images/tree.png) no-repeat center center /
+  background: url("../public/assets/images/tree.png") no-repeat center center /
     contain;
   transform: scaleX(0) scaleY(0);
   animation: scaleTree 2s forwards;
+  animation-delay: 250ms;
 }
 
 @keyframes scaleTree {
   from {
-    transform: scaleX(0) scaleY(0);
+    transform: scale(0);
   }
   to {
-    transform: scaleX(2) scaleY(2);
+    transform: scale(2);
   }
 }
 
 .flower {
-  background: url(../public/assets/images/flower.png) no-repeat center center /
-    contain;
-  transform: scaleX(0) scaleY(0);
-  animation: scaleFlower 1s forwards;
-}
-
-@keyframes scaleFlower {
-  from {
-    transform: scaleX(0) scaleY(0);
-  }
-  to {
-    transform: scaleX(1.3) scaleY(1.3);
-  }
+  background: url("../public/assets/images/flower.png") no-repeat center center /
+    cover;
 }
 
 .player {
-  background: url(../public/assets/images/player.png) no-repeat bottom center /
-    80%;
-  transform: scale(1.2);
+  background: url("../public/assets/images/player.png") no-repeat bottom center /
+    contain;
 }
 
 .wolf {
-  background: url(../public/assets/images/wolf.png) no-repeat center center /
+  background: url("../public/assets/images/wolf.png") no-repeat center center /
     contain;
   transform: scale(1.3);
 }
 
 .wolf-overlap {
-  transform: scale(1.8);
-  transition: transform 1s ease-in-out;
+  transform: scale(1.5);
+  transition: transform 500ms ease-in-out;
+}
+
+.player-right {
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
+.wolf-right {
+  -webkit-transform: scaleX(-1.3) scaleY(1.3);
+  transform: scaleX(-1.3) scaleY(1.3);
 }
 
 .player,
@@ -126,9 +123,9 @@ body {
 
 .granny-house {
   position: relative;
-  background: url(../public/assets/images/house.png) no-repeat center center /
+  background: url("../public/assets/images/house.png") no-repeat center center /
     contain;
-  transform: scale(2) translate(2px, 4px);
+  transform: scale(2.5) translate(2px, 3px);
 }
 
 .granny-house.tooltip {
@@ -238,7 +235,7 @@ body {
 }
 
 .game-controls button:hover {
-  background-color: #5ea523; /* Example hover background color */
+  background-color: #5ea523;
 }
 
 .quest-panel {
