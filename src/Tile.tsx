@@ -7,6 +7,7 @@ interface Props {
   isFlower: boolean;
   isOverlap: boolean;
   isGrannyHouse: boolean;
+  playerEnteredHouse: boolean;
 }
 
 const Tile: React.FC<Props> = ({
@@ -16,6 +17,7 @@ const Tile: React.FC<Props> = ({
   isFlower,
   isOverlap,
   isGrannyHouse,
+  playerEnteredHouse,
 }) => {
   let className = "tile";
   if (isPlayer) className += " player";
@@ -24,6 +26,7 @@ const Tile: React.FC<Props> = ({
   if (isFlower) className += " flower";
   if (isOverlap && isEnemy) className += " enemy-overlap";
   if (isGrannyHouse) className += " granny-house";
+  if (isGrannyHouse && playerEnteredHouse) className += " tooltip";
 
   return <div className={className}></div>;
 };

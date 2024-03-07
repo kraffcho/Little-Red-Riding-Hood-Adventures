@@ -45,8 +45,9 @@ const App: React.FC = () => {
   const [volume, setVolume] = useState(.3); // Default volume level (between 0 and 1)
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null); // Ref for background music audio element
   const [flowerCollectSoundBuffer, setFlowerCollectSoundBuffer] = useState<AudioBuffer | null>(null); // State to store the flower collect sound buffer
-
   const [isQuestPanelVisible, setIsVisible] = useState(false);
+  const [isHouseOpen, setIsHouseOpen] = useState(false); // A state variable to track whether the house is open
+  const [playerEnteredHouse, setPlayerEnteredHouse] = useState(false);
 
   const toggleQuestPanel = () => {
     setIsVisible(!isQuestPanelVisible);
@@ -112,6 +113,9 @@ const App: React.FC = () => {
 
       // If the quest panel is hidden, show it
       !isQuestPanelVisible && toggleQuestPanel();
+
+      // House is now open
+      setIsHouseOpen(true);
     }
   }, [collectedFlowers]); // Run effect whenever collectedFlowers state changes
 
@@ -227,7 +231,10 @@ const App: React.FC = () => {
 
   // Function to handle player movement
   const movePlayer = (direction: string) => {
-    if (!playerCanMove) return; // Check if the player can move
+    // Check if the player can move and if the house is open
+    if (!playerCanMove || (playerPosition.x === grannyHousePosition.x && playerPosition.y === grannyHousePosition.y && !isHouseOpen)) return;
+    // Check if the player is trying to enter Granny's house without completing the quest
+    if (playerPosition.x === grannyHousePosition.x && playerPosition.y === grannyHousePosition.y && !isHouseOpen && collectedFlowers !== NUM_FLOWERS) return;
     // Check if the session cookie exists
     const backgroundMusicPaused = document.cookie.includes("backgroundMusicPaused=true");
     // Check if the background music is not already playing and the session cookie doesn't exist
@@ -257,6 +264,12 @@ const App: React.FC = () => {
       default:
         break;
     }
+
+    // Check if the new position is Granny's house and if the flower quest is not completed or the house is not open
+    if (newPosition.x === grannyHousePosition.x && newPosition.y === grannyHousePosition.y && (!isHouseOpen || collectedFlowers !== NUM_FLOWERS)) {
+      return; // Block player movement
+    }
+
     // Check if new position is valid...
     if (isValidPosition(newPosition.x, newPosition.y)) {
       // Check if the new position has a flower
@@ -275,6 +288,15 @@ const App: React.FC = () => {
         // Play the flower collect sound effect
         playFlowerCollectSound();
       }
+
+      // Check if the new position is Granny's house and the house is open
+      if (newPosition.x === grannyHousePosition.x && newPosition.y === grannyHousePosition.y && isHouseOpen) {
+        // Set playerEnteredHouse to true
+        setPlayerEnteredHouse(true);
+        // Stop the enemy from moving
+        setEnemyMoving(false);
+      }
+
       setPlayerPosition(newPosition);
       checkCollision(newPosition);
     }
@@ -385,6 +407,11 @@ const App: React.FC = () => {
 
   // Function to move the enemy towards the player's position using A* algorithm
   const moveEnemyTowardsPlayer = () => {
+    // Check if the house is open or if the player has entered the house before moving the enemy
+    if (isHouseOpen && (playerPosition.x === grannyHousePosition.x && playerPosition.y === grannyHousePosition.y)) {
+      return;
+    }
+
     // Define a heuristic function to estimate the cost from a given position to the player's position
     const heuristic = (pos: { x: number; y: number }) => {
       return (
@@ -575,6 +602,8 @@ const App: React.FC = () => {
         }
         flowers={flowers}
         collectedFlowers={collectedFlowers}
+        isHouseOpen={isHouseOpen}
+        playerEnteredHouse={playerEnteredHouse}
       />
       <div className={`quest-panel ${isQuestPanelVisible ? 'visible' : 'hidden'}`}>
         <button onClick={toggleQuestPanel}>{isQuestPanelVisible ? '🙉' : '🙈'}</button>

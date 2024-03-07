@@ -127,9 +127,62 @@ body {
 }
 
 .granny-house {
+  position: relative;
   background: url(../public/assets/images/house.png) no-repeat center center /
     contain;
   transform: scale(2) translate(2px, 4px);
+}
+
+.granny-house.tooltip {
+  &::before {
+    opacity: 0;
+    content: "Congratulations! Granny's house is now your refuge.";
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-wrap: balance;
+    width: 90px;
+    height: 3em;
+    bottom: 100%;
+    right: 4px;
+    font-size: 6px;
+    line-height: 1.3;
+    padding: 2px 4px;
+    color: #222;
+    background-color: #eee;
+    border-radius: 2px;
+    z-index: 1;
+    animation: fadeIn 5s ease-in-out forwards;
+  }
+  &::after {
+    opacity: 0;
+    content: "";
+    position: absolute;
+    bottom: calc(100% - 2px);
+    right: 50%;
+    width: 4px;
+    height: 4px;
+    background-color: #eee;
+    transform: rotate(45deg) translate(50%, -50%);
+    animation: fadeIn 5s ease-in-out forwards;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .quest-wrapper {

@@ -9,9 +9,11 @@ interface Props {
   playerDirection: string;
   enemyDirection: string;
   isPlayerEnemyOverlap: boolean;
-  grannyHousePosition: { x: number; y: number };
+  grannyHousePosition: { x: number; y: number }; // Add grannyHousePosition to Props
   flowers: Array<{ x: number; y: number }>;
   collectedFlowers: number;
+  isHouseOpen: boolean;
+  playerEnteredHouse: boolean;
 }
 
 // Check if viewport width is smaller than viewport height
@@ -27,6 +29,7 @@ const ForestGrid: React.FC<Props> = ({
   treePositions,
   isPlayerEnemyOverlap,
   flowers,
+  playerEnteredHouse,
 }) => {
   // Generate the forest grid with tiles
   const forestGrid = [...Array(gridSize)].map((_, rowIndex) => (
@@ -35,11 +38,12 @@ const ForestGrid: React.FC<Props> = ({
         const isWall = treePositions.some(
           (position) => position.x === rowIndex && position.y === columnIndex
         );
-        const isGrannyHouse =
-          rowIndex === gridSize - 1 && columnIndex === gridSize - 1; // Check if current tile is granny's house
         const isFlower = flowers.some(
           (position) => position.x === rowIndex && position.y === columnIndex
         );
+        const isGrannyHouse =
+
+          rowIndex === gridSize - 1 && columnIndex === gridSize - 1; // Check if current tile is granny's house
         return (
           <Tile
             key={`${rowIndex}-${columnIndex}`}
@@ -53,6 +57,7 @@ const ForestGrid: React.FC<Props> = ({
             isFlower={isFlower}
             isOverlap={isPlayerEnemyOverlap}
             isGrannyHouse={isGrannyHouse}
+            playerEnteredHouse={playerEnteredHouse}
           />
         );
       })}
