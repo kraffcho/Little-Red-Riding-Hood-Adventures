@@ -38,7 +38,7 @@ const App: React.FC = () => {
   const [playerDirection, setPlayerDirection] = useState(""); // Track player's direction
   const [playerCanMove, setPlayerCanMove] = useState(true);
   const [wolfDirection, setWolfDirection] = useState(""); // Track wolf's direction
-  const [wolfMoving, setWolfMoving] = useState(true); // Track if wolf is moving
+  const [wolfMoving, setWolfMoving] = useState(false); // Track if wolf is moving
   const [wolfWon, setWolfWon] = useState(false); // Flag indicating whether the wolf has won
   const [flowers, setFlowers] = useState<Array<{ x: number; y: number }>>([]);
   const [collectedFlowers, setCollectedFlowers] = useState<number>(0); // Track collected flowers
@@ -404,6 +404,11 @@ const App: React.FC = () => {
 
   // Function to handle keyboard events for player movement
   const handleKeyDown = (event: KeyboardEvent) => {
+    // Check if it's the player's first move
+    if (!wolfMoving) {
+      // Enable wolf movement
+      setWolfMoving(true);
+    }
     switch (event.key) {
       case "ArrowUp":
         debouncedMovePlayer("up");
@@ -612,9 +617,16 @@ const App: React.FC = () => {
 
   // useEffect for moving the wolf every second
   useEffect(() => {
+    // Check if the player has made their first move
+    if (!wolfMoving) {
+      // Exit early if the player hasn't moved yet
+      return;
+    }
+
     const intervalId = setInterval(() => {
       moveWolfTowardsPlayer(); // Move wolf towards player
     }, ENEMY_DELAY);
+
     return () => clearInterval(intervalId);
   }, [wolfPosition, wolfMoving]); // Re-run effect when wolf position or movement changes
 
