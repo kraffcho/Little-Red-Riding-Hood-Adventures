@@ -12,6 +12,7 @@ const BACKGROUND_MUSIC = "../assets/audio/background.mp3"; // Background music f
 const SOUND_COLLECT_ITEM = "../assets/audio/collect-item.mp3"; // Sound effect for collecting an item
 const SOUND_QUEST_COMPLETED = "../assets/audio/quest-completed.mp3"; // Sound effect for completing a quest
 const QUEST_PANEL_OPEN_SOUND = "../assets/audio/menu-toggle.mp3"; // Sound effect for opening the quest panel
+const RESTRICTED_ENTRY_SOUND = "../assets/audio/restricted-entry.mp3"; // Custom sound for restricted entry
 const SOUND_ENEMY_VICTORY = [ // Sound effects for when the wolf wins
   "../assets/audio/wolf-victory1.mp3",
   "../assets/audio/wolf-victory2.mp3",
@@ -47,8 +48,8 @@ const App: React.FC = () => {
   const [flowerCollectSoundBuffer, setFlowerCollectSoundBuffer] = useState<AudioBuffer | null>(null); // State to store the flower collect sound buffer
   const [isQuestPanelVisible, setIsVisible] = useState(false);
   const [isHouseOpen, setIsHouseOpen] = useState(false); // A state variable to track whether the house is open
-  const [playerEnteredHouse, setPlayerEnteredHouse] = useState(false);
-
+  const [playerEnteredHouse, setPlayerEnteredHouse] = useState(false); // A state to track if the player entered the granny house
+  const [playedRestrictedEntrySound, setPlayedRestrictedEntrySound] = useState(false); // Track if the restricted entry sound has been played
   const toggleQuestPanel = () => {
     setIsVisible(!isQuestPanelVisible);
     playQuestPanelSound();
@@ -244,6 +245,15 @@ const App: React.FC = () => {
       // If it isn't, play the background music
       playBackgroundMusic();
     }
+    // Function to play the restricted entry sound
+    const playRestrictedEntrySound = () => {
+      const restrictedEntrySound = new Audio(RESTRICTED_ENTRY_SOUND);
+      restrictedEntrySound.volume = volume;
+      restrictedEntrySound.play().catch((error) => {
+        console.error("Failed to play restricted entry sound:", error);
+      });
+    };
+
     isQuestPanelVisible && collectedFlowers !== NUM_FLOWERS && toggleQuestPanel();
     const newPosition = { ...playerPosition };
     switch (direction) {
@@ -269,6 +279,11 @@ const App: React.FC = () => {
 
     // Check if the new position is Granny's house and if the flower quest is not completed or the house is not open
     if (newPosition.x === grannyHousePosition.x && newPosition.y === grannyHousePosition.y && (!isHouseOpen || collectedFlowers !== NUM_FLOWERS)) {
+      // Play the restricted entry sound when the player attempts to enter the house but it's not open yet
+      if (!playedRestrictedEntrySound) {
+        playRestrictedEntrySound();
+        setPlayedRestrictedEntrySound(true);
+      }
       return; // Block player movement
     }
 
