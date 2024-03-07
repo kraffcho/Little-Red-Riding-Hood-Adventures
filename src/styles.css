@@ -187,44 +187,59 @@ body {
 
 .quest-wrapper {
   text-wrap: balance;
-  padding: 7px 10px;
+  padding: 15px;
   font-size: 16px;
   background: #f5f5f5;
   border-radius: 5px;
 }
 
-.sound-controls {
+.game-controls {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   gap: 5px;
   background-color: #fff;
   color: #222;
-  padding: 10px;
+  padding: 15px 10px;
   border-radius: 5px;
 }
 
-.sound-controls label {
-  font-size: 16px;
+.game-controls > * {
+  flex: 1;
+  text-align: center;
+  text-wrap: balance;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
-.sound-controls input[type="range"] {
-  width: 100px;
+.game-controls .game-sound .game-sound-volume {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
-.sound-controls button {
+.game-controls input[type="range"] {
+  width: 120px;
+}
+
+.game-controls button {
   padding: 8px;
-  width: 100px;
-  background-color: #4e9019; /* Example background color */
-  color: white; /* Example text color */
+  width: 120px;
+  background-color: #4e9019;
+  font-family: "Poppins", sans-serif;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease-in-out;
 }
 
-.sound-controls button:hover {
+.game-controls button:hover {
   background-color: #5ea523; /* Example hover background color */
 }
 
@@ -245,7 +260,7 @@ body {
 }
 
 .quest-panel > .quest-wrapper,
-.quest-panel > .sound-controls {
+.quest-panel > .game-controls {
   height: 100%;
   box-shadow: 1.95px 1.95px 2.6px rgba(0, 0, 0, 0.15);
   border: 1px solid #438030;
@@ -307,9 +322,16 @@ body {
     left: 50%;
     transform: translate(-50%, -100%);
   }
-  .sound-controls {
-    flex-direction: row;
+  .quest-wrapper {
+    text-align: center;
+    font-size: 14px;
+  }
+  .game-controls {
     gap: 10px;
-    justify-content: start;
+    font-size: 14px;
+  }
+  .game-controls .game-sound .game-sound-volume {
+    flex-direction: column;
+    justify-content: space-between;
   }
 }

@@ -67,8 +67,10 @@ const App: React.FC = () => {
     backgroundMusicRef.current = new Audio(BACKGROUND_MUSIC);
     backgroundMusicRef.current.volume = volume;
     backgroundMusicRef.current.loop = true;
-    // Show quest info when page loads
-    toggleQuestPanel();
+    // Show quest info when page loads with a short delay
+    setTimeout(() => {
+      toggleQuestPanel();
+    }, 1000);
   }, []);
 
   const playBackgroundMusic = () => {
@@ -628,6 +630,10 @@ const App: React.FC = () => {
       backgroundMusicRef.current.pause();
       backgroundMusicRef.current.currentTime = 0;
     }
+    // Hide the quest panel
+    setTimeout(() => {
+      toggleQuestPanel();
+    }, 2000);
   };
 
   return (
@@ -656,21 +662,28 @@ const App: React.FC = () => {
             ? "🎉 <b>Well done, RedHood!</b><br />The Flower Quest is complete! Granny's house doors swing open for you.<br /><br /><b>📣 Quest updated:</b><br />Make your way to Granny's house to complete the level."
             : `👋 <b>RedHood</b>, you have a new mission! Collect all the flowers scattered throughout the forest to complete your quest.<br /><br />💐 <b>Collected Flowers:</b> ${collectedFlowers}/${NUM_FLOWERS}`
         }} />
-        <div className="sound-controls">
-          <label htmlFor="volumeSlider">🔊 Volume:</label>
-          <input
-            type="range"
-            id="volumeSlider"
-            min="0"
-            max="1"
-            step="0.1"
-            value={volume}
-            onChange={handleVolumeChange}
-          />
-          <button onClick={handleToggleSound}>
-            {isPlayingMusic ? "Pause Sound" : "Play Sound"}
-          </button>
-          <button onClick={resetGameState}>Restart Game</button>
+        <div className="game-controls">
+          <div className="game-sound">
+            <div className="game-sound-volume">
+              <label htmlFor="volumeSlider">🔊 Volume:</label>
+              <input
+                type="range"
+                id="volumeSlider"
+                min="0"
+                max="1"
+                step="0.1"
+                value={volume}
+                onChange={handleVolumeChange}
+              />
+            </div>
+            <button onClick={handleToggleSound}>
+              {isPlayingMusic ? "Pause Sound" : "Play Sound"}
+            </button>
+          </div>
+          <div className="game-reset">
+            <p>If you ever need a fresh start...</p>
+            <button onClick={resetGameState}>Restart</button>
+          </div>
         </div>
       </div>
     </div>
