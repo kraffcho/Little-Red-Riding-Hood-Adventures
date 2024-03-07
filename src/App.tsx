@@ -586,6 +586,50 @@ const App: React.FC = () => {
     return () => clearInterval(intervalId);
   }, [enemyPosition, enemyMoving]); // Re-run effect when enemy position or movement changes
 
+  const resetGameState = () => {
+    // Reset all state variables to their initial values
+    setPlayerPosition({ x: -1, y: -1 });
+    setEnemyPosition({ x: -1, y: -1 });
+    setTreePositions([]);
+    setGrannyHousePosition({ x: -1, y: -1 });
+    setPlayerDirection("");
+    setPlayerCanMove(true);
+    setEnemyDirection("");
+    setEnemyMoving(true);
+    setEnemyWon(false);
+    setFlowers([]);
+    setCollectedFlowers(0);
+    setIsPlayingMusic(false);
+    setVolume(0.3);
+    setIsHouseOpen(false);
+    setPlayerEnteredHouse(false);
+
+    // Regenerate trees
+    generateRandomTrees();
+
+    // Spawn player on the first cell (0, 0)
+    let newPlayerPosition = { x: 0, y: 0 };
+    setPlayerPosition(newPlayerPosition);
+
+    // Spawn enemy in the middle of the board
+    const middlePosition = Math.floor(GRID_SIZE / 2);
+    let newEnemyPosition = { x: middlePosition, y: middlePosition };
+    setEnemyPosition(newEnemyPosition);
+
+    // Spawn granny's house at the bottom right corner
+    let newGrannyHousePosition = { x: GRID_SIZE - 1, y: GRID_SIZE - 1 };
+    setGrannyHousePosition(newGrannyHousePosition);
+
+    // Generate new flower positions
+    generateRandomFlowers();
+
+    // Reset the background music
+    if (backgroundMusicRef.current) {
+      backgroundMusicRef.current.pause();
+      backgroundMusicRef.current.currentTime = 0;
+    }
+  };
+
   return (
     <div className="App" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <ForestGrid
@@ -626,6 +670,7 @@ const App: React.FC = () => {
           <button onClick={handleToggleSound}>
             {isPlayingMusic ? "Pause Sound" : "Play Sound"}
           </button>
+          <button onClick={resetGameState}>Restart Game</button>
         </div>
       </div>
     </div>
