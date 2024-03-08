@@ -94,7 +94,6 @@ body {
 .wolf {
   background: url("../public/assets/images/wolf.png") no-repeat center center /
     contain;
-  transform: scale(1.3);
 }
 
 .wolf-overlap {
@@ -102,14 +101,114 @@ body {
   transition: transform 500ms ease-in-out;
 }
 
+.player-left {
+  animation: leftMovePlayer 100ms ease forwards;
+}
+
+@keyframes leftMovePlayer {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 .player-right {
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
+  animation: rightMovePlayer 100ms ease forwards;
+}
+
+@keyframes rightMovePlayer {
+  from {
+    transform: scaleX(-1) translateX(100%);
+  }
+  to {
+    transform: scaleX(-1) translateX(0);
+  }
+}
+
+.player-up {
+  background-image: url("../public/assets/images/player-up.png");
+  animation: upMovePlayer 100ms ease forwards;
+}
+
+@keyframes upMovePlayer {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.player-down {
+  background-image: url("../public/assets/images/player-down.png");
+  animation: downMovePlayer 100ms ease forwards;
+}
+
+@keyframes downMovePlayer {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.wolf-left {
+  animation: leftMoveWolf 500ms ease forwards;
+}
+
+@keyframes leftMoveWolf {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .wolf-right {
-  -webkit-transform: scaleX(-1.3) scaleY(1.3);
-  transform: scaleX(-1.3) scaleY(1.3);
+  -webkit-transform: scaleX(-1) scaleY(1);
+  transform: scaleX(-1) scaleY(1);
+  animation: rightMoveWolf 500ms ease forwards;
+}
+
+@keyframes rightMoveWolf {
+  from {
+    transform: scaleX(-1) scaleY(1) translateX(100%);
+  }
+  to {
+    transform: scaleX(-1) scaleY(1) translateX(0);
+  }
+}
+
+.wolf-up {
+  animation: upMoveWolf 500ms ease forwards;
+}
+
+@keyframes upMoveWolf {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.wolf-down {
+  animation: downMoveWolf 500ms ease forwards;
+}
+
+@keyframes downMoveWolf {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 .player,

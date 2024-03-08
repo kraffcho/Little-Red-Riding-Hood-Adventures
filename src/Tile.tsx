@@ -28,11 +28,15 @@ const Tile: React.FC<Props> = ({
     className += " player";
     if (playerDirection === "left") className += " player-left";
     if (playerDirection === "right") className += " player-right";
+    if (playerDirection === "up") className += " player-up";
+    if (playerDirection === "down") className += " player-down";
   }
   if (isWolf) {
     className += " wolf";
     if (wolfDirection === "left") className += " wolf-left";
     if (wolfDirection === "right") className += " wolf-right";
+    if (wolfDirection === "up") className += " wolf-up";
+    if (wolfDirection === "down") className += " wolf-down";
   }
   if (isTree) className += " tree";
   if (isFlower) className += " flower";

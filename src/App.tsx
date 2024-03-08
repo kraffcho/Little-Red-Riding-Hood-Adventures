@@ -522,9 +522,9 @@ const App: React.FC = () => {
           // Determine the direction based on differences
           let wolfDirection = "";
           if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            wolfDirection = deltaX > 0 ? "right" : "left";
+            wolfDirection = deltaX > 0 ? "down" : "up";
           } else {
-            wolfDirection = deltaY > 0 ? "right" : "up";
+            wolfDirection = deltaY > 0 ? "right" : "left";
           }
 
           // Update wolf direction state
@@ -626,7 +626,7 @@ const App: React.FC = () => {
     setGrannyHousePosition({ x: -1, y: -1 });
     setPlayerDirection("");
     setPlayerCanMove(true);
-    setWolfMoving(true);
+    setWolfMoving(false);
     setWolfWon(false);
     setFlowers([]);
     setCollectedFlowers(0);
