@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRef } from "react";
 import "./styles.css";
 import ForestGrid from "./ForestGrid";
+import GameOver from "./components/GameOver";
 
 const GRID_SIZE = 20; // Assuming a 20x20 grid
 const NUM_TREES = 60; // Number of trees to spawn
@@ -50,11 +51,11 @@ const App: React.FC = () => {
   const [isHouseOpen, setIsHouseOpen] = useState(false); // A state variable to track whether the house is open
   const [playerEnteredHouse, setPlayerEnteredHouse] = useState(false); // A state to track if the player entered the granny house
   const [playedRestrictedEntrySound, setPlayedRestrictedEntrySound] = useState(false); // Track if the restricted entry sound has been played
+  const [gameOver, setGameOver] = useState(false);
   const toggleQuestPanel = () => {
     setIsVisible(!isQuestPanelVisible);
     playQuestPanelSound();
   };
-
   const playQuestPanelSound = () => {
     const questPanelSound = new Audio(QUEST_PANEL_OPEN_SOUND);
     questPanelSound.volume = volume;
@@ -125,6 +126,7 @@ const App: React.FC = () => {
   useEffect(() => {
     // Check if the wolf has gotten close enough to the player
     if (wolfWon) {
+      setGameOver(true); // Set game over state
       const randomIndex = Math.floor(Math.random() * SOUND_ENEMY_VICTORY.length);
       const randomSoundPath = SOUND_ENEMY_VICTORY[randomIndex];
       const sound = new Audio(randomSoundPath);
@@ -620,6 +622,7 @@ const App: React.FC = () => {
 
   const resetGameState = () => {
     // Reset all state variables to their initial values
+    setGameOver(false);
     setPlayerPosition({ x: -1, y: -1 });
     setWolfPosition({ x: -1, y: -1 });
     setTreePositions([]);
@@ -713,6 +716,12 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
+      {gameOver && (
+        <GameOver
+          message="Game Over! The wolf has caught you! 😱"
+          onRestart={resetGameState} // Pass resetGameState function as onRestart prop
+        />
+      )}
     </div>
   );
 };
