@@ -689,7 +689,7 @@ const App: React.FC = () => {
         <button onClick={toggleQuestPanel}>{isQuestPanelVisible ? '🙉' : '🙈'}</button>
         <p className="quest-wrapper" dangerouslySetInnerHTML={{
           __html: collectedFlowers === NUM_FLOWERS
-            ? "🎉 <b>Well done, RedHood!</b><br />The Flower Quest is complete! Granny's house doors swing open for you.<br /><br /><b>📣 Quest updated:</b><br />Make your way to Granny's house to complete the level."
+            ? "🎉 <b>Well done, RedHood!</b><br />The Flower Quest is complete! Granny's house doors swing open for you.<br /><br /><b>🏡 Quest updated:</b><br />Make your way to Granny's house to complete the level."
             : `👋 <b>RedHood</b>, you have a new mission! Collect all the flowers scattered throughout the forest to complete your quest.<br /><br />💐 <b>Collected Flowers:</b> ${collectedFlowers}/${NUM_FLOWERS}`
         }} />
         <div className="game-controls">
@@ -718,8 +718,8 @@ const App: React.FC = () => {
       </div>
       {gameOver && (
         <GameOver
-          message="Game Over! The wolf has caught you! 😱"
-          onRestart={resetGameState} // Pass resetGameState function as onRestart prop
+          message="<strong>GAME OVER</strong><br />The wolf has caught you! Play again?"
+          onRestart={resetGameState}
         />
       )}
     </div>

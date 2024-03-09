@@ -181,7 +181,7 @@ body {
 
 .player-up {
   background-image: url("../public/assets/images/player-up.png");
-  animation: upMovePlayer 100ms ease forwards;
+  animation: upMovePlayer 200ms ease forwards;
 }
 
 @keyframes upMovePlayer {
@@ -195,7 +195,7 @@ body {
 
 .player-down {
   background-image: url("../public/assets/images/player-down.png");
-  animation: downMovePlayer 100ms ease forwards;
+  animation: downMovePlayer 200ms ease forwards;
 }
 
 @keyframes downMovePlayer {
@@ -494,13 +494,22 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #00000090;
+  background-color: #00000060;
   border-radius: 50%;
   padding: 30px;
   border: 5px dashed #e1e1e190;
   outline: 5px solid #00000090;
-  text-transform: uppercase;
   aspect-ratio: 1 / 1;
+  animation: scaleUp 1s ease forwards;
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.5);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 
 .game-over-message {
@@ -513,8 +522,14 @@ body {
   text-shadow: 1px 1px 1px #000;
 }
 
+.game-over-message > strong {
+  display: inline-block;
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
 .game-over-restart {
-  padding: 10px 20px;
+  padding: 8px 20px;
   background-color: #4caf50;
   color: white;
   font-family: "Poppins", sans-serif;
