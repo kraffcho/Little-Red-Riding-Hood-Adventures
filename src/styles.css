@@ -4,7 +4,7 @@ body {
   color: #222;
   font-family: "Poppins", sans-serif;
   font-weight: 400;
-  background: #0179c5 url("../public/assets/images/background.jpg") no-repeat
+  background: #0179c5 url("../public/assets/images/background.png") no-repeat
     center center / cover;
 }
 
@@ -67,18 +67,61 @@ body {
 .tree {
   background: url("../public/assets/images/tree.png") no-repeat center center /
     contain;
-  transform: scaleX(0) scaleY(0);
-  animation: scaleTree 2s forwards;
-  animation-delay: 250ms;
 }
 
-@keyframes scaleTree {
-  from {
-    transform: scale(0);
-  }
-  to {
-    transform: scale(2);
-  }
+.tree.scale1 {
+  transform: scale(1.7);
+}
+
+.tree.scale2 {
+  -webkit-transform: translateX(3px) scale(1.9) scaleX(-1);
+  transform: translateX(3px) scale(1.9) scaleX(-1);
+  background-image: url("../public/assets/images/tree-2.png");
+}
+
+.tree.scale3 {
+  transform: scale(2) scaleX(-1);
+  background-image: url("../public/assets/images/tree-2.png");
+}
+
+.tree.scale4 {
+  -webkit-transform: translateX(5px) scale(2.05) scaleX(-1);
+  transform: translateX(5px) scale(2.05);
+  background-image: url("../public/assets/images/tree-3.png");
+}
+
+.tree.scale5 {
+  -webkit-transform: translateX(5px) scale(1.95);
+  transform: translateX(5px) scale(1.95);
+  background-image: url("../public/assets/images/tree-3.png");
+}
+
+.tree.scale6 {
+  transform: scale(2.1);
+  background-image: url("../public/assets/images/tree-4.png");
+}
+
+.tree.scale7 {
+  transform: scale(2.1) scaleX(-1);
+  background-image: url("../public/assets/images/tree-4.png");
+}
+
+.tree.scale8 {
+  -webkit-transform: translateX(-3px) scale(1.9) scaleX(-1);
+  transform: translateX(-3px) scale(1.9) scaleX(-1);
+  background-image: url("../public/assets/images/tree-2.png");
+}
+
+.tree.scale9 {
+  -webkit-transform: translateX(-3px) scale(1.9) scaleX(-1);
+  transform: translateX(-3px) scale(1.9) scaleX(-1);
+  background-image: url("../public/assets/images/tree-5.png");
+}
+
+.tree.scale10 {
+  -webkit-transform: translateX(2px) scale(2.2);
+  transform: translateX(-1px) scale(2.2);
+  background-image: url("../public/assets/images/tree-5.png");
 }
 
 .flower {
@@ -94,6 +137,7 @@ body {
 .wolf {
   background: url("../public/assets/images/wolf.png") no-repeat center center /
     contain;
+  z-index: 1;
 }
 
 .wolf-overlap {
@@ -102,30 +146,36 @@ body {
 }
 
 .player-left {
-  animation: leftMovePlayer 100ms ease forwards;
+  animation: leftMovePlayer 200ms ease forwards;
 }
 
 @keyframes leftMovePlayer {
-  from {
-    transform: translateX(100%);
+  0% {
+    transform: translateX(100%) translateY(0);
   }
-  to {
-    transform: translateX(0);
+  50% {
+    transform: translateX(50%) translateY(-4px);
+  }
+  100% {
+    transform: translateX(0) translateY(0);
   }
 }
 
 .player-right {
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
-  animation: rightMovePlayer 100ms ease forwards;
+  animation: rightMovePlayer 200ms ease forwards;
 }
 
 @keyframes rightMovePlayer {
-  from {
-    transform: scaleX(-1) translateX(100%);
+  0% {
+    transform: scaleX(-1) translateX(100%) translateY(0);
   }
-  to {
-    transform: scaleX(-1) translateX(0);
+  50% {
+    transform: scaleX(-1) translateX(50%) translateY(-4px);
+  }
+  100% {
+    transform: scaleX(-1) translateX(0) translateY(0);
   }
 }
 
@@ -216,8 +266,8 @@ body {
 .tree,
 .granny-house,
 .flower {
-  -webkit-filter: drop-shadow(-1px -3px 2px #22222230);
-  filter: drop-shadow(-1px -3px 2px #22222230);
+  -webkit-filter: drop-shadow(-5px 2px 2px #22222230);
+  filter: drop-shadow(-5px 2px 2px #22222230);
 }
 
 .granny-house {
@@ -227,7 +277,12 @@ body {
   transform: scale(2.5) translate(2px, 3px);
 }
 
+.tile.player.granny-house.tooltip {
+  transform: scale(2.5) translate(2px, 3px) !important;
+}
+
 .granny-house.tooltip {
+  z-index: 2;
   &::before {
     opacity: 0;
     content: "Congratulations! Granny's house is now your refuge.";
@@ -247,7 +302,6 @@ body {
     color: #222;
     background-color: #eee;
     border-radius: 2px;
-    z-index: 1;
     animation: fadeIn 5s ease-in-out forwards;
   }
   &::after {
@@ -261,6 +315,7 @@ body {
     background-color: #eee;
     transform: rotate(45deg) translate(50%, -50%);
     animation: fadeIn 5s ease-in-out forwards;
+    z-index: 2;
   }
 }
 

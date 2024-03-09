@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface Props {
   isPlayer: boolean;
@@ -23,6 +23,15 @@ const Tile: React.FC<Props> = ({
   playerDirection,
   wolfDirection,
 }) => {
+  const [scaleClass, setScaleClass] = useState("");
+
+  useEffect(() => {
+    if (isTree) {
+      const randomNumber = Math.floor(Math.random() * 10) + 1;
+      setScaleClass(`scale${randomNumber}`);
+    }
+  }, [isTree]);
+
   let className = "tile";
   if (isPlayer) {
     className += " player";
@@ -38,7 +47,7 @@ const Tile: React.FC<Props> = ({
     if (wolfDirection === "up") className += " wolf-up";
     if (wolfDirection === "down") className += " wolf-down";
   }
-  if (isTree) className += " tree";
+  if (isTree) className += ` tree ${scaleClass}`;
   if (isFlower) className += " flower";
   if (isOverlap && isWolf) className += " wolf-overlap";
   if (isGrannyHouse) className += " granny-house";

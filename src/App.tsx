@@ -38,7 +38,7 @@ const App: React.FC = () => {
   const [playerDirection, setPlayerDirection] = useState(""); // Track player's direction
   const [playerCanMove, setPlayerCanMove] = useState(true);
   const [wolfDirection, setWolfDirection] = useState(""); // Track wolf's direction
-  const [wolfMoving, setWolfMoving] = useState(true); // Track if wolf is moving
+  const [wolfMoving, setWolfMoving] = useState(false); // Track if wolf is moving
   const [wolfWon, setWolfWon] = useState(false); // Flag indicating whether the wolf has won
   const [flowers, setFlowers] = useState<Array<{ x: number; y: number }>>([]);
   const [collectedFlowers, setCollectedFlowers] = useState<number>(0); // Track collected flowers
@@ -610,7 +610,7 @@ const App: React.FC = () => {
     generateRandomFlowers();
   }, [treePositions]);
 
-  // useEffect for moving the wolf every second
+  // useEffect for moving the wolf
   useEffect(() => {
     const intervalId = setInterval(() => {
       moveWolfTowardsPlayer(); // Move wolf towards player
