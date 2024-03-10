@@ -13,11 +13,18 @@ const GameOver: React.FC<GameOverProps> = ({ message, onRestart }) => {
     onRestart(); // Call the onRestart function passed as props
   };
 
+  const handleCancel = () => {
+    setVisible(false); // Hide the game-over component
+  };
+
   return visible ? (
     <div className="game-over">
       <div className="game-over-content">
         <p className="game-over-message" dangerouslySetInnerHTML={{ __html: message }}></p>
-        <button className="game-over-restart" onClick={handleRestart}>Yes</button>
+        <div className="game-over-buttons">
+          <button className="game-over-cta restart" onClick={handleRestart}>Yes</button>
+          <button className="game-over-cta cancel" onClick={handleCancel}>No</button>
+        </div>
       </div>
     </div>
   ) : null;
