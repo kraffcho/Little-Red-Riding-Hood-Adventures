@@ -261,19 +261,15 @@ const App: React.FC = () => {
     switch (direction) {
       case "up":
         newPosition.x -= 1;
-        setPlayerDirection("up");
         break;
       case "down":
         newPosition.x += 1;
-        setPlayerDirection("down");
         break;
       case "left":
         newPosition.y -= 1;
-        setPlayerDirection("left");
         break;
       case "right":
         newPosition.y += 1;
-        setPlayerDirection("right");
         break;
       default:
         break;
@@ -291,6 +287,7 @@ const App: React.FC = () => {
 
     // Check if new position is valid...
     if (isValidPosition(newPosition.x, newPosition.y)) {
+      setPlayerDirection(direction);
       // Check if the new position has a flower
       const isFlower = flowers.find(
         (flower) => flower.x === newPosition.x && flower.y === newPosition.y
