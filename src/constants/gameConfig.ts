@@ -6,8 +6,6 @@ export const NUM_FLOWERS = 30;
 export const PLAYER_DELAY = 100; // how long to wait between player moves
 export const ENEMY_DELAY = 500; // how often the wolf moves
 export const DEFAULT_VOLUME = 0.3;
-export const INITIAL_QUEST_PANEL_DELAY = 1000; // when to show the quest panel at start
-export const RESET_PANEL_DELAY = 2000; // when to show panel after restart
 
 // where things start on the grid
 export const PLAYER_START_POSITION = { x: 0, y: 0 };

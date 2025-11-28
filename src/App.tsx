@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./styles.css";
 import ForestGrid from "./ForestGrid";
 import GameOver from "./components/GameOver";
+import Countdown from "./components/Countdown";
 import QuestProgress from "./components/ui/QuestProgress";
 import QuestInfo from "./components/ui/QuestInfo";
 import SettingsMenu from "./components/ui/SettingsMenu";
@@ -38,6 +39,8 @@ const App: React.FC = () => {
   const [playedRestrictedEntrySound, setPlayedRestrictedEntrySound] = useState(false);
   const previousFlowerCount = useRef(0);
   const questCompletedSoundPlayed = useRef(false);
+  const [countdownComplete, setCountdownComplete] = useState(false);
+  const gameResetKey = useRef(0);
 
   // play a sound when all flowers are collected
   useEffect(() => {
@@ -62,21 +65,21 @@ const App: React.FC = () => {
     }
   }, [gameState.wolfWon, gameState.gameOver, playRandomSound]);
 
-  // make the wolf chase the player every so often
+  // make the wolf chase the player every so often - wait for countdown to finish
   useEffect(() => {
-    if (!gameState.wolfMoving || gameState.gameOver || gameState.isStuck) return;
+    if (!countdownComplete || !gameState.wolfMoving || gameState.gameOver || gameState.isStuck) return;
 
     const intervalId = setInterval(() => {
       moveWolf();
     }, ENEMY_DELAY);
 
     return () => clearInterval(intervalId);
-  }, [gameState.wolfMoving, gameState.gameOver, gameState.isStuck, moveWolf]);
+  }, [countdownComplete, gameState.wolfMoving, gameState.gameOver, gameState.isStuck, moveWolf]);
 
   // handle when the player moves - play music, check house entry, etc.
   const handlePlayerMove = useCallback((direction: Direction) => {
-    // prevent movement if player has already entered the house or is stuck
-    if (gameState.playerEnteredHouse || gameState.isStuck || gameState.gameOver) {
+    // prevent movement if countdown hasn't finished, player has entered house, is stuck, or game is over
+    if (!countdownComplete || gameState.playerEnteredHouse || gameState.isStuck || gameState.gameOver) {
       return;
     }
 
@@ -116,15 +119,16 @@ const App: React.FC = () => {
     playSound,
     movePlayer,
     markUserInteracted,
+    countdownComplete,
   ]);
 
-  // listen for arrow key presses
-  useKeyboardInput(handlePlayerMove, gameState.playerCanMove);
+  // listen for arrow key presses - disable during countdown
+  useKeyboardInput(handlePlayerMove, gameState.playerCanMove && countdownComplete);
 
-  // handle touch/swipe gestures for mobile
+  // handle touch/swipe gestures for mobile - disable during countdown
   const { handleTouchStart, handleTouchEnd } = useSwipeInput(
     handlePlayerMove,
-    gameState.playerCanMove
+    gameState.playerCanMove && countdownComplete
   );
 
   const handleResetGame = useCallback(() => {
@@ -133,7 +137,13 @@ const App: React.FC = () => {
     setPlayedRestrictedEntrySound(false);
     previousFlowerCount.current = 0;
     questCompletedSoundPlayed.current = false;
+    setCountdownComplete(false); // reset countdown for new game
+    gameResetKey.current += 1; // increment to force countdown remount
   }, [resetMusic, resetGame]);
+
+  const handleCountdownComplete = useCallback(() => {
+    setCountdownComplete(true);
+  }, []);
 
   // don't render the board until the game is initialized (positions are valid)
   const isGameInitialized = gameState.playerPosition.x >= 0 && gameState.playerPosition.y >= 0;
@@ -142,6 +152,11 @@ const App: React.FC = () => {
     <div className="App" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {isGameInitialized && (
         <>
+          <Countdown
+            key={`countdown-${gameResetKey.current}`}
+            onComplete={handleCountdownComplete}
+            isGameInitialized={isGameInitialized}
+          />
           <ForestGrid
             gridSize={GRID_SIZE}
             playerPosition={gameState.playerPosition}
@@ -161,7 +176,7 @@ const App: React.FC = () => {
             gameOver={gameState.gameOver}
             wolfWon={gameState.wolfWon}
           />
-          <div className="quest-header">
+          <div className="quest-panel">
             <QuestInfo
               collectedFlowers={gameState.collectedFlowers}
               isHouseOpen={gameState.isHouseOpen}
