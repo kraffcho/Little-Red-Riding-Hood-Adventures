@@ -157,25 +157,38 @@ const App: React.FC = () => {
             onComplete={handleCountdownComplete}
             isGameInitialized={isGameInitialized}
           />
-          <ForestGrid
-            gridSize={GRID_SIZE}
-            playerPosition={gameState.playerPosition}
-            wolfPosition={gameState.wolfPosition}
-            grannyHousePosition={gameState.grannyHousePosition}
-            treePositions={gameState.treePositions}
-            playerDirection={gameState.playerDirection}
-            wolfDirection={gameState.wolfDirection}
-            isPlayerWolfOverlap={
-              gameState.playerPosition.x === gameState.wolfPosition.x &&
-              gameState.playerPosition.y === gameState.wolfPosition.y
-            }
-            flowers={gameState.flowers}
-            collectedFlowers={gameState.collectedFlowers}
-            isHouseOpen={gameState.isHouseOpen}
-            playerEnteredHouse={gameState.playerEnteredHouse}
-            gameOver={gameState.gameOver}
-            wolfWon={gameState.wolfWon}
-          />
+          <div className="game-board-wrapper">
+            <ForestGrid
+              gridSize={GRID_SIZE}
+              playerPosition={gameState.playerPosition}
+              wolfPosition={gameState.wolfPosition}
+              grannyHousePosition={gameState.grannyHousePosition}
+              treePositions={gameState.treePositions}
+              playerDirection={gameState.playerDirection}
+              wolfDirection={gameState.wolfDirection}
+              isPlayerWolfOverlap={
+                gameState.playerPosition.x === gameState.wolfPosition.x &&
+                gameState.playerPosition.y === gameState.wolfPosition.y
+              }
+              flowers={gameState.flowers}
+              collectedFlowers={gameState.collectedFlowers}
+              isHouseOpen={gameState.isHouseOpen}
+              playerEnteredHouse={gameState.playerEnteredHouse}
+              gameOver={gameState.gameOver}
+              wolfWon={gameState.wolfWon}
+            />
+            {gameState.gameOver && (
+              <GameOver
+                message={
+                  gameState.isStuck
+                    ? `<strong>YOU'RE STUCK!</strong><br />${gameState.stuckReason || "You cannot reach any remaining flowers or the house."}<br /><br />Restart the game?`
+                    : "<strong>GAME OVER</strong><br />The wolf has caught you!<br />Play again?"
+                }
+                onRestart={handleResetGame}
+                isStuck={gameState.isStuck}
+              />
+            )}
+          </div>
           <div className="quest-panel">
             <QuestInfo
               collectedFlowers={gameState.collectedFlowers}
@@ -193,17 +206,6 @@ const App: React.FC = () => {
         onRestart={handleResetGame}
         onInteraction={markUserInteracted}
       />
-      {gameState.gameOver && (
-        <GameOver
-          message={
-            gameState.isStuck
-              ? `<strong>YOU'RE STUCK!</strong><br />${gameState.stuckReason || "You cannot reach any remaining flowers or the house."}<br /><br />Restart the game?`
-              : "<strong>GAME OVER</strong><br />The wolf has caught you! Play again?"
-          }
-          onRestart={handleResetGame}
-          isStuck={gameState.isStuck}
-        />
-      )}
     </div>
   );
 };
