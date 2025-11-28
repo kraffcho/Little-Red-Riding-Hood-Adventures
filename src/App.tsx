@@ -75,6 +75,11 @@ const App: React.FC = () => {
 
   // handle when the player moves - play music, check house entry, etc.
   const handlePlayerMove = useCallback((direction: Direction) => {
+    // prevent movement if player has already entered the house
+    if (gameState.playerEnteredHouse) {
+      return;
+    }
+
     // mark that the user has done something
     markUserInteracted();
 

@@ -161,7 +161,7 @@ export const useGameState = () => {
           isHouseOpen,
           playerEnteredHouse,
           wolfMoving: playerEnteredHouse ? false : prev.wolfMoving,
-          playerCanMove: !wolfWon && !stuckCheck.stuck,
+          playerCanMove: !wolfWon && !stuckCheck.stuck && !playerEnteredHouse,
           wolfWon,
           gameOver: wolfWon || stuckCheck.stuck,
           isStuck: stuckCheck.stuck,
