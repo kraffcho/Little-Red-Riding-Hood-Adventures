@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Tile from "./Tile";
+import { SpecialItem, ExplosionEffect, Position } from "./types/game";
+import { getPositionsInRadius } from "./utils/itemUtils";
 
 interface Props {
   playerPosition: { x: number; y: number };
@@ -16,6 +18,10 @@ interface Props {
   playerEnteredHouse: boolean;
   gameOver: boolean;
   wolfWon: boolean;
+  specialItems?: SpecialItem[];
+  explosionEffect?: ExplosionEffect | null;
+  wolfStunned?: boolean;
+  wolfStunEndTime?: number | null;
 }
 
 const ForestGrid: React.FC<Props> = ({
@@ -30,6 +36,10 @@ const ForestGrid: React.FC<Props> = ({
   playerEnteredHouse,
   gameOver,
   wolfWon,
+  specialItems = [],
+  explosionEffect = null,
+  wolfStunned = false,
+  wolfStunEndTime = null,
 }) => {
   // check if we're in portrait mode (mobile)
   const [isViewportWidthSmaller, setIsViewportWidthSmaller] = useState(
@@ -51,15 +61,30 @@ const ForestGrid: React.FC<Props> = ({
   const forestGrid = [...Array(gridSize)].map((_, rowIndex) => (
     <div className="row" key={rowIndex}>
       {[...Array(gridSize)].map((_, columnIndex) => {
+        const tilePosition: Position = { x: rowIndex, y: columnIndex };
         const isWall = treePositions.some(
           (position) => position.x === rowIndex && position.y === columnIndex
         );
         const isFlower = flowers.some(
           (position) => position.x === rowIndex && position.y === columnIndex
         );
+        const specialItem = specialItems.find(
+          (item) => item.position.x === rowIndex && item.position.y === columnIndex
+        );
         const isGrannyHouse =
-
           rowIndex === gridSize - 1 && columnIndex === gridSize - 1; // granny's house is always at the bottom right
+
+        // check if this tile is in the explosion radius
+        const isInExplosion = explosionEffect
+          ? getPositionsInRadius(explosionEffect.position, explosionEffect.radius).some(
+            (pos: Position) => pos.x === rowIndex && pos.y === columnIndex
+          )
+          : false;
+
+        // check if this tile is the wolf and should show stun timer
+        const isWolfTile = wolfPosition.x === rowIndex && wolfPosition.y === columnIndex;
+        const showStunTimer = isWolfTile && wolfStunned && wolfStunEndTime !== null;
+
         return (
           <Tile
             key={`${rowIndex}-${columnIndex}`}
@@ -67,9 +92,7 @@ const ForestGrid: React.FC<Props> = ({
               playerPosition.x === rowIndex && playerPosition.y === columnIndex &&
               !(gameOver && wolfWon) // hide player when wolf wins
             }
-            isWolf={
-              wolfPosition.x === rowIndex && wolfPosition.y === columnIndex
-            }
+            isWolf={isWolfTile}
             isTree={isWall}
             isFlower={isFlower}
             isOverlap={isPlayerWolfOverlap}
@@ -79,6 +102,10 @@ const ForestGrid: React.FC<Props> = ({
             wolfDirection={wolfDirection}
             gameOver={gameOver}
             wolfWon={wolfWon}
+            specialItem={specialItem}
+            isInExplosion={isInExplosion}
+            showStunTimer={showStunTimer}
+            stunEndTime={wolfStunEndTime}
           />
         );
       })}

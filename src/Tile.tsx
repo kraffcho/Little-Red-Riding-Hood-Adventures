@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { SpecialItem } from "./types/game";
 
 interface Props {
   isPlayer: boolean;
@@ -12,6 +13,10 @@ interface Props {
   wolfDirection?: string;
   gameOver?: boolean;
   wolfWon?: boolean;
+  specialItem?: SpecialItem;
+  isInExplosion?: boolean;
+  showStunTimer?: boolean;
+  stunEndTime?: number | null;
 }
 
 const Tile: React.FC<Props> = ({
@@ -26,8 +31,13 @@ const Tile: React.FC<Props> = ({
   wolfDirection,
   gameOver,
   wolfWon,
+  specialItem,
+  isInExplosion,
+  showStunTimer,
+  stunEndTime,
 }) => {
   const [scaleClass, setScaleClass] = useState("");
+  const [stunTimeRemaining, setStunTimeRemaining] = useState<number>(0);
 
   useEffect(() => {
     if (isTree) {
@@ -35,6 +45,22 @@ const Tile: React.FC<Props> = ({
       setScaleClass(`scale${randomNumber}`);
     }
   }, [isTree]);
+
+  // update stun timer
+  useEffect(() => {
+    if (showStunTimer && stunEndTime) {
+      const updateTimer = () => {
+        const remaining = Math.max(0, Math.ceil((stunEndTime - Date.now()) / 1000));
+        setStunTimeRemaining(remaining);
+      };
+
+      updateTimer();
+      const interval = setInterval(updateTimer, 100);
+      return () => clearInterval(interval);
+    } else {
+      setStunTimeRemaining(0);
+    }
+  }, [showStunTimer, stunEndTime]);
 
   let className = "tile";
   // hide player sprite when wolf wins the game
@@ -58,8 +84,25 @@ const Tile: React.FC<Props> = ({
   if (isGrannyHouse) className += " granny-house";
   if (isGrannyHouse && playerEnteredHouse) className += " tooltip";
   if (playerEnteredHouse && isPlayer && isGrannyHouse) className += " player-in-house";
+  if (specialItem) className += " special-item";
+  if (isInExplosion) className += " explosion";
+  if (showStunTimer) className += " wolf-stunned";
 
-  return <div className={className}></div>;
+  return (
+    <div className={className}>
+      {specialItem && (
+        <div className={`special-item-icon ${specialItem.type}`}>
+          {specialItem.type === "bomb" && "💣"}
+        </div>
+      )}
+      {isInExplosion && <div className="explosion-effect" />}
+      {showStunTimer && stunTimeRemaining > 0 && (
+        <div className="stun-timer">
+          <div className="stun-timer-text">{stunTimeRemaining}s</div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Tile;

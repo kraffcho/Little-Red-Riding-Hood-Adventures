@@ -29,6 +29,18 @@ export type GameState = {
   gameOver: boolean;
   isStuck?: boolean;
   stuckReason?: string;
+  // special items system
+  inventory: ItemType[];
+  specialItems: SpecialItem[];
+  wolfStunned: boolean;
+  wolfStunEndTime: number | null;
+  explosionEffect: ExplosionEffect | null;
+  // level tracking
+  currentLevel: number;
+  // bomb cooldown
+  bombCooldownEndTime: number | null;
+  // temporary message to display (e.g., "WOLF STUNNED!", "MISSED!")
+  temporaryMessage: { text: string; type: 'success' | 'error' } | null;
 };
 
 export type AStarNode = {
@@ -41,5 +53,22 @@ export type AStarNode = {
 export type TouchPosition = {
   x: number;
   y: number;
+};
+
+// special item types
+export type ItemType = "bomb" | "health" | "speed"; // expandable for future items
+
+export type SpecialItem = {
+  id: string;
+  type: ItemType;
+  position: Position;
+};
+
+// explosion effect state
+export type ExplosionEffect = {
+  position: Position;
+  radius: number;
+  startTime: number;
+  duration: number;
 };
 

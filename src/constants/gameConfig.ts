@@ -30,10 +30,22 @@ export const AUDIO_PATHS = {
     "/assets/audio/wolf-victory2.mp3",
     "/assets/audio/wolf-victory3.mp3",
   ],
+  BOMB_EXPLOSION: [
+    "/assets/audio/bomb-explosion1.mp3",
+    "/assets/audio/bomb-explosion2.mp3",
+    "/assets/audio/bomb-explosion3.mp3",
+  ],
 } as const;
 
 // cookie names for storing settings
 export const COOKIE_KEYS = {
   BACKGROUND_MUSIC_PAUSED: "backgroundMusicPaused",
 } as const;
+
+// special items configuration
+export const ITEM_SPAWN_DELAY = 30000; // 30 seconds in milliseconds
+export const BOMB_STUN_DURATION = 10000; // 10 seconds in milliseconds
+export const BOMB_EXPLOSION_RADIUS = 3; // 3 tiles in each direction
+export const BOMB_EXPLOSION_DURATION = 1000; // 1 second visual effect
+export const BOMB_COOLDOWN_DURATION = 10000; // 10 seconds cooldown before next bomb can be used
 

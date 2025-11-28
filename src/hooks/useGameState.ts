@@ -1,11 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
-import { Position, Direction, GameState } from "../types/game";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Position, Direction, GameState, ItemType, SpecialItem, ExplosionEffect } from "../types/game";
 import {
   GRID_SIZE,
   NUM_FLOWERS,
   PLAYER_START_POSITION,
   getWolfStartPosition,
   getGrannyHousePosition,
+  ITEM_SPAWN_DELAY,
+  BOMB_STUN_DURATION,
+  BOMB_EXPLOSION_RADIUS,
+  BOMB_EXPLOSION_DURATION,
+  BOMB_COOLDOWN_DURATION,
 } from "../constants/gameConfig";
 import {
   isValidPosition,
@@ -16,6 +21,11 @@ import {
 import { findPath, pathExists } from "../utils/pathfinding";
 import { generateValidLevel } from "../utils/gameGeneration";
 import { isPlayerStuck } from "../utils/levelValidation";
+import {
+  generateRandomItemPosition,
+  isWithinRadius,
+  generateItemId,
+} from "../utils/itemUtils";
 
 /**
  * hook that handles all the game state and logic
@@ -36,7 +46,22 @@ export const useGameState = () => {
     wolfMoving: true,
     wolfWon: false,
     gameOver: false,
+    // special items system
+    inventory: [],
+    specialItems: [],
+    wolfStunned: false,
+    wolfStunEndTime: null,
+    explosionEffect: null,
+    // level tracking - start at level 1
+    currentLevel: 1,
+    // bomb cooldown
+    bombCooldownEndTime: null,
+    // temporary message
+    temporaryMessage: null,
   });
+
+  const gameStartTimeRef = useRef<number | null>(null);
+  const itemSpawnTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // set up a new game
   const initializeGame = useCallback(() => {
@@ -117,6 +142,12 @@ export const useGameState = () => {
         wolfDirection: "down",
         isStuck: true,
         stuckReason: initialStuckCheck.reason || "Level generation failed",
+        // reset special items
+        inventory: [],
+        specialItems: [],
+        wolfStunned: false,
+        wolfStunEndTime: null,
+        explosionEffect: null,
       }));
       return;
     }
@@ -141,7 +172,25 @@ export const useGameState = () => {
       wolfDirection: "down",
       isStuck: initialStuckCheck.stuck,
       stuckReason: initialStuckCheck.reason,
+      // reset special items
+      inventory: [],
+      specialItems: [],
+      wolfStunned: false,
+      wolfStunEndTime: null,
+      explosionEffect: null,
+      // level tracking - start at level 1
+      currentLevel: 1,
+      // temporary message
+      temporaryMessage: null,
     }));
+
+    // reset game start time - the useEffect will start the spawning timer
+    gameStartTimeRef.current = Date.now();
+    // clear any existing timer so it can restart fresh
+    if (itemSpawnTimerRef.current) {
+      clearTimeout(itemSpawnTimerRef.current);
+      itemSpawnTimerRef.current = null;
+    }
   }, []);
 
   // start the game when component loads
@@ -183,6 +232,20 @@ export const useGameState = () => {
           ? prev.collectedFlowers + 1
           : prev.collectedFlowers;
 
+        // see if we picked up a special item
+        const itemIndex = prev.specialItems.findIndex(
+          (item) =>
+            item.position.x === newPosition.x && item.position.y === newPosition.y
+        );
+        const hasItem = itemIndex !== -1;
+        const collectedItem = hasItem ? prev.specialItems[itemIndex] : null;
+        const newSpecialItems = hasItem
+          ? prev.specialItems.filter((_, index) => index !== itemIndex)
+          : prev.specialItems;
+        const newInventory = hasItem && collectedItem
+          ? [...prev.inventory, collectedItem.type]
+          : prev.inventory;
+
         // check if we got all the flowers
         const allFlowersCollected = newCollectedFlowers === NUM_FLOWERS;
         const isHouseOpen = allFlowersCollected || prev.isHouseOpen;
@@ -215,9 +278,11 @@ export const useGameState = () => {
           playerDirection: direction,
           flowers: newFlowers,
           collectedFlowers: newCollectedFlowers,
+          specialItems: newSpecialItems,
+          inventory: newInventory,
           isHouseOpen,
           playerEnteredHouse,
-          wolfMoving: playerEnteredHouse || stuckCheck.stuck ? false : prev.wolfMoving,
+          wolfMoving: playerEnteredHouse || stuckCheck.stuck || prev.wolfStunned ? false : prev.wolfMoving,
           playerCanMove: !wolfWon && !stuckCheck.stuck && !playerEnteredHouse,
           wolfWon,
           gameOver: wolfWon || stuckCheck.stuck,
@@ -232,7 +297,7 @@ export const useGameState = () => {
   // move the wolf toward the player using pathfinding
   const moveWolf = useCallback(() => {
     setGameState((prev) => {
-      if (!prev.wolfMoving || prev.gameOver || prev.isStuck) return prev;
+      if (!prev.wolfMoving || prev.gameOver || prev.isStuck || prev.wolfStunned) return prev;
 
       // don't chase if player is safe in the house
       if (
@@ -292,8 +357,217 @@ export const useGameState = () => {
     });
   }, []);
 
+  // spawn a special item on the board
+  const spawnSpecialItem = useCallback(() => {
+    setGameState((prev) => {
+      if (prev.gameOver || prev.playerEnteredHouse) {
+        // clear timer if game is over
+        if (itemSpawnTimerRef.current) {
+          clearTimeout(itemSpawnTimerRef.current);
+          itemSpawnTimerRef.current = null;
+        }
+        return prev;
+      }
+
+      // find all existing positions to avoid
+      const existingPositions: Position[] = [
+        prev.playerPosition,
+        prev.wolfPosition,
+        prev.grannyHousePosition,
+        ...prev.flowers,
+        ...prev.specialItems.map((item) => item.position),
+      ];
+
+      const itemPosition = generateRandomItemPosition(
+        existingPositions,
+        prev.treePositions
+      );
+
+      if (!itemPosition) {
+        // couldn't find a valid position, try again after a short delay
+        if (itemSpawnTimerRef.current) {
+          clearTimeout(itemSpawnTimerRef.current);
+        }
+        itemSpawnTimerRef.current = setTimeout(spawnSpecialItem, ITEM_SPAWN_DELAY);
+        return prev;
+      }
+
+      const newItem: SpecialItem = {
+        id: generateItemId(),
+        type: "bomb", // for now, only bombs spawn
+        position: itemPosition,
+      };
+
+      // schedule the next spawn after successfully spawning this item
+      if (itemSpawnTimerRef.current) {
+        clearTimeout(itemSpawnTimerRef.current);
+      }
+      itemSpawnTimerRef.current = setTimeout(spawnSpecialItem, ITEM_SPAWN_DELAY);
+
+      return {
+        ...prev,
+        specialItems: [...prev.specialItems, newItem],
+      };
+    });
+  }, []);
+
+  // start item spawning timer after game starts
+  useEffect(() => {
+    // check if game is properly initialized (player position is valid)
+    const isGameInitialized = gameState.playerPosition.x >= 0 && gameState.playerPosition.y >= 0;
+
+    // only start spawning if game is initialized and not over/ended
+    if (isGameInitialized && gameStartTimeRef.current && !gameState.gameOver && !gameState.playerEnteredHouse && !gameState.isStuck) {
+      // clear any existing timer first
+      if (itemSpawnTimerRef.current) {
+        clearTimeout(itemSpawnTimerRef.current);
+      }
+
+      // start the spawning timer
+      itemSpawnTimerRef.current = setTimeout(() => {
+        spawnSpecialItem();
+      }, ITEM_SPAWN_DELAY);
+
+      return () => {
+        // cleanup on unmount or when conditions change
+        if (itemSpawnTimerRef.current) {
+          clearTimeout(itemSpawnTimerRef.current);
+          itemSpawnTimerRef.current = null;
+        }
+      };
+    } else {
+      // stop spawning if game is over, ended, stuck, or not initialized
+      if (itemSpawnTimerRef.current) {
+        clearTimeout(itemSpawnTimerRef.current);
+        itemSpawnTimerRef.current = null;
+      }
+    }
+  }, [gameState.playerPosition, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, spawnSpecialItem]);
+
+  // update wolf stun timer
+  useEffect(() => {
+    if (gameState.wolfStunned && gameState.wolfStunEndTime) {
+      const checkStun = setInterval(() => {
+        setGameState((prev) => {
+          if (prev.wolfStunEndTime && Date.now() >= prev.wolfStunEndTime) {
+            return {
+              ...prev,
+              wolfStunned: false,
+              wolfStunEndTime: null,
+              wolfMoving: !prev.gameOver && !prev.isStuck,
+            };
+          }
+          return prev;
+        });
+      }, 100); // check every 100ms
+
+      return () => clearInterval(checkStun);
+    }
+  }, [gameState.wolfStunned, gameState.wolfStunEndTime]);
+
+  // clear explosion effect after duration
+  useEffect(() => {
+    if (gameState.explosionEffect) {
+      const timer = setTimeout(() => {
+        setGameState((prev) => ({
+          ...prev,
+          explosionEffect: null,
+        }));
+      }, BOMB_EXPLOSION_DURATION);
+
+      return () => clearTimeout(timer);
+    }
+  }, [gameState.explosionEffect]);
+
+  // update bomb cooldown timer
+  useEffect(() => {
+    if (gameState.bombCooldownEndTime) {
+      const checkCooldown = setInterval(() => {
+        setGameState((prev) => {
+          if (prev.bombCooldownEndTime && Date.now() >= prev.bombCooldownEndTime) {
+            return {
+              ...prev,
+              bombCooldownEndTime: null,
+            };
+          }
+          return prev;
+        });
+      }, 100); // check every 100ms
+
+      return () => clearInterval(checkCooldown);
+    }
+  }, [gameState.bombCooldownEndTime]);
+
+  // use a bomb item
+  const useBomb = useCallback(() => {
+    setGameState((prev) => {
+      const bombIndex = prev.inventory.indexOf("bomb");
+      const isOnCooldown = prev.bombCooldownEndTime !== null && Date.now() < prev.bombCooldownEndTime;
+
+      if (bombIndex === -1 || prev.gameOver || prev.playerEnteredHouse || isOnCooldown) {
+        return prev;
+      }
+
+      // remove bomb from inventory
+      const newInventory = prev.inventory.filter((_, index) => index !== bombIndex);
+
+      // create explosion effect
+      const explosionEffect: ExplosionEffect = {
+        position: prev.playerPosition,
+        radius: BOMB_EXPLOSION_RADIUS,
+        startTime: Date.now(),
+        duration: BOMB_EXPLOSION_DURATION,
+      };
+
+      // check if wolf is within explosion radius
+      const wolfInRadius = isWithinRadius(
+        prev.wolfPosition,
+        prev.playerPosition,
+        BOMB_EXPLOSION_RADIUS
+      );
+
+      let newWolfStunned = prev.wolfStunned;
+      let newWolfStunEndTime = prev.wolfStunEndTime;
+      let newWolfMoving = prev.wolfMoving;
+
+      if (wolfInRadius) {
+        // stun the wolf
+        const stunEndTime = Date.now() + BOMB_STUN_DURATION;
+        newWolfStunned = true;
+        newWolfStunEndTime = stunEndTime;
+        newWolfMoving = false;
+      }
+
+      // set cooldown after using bomb
+      const cooldownEndTime = Date.now() + BOMB_COOLDOWN_DURATION;
+
+      // set temporary message based on whether wolf was stunned
+      const temporaryMessage = wolfInRadius
+        ? { text: "WOLF STUNNED!", type: 'success' as const }
+        : { text: "MISSED!", type: 'error' as const };
+
+      return {
+        ...prev,
+        inventory: newInventory,
+        explosionEffect,
+        wolfStunned: newWolfStunned,
+        wolfStunEndTime: newWolfStunEndTime,
+        wolfMoving: newWolfMoving,
+        bombCooldownEndTime: cooldownEndTime,
+        temporaryMessage,
+      };
+    });
+  }, []);
+
   // start over from the beginning
   const resetGame = useCallback(() => {
+    // clear timers
+    if (itemSpawnTimerRef.current) {
+      clearTimeout(itemSpawnTimerRef.current);
+      itemSpawnTimerRef.current = null;
+    }
+    gameStartTimeRef.current = null;
+
     setGameState({
       playerPosition: { x: -1, y: -1 },
       wolfPosition: { x: -1, y: -1 },
@@ -305,12 +579,24 @@ export const useGameState = () => {
       collectedFlowers: 0,
       isHouseOpen: false,
       playerEnteredHouse: false,
-      playerCanMove: true,
-      wolfMoving: true,
+      playerCanMove: false,
+      wolfMoving: false,
       wolfWon: false,
       gameOver: false,
       isStuck: false,
       stuckReason: undefined,
+      // reset special items
+      inventory: [],
+      specialItems: [],
+      wolfStunned: false,
+      wolfStunEndTime: null,
+      explosionEffect: null,
+      // level tracking - start at level 1
+      currentLevel: 1,
+      // bomb cooldown
+      bombCooldownEndTime: null,
+      // temporary message
+      temporaryMessage: null,
     });
 
     // set up a new game after a tiny delay
@@ -319,12 +605,22 @@ export const useGameState = () => {
     }, 100);
   }, [initializeGame]);
 
+  // clear temporary message
+  const clearTemporaryMessage = useCallback(() => {
+    setGameState((prev) => ({
+      ...prev,
+      temporaryMessage: null,
+    }));
+  }, []);
+
   return {
     gameState,
     movePlayer,
     moveWolf,
     resetGame,
     initializeGame,
+    useBomb,
+    clearTemporaryMessage,
   };
 };
 
