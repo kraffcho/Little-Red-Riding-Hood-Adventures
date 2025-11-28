@@ -9,12 +9,12 @@ const GameOver: React.FC<GameOverProps> = ({ message, onRestart }) => {
   const [visible, setVisible] = useState<boolean>(true);
 
   const handleRestart = () => {
-    setVisible(false); // Hide the game-over component
-    onRestart(); // Call the onRestart function passed as props
+    setVisible(false); // hide this modal
+    onRestart(); // restart the game
   };
 
   const handleCancel = () => {
-    setVisible(false); // Hide the game-over component
+    setVisible(false); // just close the modal
   };
 
   return visible ? (

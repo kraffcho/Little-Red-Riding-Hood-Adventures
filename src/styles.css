@@ -4,8 +4,8 @@ body {
   color: #222;
   font-family: "Poppins", sans-serif;
   font-weight: 400;
-  background: #acc533 url("../public/assets/images/background-desktop.jpg")
-    no-repeat center center / cover;
+  background: #acc533 url("./assets/images/background-desktop.jpg") no-repeat
+    center center / cover;
 }
 
 * {
@@ -25,17 +25,19 @@ body {
 .ForestGrid {
   display: flex;
   flex-direction: column;
-  width: calc(100vh - 50px);
-  height: auto;
+  width: min(calc(100vw - 40px), calc(100vh - 200px));
+  aspect-ratio: 1 / 1;
   padding: 1rem;
   margin-top: 10px;
-  background: url("../public/assets/images/grass.png") center center / 30%;
+  margin-bottom: 10px;
+  background: url("./assets/images/grass.png") center center / 30%;
   border: 5px solid #9bca50;
   border-radius: 16px;
   outline: 1px solid #395c14;
   box-shadow: inset 0 0 20px 0 #111, 0 0 8px #111;
   overflow: hidden;
   animation: scaleBoard 1.5s ease forwards;
+  box-sizing: border-box;
   /* transform: perspective(1200px) rotateX(45deg); */
 }
 
@@ -51,9 +53,11 @@ body {
 }
 
 .Mobile {
-  width: calc(100vw - 20px);
+  width: min(calc(100vw - 20px), calc(100vh - 200px));
+  aspect-ratio: 1 / 1;
   box-shadow: inset 0 0 20px 0 #111;
   border-radius: 8px;
+  box-sizing: border-box;
 }
 
 .row {
@@ -66,8 +70,7 @@ body {
 }
 
 .tree {
-  background: url("../public/assets/images/tree.png") no-repeat center center /
-    contain;
+  background: url("./assets/images/tree.png") no-repeat center center / contain;
 }
 
 .tree.scale1 {
@@ -77,67 +80,65 @@ body {
 .tree.scale2 {
   -webkit-transform: translateX(3px) scale(1.9) scaleX(-1);
   transform: translateX(3px) scale(1.9) scaleX(-1);
-  background-image: url("../public/assets/images/tree-2.png");
+  background-image: url("./assets/images/tree-2.png");
 }
 
 .tree.scale3 {
   transform: scale(2) scaleX(-1);
-  background-image: url("../public/assets/images/tree-2.png");
+  background-image: url("./assets/images/tree-2.png");
 }
 
 .tree.scale4 {
   -webkit-transform: translateX(5px) scale(2.05) scaleX(-1);
   transform: translateX(5px) scale(2.05);
-  background-image: url("../public/assets/images/tree-3.png");
+  background-image: url("./assets/images/tree-3.png");
 }
 
 .tree.scale5 {
   -webkit-transform: translateX(5px) scale(1.95);
   transform: translateX(5px) scale(1.95);
-  background-image: url("../public/assets/images/tree-3.png");
+  background-image: url("./assets/images/tree-3.png");
 }
 
 .tree.scale6 {
   transform: scale(2.1);
-  background-image: url("../public/assets/images/tree-4.png");
+  background-image: url("./assets/images/tree-4.png");
 }
 
 .tree.scale7 {
   transform: scale(2.1) scaleX(-1);
-  background-image: url("../public/assets/images/tree-4.png");
+  background-image: url("./assets/images/tree-4.png");
 }
 
 .tree.scale8 {
   -webkit-transform: translateX(-3px) scale(1.9) scaleX(-1);
   transform: translateX(-3px) scale(1.9) scaleX(-1);
-  background-image: url("../public/assets/images/tree-2.png");
+  background-image: url("./assets/images/tree-2.png");
 }
 
 .tree.scale9 {
   -webkit-transform: translateX(-3px) scale(1.9) scaleX(-1);
   transform: translateX(-3px) scale(1.9) scaleX(-1);
-  background-image: url("../public/assets/images/tree-5.png");
+  background-image: url("./assets/images/tree-5.png");
 }
 
 .tree.scale10 {
   -webkit-transform: translateX(2px) scale(2.2);
   transform: translateX(-1px) scale(2.2);
-  background-image: url("../public/assets/images/tree-5.png");
+  background-image: url("./assets/images/tree-5.png");
 }
 
 .flower {
-  background: url("../public/assets/images/flower.png") no-repeat center center /
-    cover;
+  background: url("./assets/images/flower.png") no-repeat center center / cover;
 }
 
 .player {
-  background: url("../public/assets/images/player.png") no-repeat bottom center /
+  background: url("./assets/images/player.png") no-repeat bottom center /
     contain;
 }
 
 .wolf {
-  background: url("../public/assets/images/wolf.png") no-repeat center center /
-    contain;
+  background: url("./assets/images/wolf.png") no-repeat center center / contain;
   z-index: 1;
 }
 
@@ -181,7 +182,7 @@ body {
 }
 
 .player-up {
-  background-image: url("../public/assets/images/player-up.png");
+  background-image: url("./assets/images/player-up.png");
   animation: upMovePlayer 200ms ease forwards;
 }
 
@@ -195,7 +196,7 @@ body {
 }
 
 .player-down {
-  background-image: url("../public/assets/images/player-down.png");
+  background-image: url("./assets/images/player-down.png");
   animation: downMovePlayer 200ms ease forwards;
 }
 
@@ -273,8 +274,7 @@ body {
 
 .granny-house {
   position: relative;
-  background: url("../public/assets/images/house.png") no-repeat center center /
-    contain;
+  background: url("./assets/images/house.png") no-repeat center center / contain;
   transform: scale(2.5) translate(2px, 3px);
 }
 
@@ -341,6 +341,8 @@ body {
   font-size: 16px;
   background: #f5f5f5;
   border-radius: 5px;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 .game-controls {
@@ -394,7 +396,6 @@ body {
 }
 
 .quest-panel {
-  gap: 10px;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -409,15 +410,18 @@ body {
   transform: translateY(calc(100% - 10px));
 }
 
-.quest-panel > .quest-wrapper,
-.quest-panel > .game-controls {
-  height: 100%;
+.quest-panel.visible,
+.quest-panel.hidden {
+  display: flex;
+  justify-content: center;
+}
+
+.quest-panel > .quest-wrapper {
   box-shadow: 1.95px 1.95px 2.6px rgba(0, 0, 0, 0.15);
   border: 1px solid #438030;
 }
 
 .quest-panel > button {
-  grid-column: 2;
   transform: translateY(-100%);
   position: absolute;
   left: -22.5px;
@@ -448,11 +452,6 @@ body {
 .quest-panel.hidden {
   transform: translateY(calc(100% - 6px));
 }
-.quest-panel.visible,
-.quest-panel.hidden {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-}
 
 .quest-panel.visible > button {
   background-color: #d1f5d1aa;
@@ -460,6 +459,271 @@ body {
 
 .quest-panel.hidden > button {
   background-color: #eee;
+}
+
+/* quest header with two columns side by side */
+.quest-header {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  width: 100%;
+  max-width: 100%;
+  margin: 10px 0 15px 0;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+/* styles for the progress bar and flower count */
+.quest-progress {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.quest-progress-content {
+  background: linear-gradient(135deg, #ffffffaa 0%, #f5f5f5aa 100%);
+  border: 3px solid #438030;
+  border-radius: 12px;
+  padding: 15px 20px;
+  box-shadow: 1.95px 1.95px 2.6px rgba(0, 0, 0, 0.15),
+    0 4px 6px rgba(0, 0, 0, 0.1);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.quest-progress-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #222;
+}
+
+.quest-progress-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.quest-progress-count {
+  font-weight: 600;
+  color: #438030;
+}
+
+.quest-progress-bar-container {
+  width: 100%;
+  height: 24px;
+  background-color: #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #438030;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.quest-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50 0%, #81c784 50%, #a5d6a7 100%);
+  border-radius: 10px;
+  transition: width 0.5s ease-in-out;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.quest-progress-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+.quest-progress-bar.complete {
+  background: linear-gradient(90deg, #ffd700 0%, #ffeb3b 50%, #fff59d 100%);
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* styles for the quest message panel */
+.quest-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.quest-info-content {
+  background: linear-gradient(135deg, #ffffffaa 0%, #f5f5f5aa 100%);
+  border: 3px solid #438030;
+  border-radius: 12px;
+  padding: 15px 20px;
+  box-shadow: 1.95px 1.95px 2.6px rgba(0, 0, 0, 0.15),
+    0 4px 6px rgba(0, 0, 0, 0.1);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+}
+
+.quest-info-message {
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #222;
+  margin: 0;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+@media only screen and (max-width: 768px) {
+  .quest-header {
+    flex-direction: column;
+    max-width: 100%;
+    margin: 5px 0 10px 0;
+    padding: 0 0.5rem;
+    gap: 10px;
+  }
+
+  .quest-progress-content,
+  .quest-info-content {
+    padding: 12px 15px;
+  }
+
+  .quest-progress-text,
+  .quest-info-message {
+    font-size: 14px;
+  }
+
+  .quest-progress-bar-container {
+    height: 20px;
+  }
+}
+
+/* settings menu button and dropdown */
+.settings-menu-container {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 1000;
+}
+
+.settings-menu-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 3px solid #438030;
+  background-color: #ffffff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.settings-menu-button:hover {
+  background-color: #f0f0f0;
+  transform: scale(1.1);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+.settings-menu-button:active {
+  transform: scale(0.95);
+}
+
+.settings-menu-dropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background-color: #ffffff;
+  border: 3px solid #438030;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  min-width: 280px;
+  max-width: 320px;
+  animation: slideDown 0.3s ease-out;
+  z-index: 1001;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 2px solid #438030;
+  background-color: #d1f5d1;
+}
+
+.settings-menu-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #222;
+  font-family: "Poppins", sans-serif;
+}
+
+.settings-menu-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #222;
+  line-height: 1;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.settings-menu-close:hover {
+  background-color: #438030;
+  color: #fff;
+}
+
+.settings-menu-content {
+  padding: 20px;
 }
 
 .game-over {
@@ -566,18 +830,14 @@ body {
 }
 
 @media only screen and (max-width: 768px) {
-  .quest-panel.visible,
-  .quest-panel.hidden {
-    grid-template-columns: 1fr;
-  }
-  .quest-panel > button {
-    grid-column: initial;
-    left: 50%;
-    transform: translate(-50%, -100%);
-  }
   .quest-wrapper {
     text-align: center;
     font-size: 14px;
+  }
+  .settings-menu-dropdown {
+    right: -10px;
+    left: 10px;
+    min-width: auto;
   }
   .game-controls {
     gap: 10px;
@@ -591,6 +851,6 @@ body {
 
 @media only screen and (max-width: 768px) {
   body {
-    background-image: url("../public/assets/images/background-mobile.jpg");
+    background-image: url("./assets/images/background-mobile.jpg");
   }
 }

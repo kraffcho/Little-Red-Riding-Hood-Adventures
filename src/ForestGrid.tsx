@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Tile from "./Tile";
 
 interface Props {
@@ -9,18 +9,12 @@ interface Props {
   gridSize: number;
   treePositions: Array<{ x: number; y: number }>;
   isPlayerWolfOverlap: boolean;
-  grannyHousePosition: { x: number; y: number }; // Add grannyHousePosition to Props
+  grannyHousePosition: { x: number; y: number };
   flowers: Array<{ x: number; y: number }>;
   collectedFlowers: number;
   isHouseOpen: boolean;
   playerEnteredHouse: boolean;
 }
-
-// Check if viewport width is smaller than viewport height
-const isViewportWidthSmaller = window.innerWidth < window.innerHeight;
-
-// Conditionally apply custom class based on viewport width
-const gridClassName = isViewportWidthSmaller ? "ForestGrid Mobile" : "ForestGrid";
 
 const ForestGrid: React.FC<Props> = ({
   playerPosition,
@@ -33,7 +27,23 @@ const ForestGrid: React.FC<Props> = ({
   flowers,
   playerEnteredHouse,
 }) => {
-  // Generate the forest grid with tiles
+  // check if we're in portrait mode (mobile)
+  const [isViewportWidthSmaller, setIsViewportWidthSmaller] = useState(
+    typeof window !== "undefined" && window.innerWidth < window.innerHeight
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsViewportWidthSmaller(window.innerWidth < window.innerHeight);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // use mobile styles if we're in portrait mode
+  const gridClassName = isViewportWidthSmaller ? "ForestGrid Mobile" : "ForestGrid";
+  // create all the tiles for the grid
   const forestGrid = [...Array(gridSize)].map((_, rowIndex) => (
     <div className="row" key={rowIndex}>
       {[...Array(gridSize)].map((_, columnIndex) => {
@@ -45,7 +55,7 @@ const ForestGrid: React.FC<Props> = ({
         );
         const isGrannyHouse =
 
-          rowIndex === gridSize - 1 && columnIndex === gridSize - 1; // Check if current tile is granny's house
+          rowIndex === gridSize - 1 && columnIndex === gridSize - 1; // granny's house is always at the bottom right
         return (
           <Tile
             key={`${rowIndex}-${columnIndex}`}
