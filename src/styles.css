@@ -1,12 +1,126 @@
-@import url("https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+/* ============================================================================
+   CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+   ============================================================================ */
+:root {
+  /* colors - primary palette */
+  --color-green-light: #9bca50;
+  --color-green-dark: #395c14;
+  --color-green-primary: #438030;
+  --color-green-button: #4e9019;
+  --color-green-button-hover: #5ea523;
+  --color-green-progress: #4caf50;
+  --color-green-progress-light: #81c784;
+  --color-green-progress-lighter: #a5d6a7;
+  --color-green-progress-complete: #3e9342;
+  --color-green-mint: #d1f5d1;
+  --color-green-background: #acc533;
 
-body {
-  color: #222;
-  font-family: "Poppins", sans-serif;
-  font-weight: 400;
-  background: #acc533 url("./assets/images/background-desktop.jpg") no-repeat
-    center center / cover;
+  /* colors - accent */
+  --color-gold: #ffd700;
+  --color-gold-light: #ffeb3b;
+  --color-gold-lighter: #fff59d;
+  --color-orange: #d4876a;
+  --color-orange-dark: #ce502e;
+
+  /* colors - neutral grays */
+  --color-gray-100: #eee;
+  --color-gray-200: #e0e0e0;
+  --color-gray-300: #f5f5f5;
+  --color-gray-600: #666;
+  --color-gray-700: #333;
+  --color-text-primary: #222;
+  --color-white: #ffffff;
+  --color-black: #000;
+
+  /* colors - overlays and backgrounds */
+  --color-overlay-dark: rgba(0, 0, 0, 0.8);
+  --color-overlay-semi: #00000060;
+  --color-overlay-light: rgba(255, 255, 255, 0.9);
+  --color-backdrop-light: rgba(255, 255, 255, 0.67); /* #ffffffaa */
+
+  /* spacing scale */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 10px;
+  --spacing-lg: 15px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 30px;
+  --spacing-3xl: 40px;
+
+  /* typography */
+  --font-family-primary: "Poppins", sans-serif;
+  --font-family-display: "Lilita One", cursive;
+
+  --font-size-xs: 6px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 28px;
+  --font-size-4xl: 32px;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.3;
+  --line-height-normal: 1.5;
+
+  /* borders and radius */
+  --border-width-thin: 1px;
+  --border-width-medium: 2px;
+  --border-width-thick: 3px;
+  --border-width-extra-thick: 5px;
+
+  --radius-sm: 2px;
+  --radius-md: 5px;
+  --radius-lg: 6px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 16px;
+  --radius-full: 50%;
+
+  /* shadows */
+  --shadow-sm: 1.95px 1.95px 2.6px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.3);
+  --shadow-inset: inset 0 0 20px 0 var(--color-black);
+  --shadow-inset-sm: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-drop-shadow: 0 -2px 1px rgba(34, 34, 34, 0.19);
+  --shadow-text: 1px 1px 1px var(--color-black);
+  --shadow-glow-green: 0 2px 4px rgba(76, 175, 80, 0.3);
+  --shadow-glow-gold: 0 2px 8px rgba(255, 215, 0, 0.5);
+
+  /* transitions and animations */
+  --transition-fast: 200ms;
+  --transition-base: 300ms;
+  --transition-slow: 500ms;
+  --transition-very-slow: 750ms;
+  --transition-extreme: 1500ms;
+
+  --ease-in-out: ease-in-out;
+  --ease-out: ease-out;
+  --ease-in: ease-in;
+
+  /* z-index scale */
+  --z-index-base: 1;
+  --z-index-elevated: 2;
+  --z-index-dropdown: 1000;
+  --z-index-dropdown-content: 1001;
+  --z-index-modal: 9999;
+
+  /* backdrop filters */
+  --backdrop-blur: blur(5px);
 }
+
+/* ============================================================================
+   RESET & BASE STYLES
+   ============================================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 * {
   margin: 0;
@@ -14,6 +128,20 @@ body {
   box-sizing: border-box;
 }
 
+body {
+  color: var(--color-text-primary);
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-normal);
+  background: var(--color-green-background)
+    url("./assets/images/background-desktop.jpg") no-repeat center center /
+    cover;
+}
+
+/* ============================================================================
+   LAYOUT COMPONENTS
+   ============================================================================ */
+
+/* main app container */
 .App {
   display: flex;
   flex-direction: column;
@@ -22,53 +150,75 @@ body {
   height: 100vh;
 }
 
+/* ============================================================================
+   GAME GRID & TILES
+   ============================================================================ */
+
+/* game board container */
 .ForestGrid {
   display: flex;
   flex-direction: column;
-  width: min(calc(100vw - 40px), calc(100vh - 200px));
+  width: min(calc(100vw - var(--spacing-3xl)), calc(100vh - 200px));
+  height: min(
+    calc(100vw - var(--spacing-3xl)),
+    calc(100vh - 200px)
+  ); /* fallback for older browsers */
   aspect-ratio: 1 / 1;
   padding: 1rem;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-block: var(--spacing-md);
   background: url("./assets/images/grass.png") center center / 30%;
-  border: 5px solid #9bca50;
-  border-radius: 16px;
-  outline: 1px solid #395c14;
-  box-shadow: inset 0 0 20px 0 #111, 0 0 8px #111;
+  border: var(--border-width-extra-thick) solid var(--color-green-light);
+  border-radius: var(--radius-3xl);
+  outline: var(--border-width-thin) solid var(--color-green-dark);
+  box-shadow: var(--shadow-inset), 0 0 var(--spacing-sm) var(--color-black);
   overflow: hidden;
-  animation: scaleBoard 1.5s ease forwards;
+  animation: scaleBoard var(--transition-extreme) var(--ease-in-out) forwards;
   box-sizing: border-box;
-  /* transform: perspective(1200px) rotateX(45deg); */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 @keyframes scaleBoard {
   from {
     opacity: 0;
-    transform: scale(0.5) perspective(1200px) rotateX(45deg);
+    transform: translate3d(0, 0, 0) scale3d(0.5, 0.5, 1) perspective(1200px)
+      rotateX(45deg);
   }
   to {
     opacity: 1;
-    transform: initial;
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
   }
 }
 
+/* mobile-specific grid adjustments */
 .Mobile {
-  width: min(calc(100vw - 20px), calc(100vh - 200px));
+  width: min(calc(100vw - var(--spacing-xl)), calc(100vh - 200px));
+  height: min(
+    calc(100vw - var(--spacing-xl)),
+    calc(100vh - 200px)
+  ); /* fallback for older browsers */
   aspect-ratio: 1 / 1;
-  box-shadow: inset 0 0 20px 0 #111;
-  border-radius: 8px;
+  box-shadow: var(--shadow-inset);
+  border-radius: var(--radius-xl);
   box-sizing: border-box;
 }
 
+/* grid rows and tiles */
 .row {
   display: flex;
 }
 
 .tile {
   flex: 1;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1 / 1; /* flex handles sizing in older browsers */
 }
 
+/* ============================================================================
+   GAME ENTITIES (SPRITES)
+   ============================================================================ */
+
+/* tree variations */
 .tree {
   background: url("./assets/images/tree.png") no-repeat center center / contain;
 }
@@ -76,202 +226,73 @@ body {
 .tree.scale1 {
   transform: scale(1.7);
 }
-
 .tree.scale2 {
   -webkit-transform: translateX(3px) scale(1.9) scaleX(-1);
   transform: translateX(3px) scale(1.9) scaleX(-1);
   background-image: url("./assets/images/tree-2.png");
 }
-
 .tree.scale3 {
   transform: scale(2) scaleX(-1);
   background-image: url("./assets/images/tree-2.png");
 }
-
 .tree.scale4 {
   -webkit-transform: translateX(5px) scale(2.05) scaleX(-1);
   transform: translateX(5px) scale(2.05);
   background-image: url("./assets/images/tree-3.png");
 }
-
 .tree.scale5 {
   -webkit-transform: translateX(5px) scale(1.95);
   transform: translateX(5px) scale(1.95);
   background-image: url("./assets/images/tree-3.png");
 }
-
 .tree.scale6 {
   transform: scale(2.1);
   background-image: url("./assets/images/tree-4.png");
 }
-
 .tree.scale7 {
   transform: scale(2.1) scaleX(-1);
   background-image: url("./assets/images/tree-4.png");
 }
-
 .tree.scale8 {
   -webkit-transform: translateX(-3px) scale(1.9) scaleX(-1);
   transform: translateX(-3px) scale(1.9) scaleX(-1);
   background-image: url("./assets/images/tree-2.png");
 }
-
 .tree.scale9 {
   -webkit-transform: translateX(-3px) scale(1.9) scaleX(-1);
   transform: translateX(-3px) scale(1.9) scaleX(-1);
   background-image: url("./assets/images/tree-5.png");
 }
-
 .tree.scale10 {
   -webkit-transform: translateX(2px) scale(2.2);
   transform: translateX(-1px) scale(2.2);
   background-image: url("./assets/images/tree-5.png");
 }
 
+/* flower */
 .flower {
   background: url("./assets/images/flower.png") no-repeat center center / cover;
 }
 
+/* player sprite */
 .player {
   background: url("./assets/images/player.png") no-repeat bottom center /
     contain;
 }
 
+/* wolf sprite */
 .wolf {
   background: url("./assets/images/wolf.png") no-repeat center center / contain;
-  z-index: 1;
+  z-index: var(--z-index-base);
 }
 
 .wolf-overlap {
   transform: scale(1.5);
-  transition: transform 500ms ease-in-out;
+  transition: transform var(--transition-slow) var(--ease-in-out);
+  will-change: transform;
 }
 
-.player-left {
-  animation: leftMovePlayer 200ms ease forwards;
-}
-
-@keyframes leftMovePlayer {
-  0% {
-    transform: translateX(100%) translateY(0);
-  }
-  50% {
-    transform: translateX(50%) translateY(-4px);
-  }
-  100% {
-    transform: translateX(0) translateY(0);
-  }
-}
-
-.player-right {
-  -webkit-transform: scaleX(-1);
-  transform: scaleX(-1);
-  animation: rightMovePlayer 200ms ease forwards;
-}
-
-@keyframes rightMovePlayer {
-  0% {
-    transform: scaleX(-1) translateX(100%) translateY(0);
-  }
-  50% {
-    transform: scaleX(-1) translateX(50%) translateY(-4px);
-  }
-  100% {
-    transform: scaleX(-1) translateX(0) translateY(0);
-  }
-}
-
-.player-up {
-  background-image: url("./assets/images/player-up.png");
-  animation: upMovePlayer 200ms ease forwards;
-}
-
-@keyframes upMovePlayer {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-.player-down {
-  background-image: url("./assets/images/player-down.png");
-  animation: downMovePlayer 200ms ease forwards;
-}
-
-@keyframes downMovePlayer {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-.wolf-left {
-  animation: leftMoveWolf 500ms ease forwards;
-}
-
-@keyframes leftMoveWolf {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-.wolf-right {
-  -webkit-transform: scaleX(-1) scaleY(1);
-  transform: scaleX(-1) scaleY(1);
-  animation: rightMoveWolf 500ms ease forwards;
-}
-
-@keyframes rightMoveWolf {
-  from {
-    transform: scaleX(-1) scaleY(1) translateX(100%);
-  }
-  to {
-    transform: scaleX(-1) scaleY(1) translateX(0);
-  }
-}
-
-.wolf-up {
-  animation: upMoveWolf 500ms ease forwards;
-}
-
-@keyframes upMoveWolf {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-.wolf-down {
-  animation: downMoveWolf 500ms ease forwards;
-}
-
-@keyframes downMoveWolf {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-.player,
-.wolf,
-.tree,
-.granny-house,
-.flower {
-  -webkit-filter: drop-shadow(0 -2px 1px #22222230);
-  filter: drop-shadow(0 -2px 1px #22222230);
-}
-
+/* granny's house */
 .granny-house {
   position: relative;
   background: url("./assets/images/house.png") no-repeat center center / contain;
@@ -282,42 +303,203 @@ body {
   transform: scale(2.5) translate(2px, 3px) !important;
 }
 
+/* drop shadows for all sprites */
+.player,
+.wolf,
+.tree,
+.granny-house,
+.flower {
+  -webkit-filter: drop-shadow(var(--shadow-drop-shadow));
+  filter: drop-shadow(var(--shadow-drop-shadow));
+}
+
+/* ============================================================================
+   PLAYER ANIMATIONS
+   ============================================================================ */
+
+.player-left {
+  animation: leftMovePlayer var(--transition-fast) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+@keyframes leftMovePlayer {
+  0% {
+    transform: translate3d(100%, 0, 0);
+  }
+  50% {
+    transform: translate3d(50%, -4px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.player-right {
+  -webkit-transform: scale3d(-1, 1, 1) translateZ(0);
+  transform: scale3d(-1, 1, 1) translateZ(0);
+  animation: rightMovePlayer var(--transition-fast) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+@keyframes rightMovePlayer {
+  0% {
+    transform: scale3d(-1, 1, 1) translate3d(100%, 0, 0);
+  }
+  50% {
+    transform: scale3d(-1, 1, 1) translate3d(50%, -4px, 0);
+  }
+  100% {
+    transform: scale3d(-1, 1, 1) translate3d(0, 0, 0);
+  }
+}
+
+.player-up {
+  background-image: url("./assets/images/player-up.png");
+  animation: upMovePlayer var(--transition-fast) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+@keyframes upMovePlayer {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.player-down {
+  background-image: url("./assets/images/player-down.png");
+  animation: downMovePlayer var(--transition-fast) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+@keyframes downMovePlayer {
+  from {
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* ============================================================================
+   WOLF ANIMATIONS
+   ============================================================================ */
+
+.wolf-left {
+  animation: leftMoveWolf var(--transition-slow) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+@keyframes leftMoveWolf {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.wolf-right {
+  -webkit-transform: scale3d(-1, 1, 1) translateZ(0);
+  transform: scale3d(-1, 1, 1) translateZ(0);
+  animation: rightMoveWolf var(--transition-slow) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+@keyframes rightMoveWolf {
+  from {
+    transform: scale3d(-1, 1, 1) translate3d(100%, 0, 0);
+  }
+  to {
+    transform: scale3d(-1, 1, 1) translate3d(0, 0, 0);
+  }
+}
+
+.wolf-up {
+  animation: upMoveWolf var(--transition-slow) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+@keyframes upMoveWolf {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.wolf-down {
+  animation: downMoveWolf var(--transition-slow) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+@keyframes downMoveWolf {
+  from {
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* ============================================================================
+   GRANNY HOUSE TOOLTIP
+   ============================================================================ */
+
 .granny-house.tooltip {
-  z-index: 2;
-  &::before {
-    opacity: 0;
-    content: "Congratulations! Granny's house is now your refuge.";
-    position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    text-wrap: balance;
-    width: 90px;
-    height: 3em;
-    bottom: 100%;
-    right: 4px;
-    font-size: 6px;
-    line-height: 1.3;
-    padding: 2px 4px;
-    color: #222;
-    background-color: #eee;
-    border-radius: 2px;
-    animation: fadeIn 5s ease-in-out forwards;
-  }
-  &::after {
-    opacity: 0;
-    content: "";
-    position: absolute;
-    bottom: calc(100% - 2px);
-    right: 50%;
-    width: 4px;
-    height: 4px;
-    background-color: #eee;
-    transform: rotate(45deg) translate(50%, -50%);
-    animation: fadeIn 5s ease-in-out forwards;
-    z-index: 2;
-  }
+  z-index: var(--z-index-elevated);
+}
+
+.granny-house.tooltip::before {
+  opacity: 0;
+  content: "Oh my dear! 🧓 You made it safely! Come in, I've been waiting with cookies!";
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 120px;
+  height: 3em;
+  bottom: 100%;
+  right: 12px;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+  padding: var(--spacing-xs) var(--spacing-xs);
+  color: var(--color-text-primary);
+  background-color: var(--color-gray-100);
+  border-radius: var(--radius-sm);
+  animation: fadeIn 5s var(--ease-in-out) forwards;
+}
+
+.granny-house.tooltip::after {
+  opacity: 0;
+  content: "";
+  position: absolute;
+  bottom: calc(100% - var(--border-width-medium));
+  right: 50%;
+  width: var(--spacing-xs);
+  height: var(--spacing-xs);
+  background-color: var(--color-gray-100);
+  transform: rotate(45deg) translate(50%, -50%);
+  animation: fadeIn 5s var(--ease-in-out) forwards;
+  z-index: var(--z-index-elevated);
 }
 
 @keyframes fadeIn {
@@ -335,64 +517,17 @@ body {
   }
 }
 
+/* ============================================================================
+   QUEST PANEL (DEPRECATED - KEPT FOR REFERENCE)
+   ============================================================================ */
+
 .quest-wrapper {
-  text-wrap: balance;
-  padding: 15px;
-  font-size: 16px;
-  background: #f5f5f5;
-  border-radius: 5px;
+  padding: var(--spacing-lg);
+  font-size: var(--font-size-md);
+  background: var(--color-gray-300);
+  border-radius: var(--radius-md);
   max-width: 500px;
   margin: 0 auto;
-}
-
-.game-controls {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  background-color: #fff;
-  color: #222;
-  padding: 15px 10px;
-  border-radius: 5px;
-}
-
-.game-controls > * {
-  flex: 1;
-  text-align: center;
-  text-wrap: balance;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
-
-.game-controls .game-sound .game-sound-volume {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-
-.game-controls input[type="range"] {
-  width: 120px;
-}
-
-.game-controls button {
-  padding: 8px;
-  width: 120px;
-  background-color: #4e9019;
-  font-family: "Poppins", sans-serif;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease-in-out;
-}
-
-.game-controls button:hover {
-  background-color: #5ea523;
 }
 
 .quest-panel {
@@ -403,11 +538,11 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  background-color: #eee;
-  padding: 15px;
-  transition: 750ms ease-in-out;
+  background-color: var(--color-gray-100);
+  padding: var(--spacing-lg);
+  transition: var(--transition-very-slow) var(--ease-in-out);
   transition-delay: 100ms;
-  transform: translateY(calc(100% - 10px));
+  transform: translateY(calc(100% - var(--spacing-md)));
 }
 
 .quest-panel.visible,
@@ -417,8 +552,8 @@ body {
 }
 
 .quest-panel > .quest-wrapper {
-  box-shadow: 1.95px 1.95px 2.6px rgba(0, 0, 0, 0.15);
-  border: 1px solid #438030;
+  box-shadow: var(--shadow-sm);
+  border: var(--border-width-thin) solid var(--color-green-primary);
 }
 
 .quest-panel > button {
@@ -429,24 +564,24 @@ body {
   align-items: center;
   justify-content: center;
   width: 45px;
-  height: 30px;
-  padding: 10px 10px 0 10px;
+  height: var(--spacing-2xl);
+  padding: var(--spacing-md) var(--spacing-md) 0 var(--spacing-md);
   top: 0;
   border: none;
-  border-radius: 50% 50% 0 0;
+  border-radius: var(--radius-full) var(--radius-full) 0 0;
   outline: none;
   cursor: pointer;
   font-size: 25px;
   line-height: 1;
-  color: #fff;
-  background-color: #d1f5d1aa;
-  transition: 1s ease-in-out;
+  color: var(--color-white);
+  background-color: rgba(209, 245, 209, 0.67);
+  transition: 1s var(--ease-in-out);
   transition-delay: 100ms;
 }
 
 .quest-panel.visible {
   transform: translateY(0%);
-  background-color: #ffffffaa;
+  background-color: var(--color-backdrop-light);
 }
 
 .quest-panel.hidden {
@@ -454,26 +589,29 @@ body {
 }
 
 .quest-panel.visible > button {
-  background-color: #d1f5d1aa;
+  background-color: var(--color-green-mint) aa;
 }
 
 .quest-panel.hidden > button {
-  background-color: #eee;
+  background-color: var(--color-gray-100);
 }
 
-/* quest header with two columns side by side */
+/* ============================================================================
+   QUEST HEADER (TWO-COLUMN LAYOUT)
+   ============================================================================ */
+
 .quest-header {
   display: flex;
   flex-direction: row;
-  gap: 15px;
+  gap: var(--spacing-lg);
   width: 100%;
   max-width: 100%;
-  margin: 10px 0 15px 0;
+  margin: var(--spacing-md) 0 var(--spacing-lg) 0;
   padding: 0 1rem;
   box-sizing: border-box;
 }
 
-/* styles for the progress bar and flower count */
+/* quest progress column */
 .quest-progress {
   flex: 1;
   min-width: 0;
@@ -482,14 +620,17 @@ body {
 }
 
 .quest-progress-content {
-  background: linear-gradient(135deg, #ffffffaa 0%, #f5f5f5aa 100%);
-  border: 3px solid #438030;
-  border-radius: 12px;
-  padding: 15px 20px;
-  box-shadow: 1.95px 1.95px 2.6px rgba(0, 0, 0, 0.15),
-    0 4px 6px rgba(0, 0, 0, 0.1);
-  -webkit-backdrop-filter: blur(5px);
-  backdrop-filter: blur(5px);
+  background: linear-gradient(
+    135deg,
+    var(--color-backdrop-light) 0%,
+    rgba(245, 245, 245, 0.67) 100%
+  );
+  border: var(--border-width-thick) solid var(--color-green-primary);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  box-shadow: var(--shadow-sm), var(--shadow-lg);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  backdrop-filter: var(--backdrop-blur);
   width: 100%;
   height: 100%;
   display: flex;
@@ -501,40 +642,45 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  font-family: "Poppins", sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  color: #222;
+  margin-bottom: var(--spacing-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
 }
 
 .quest-progress-label {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--spacing-xs);
 }
 
 .quest-progress-count {
-  font-weight: 600;
-  color: #438030;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-green-primary);
 }
 
 .quest-progress-bar-container {
   width: 100%;
-  height: 24px;
-  background-color: #e0e0e0;
-  border-radius: 12px;
+  height: var(--font-size-2xl);
+  background-color: var(--color-gray-200);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
-  border: 2px solid #438030;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: var(--border-width-medium) solid var(--color-green-primary);
+  box-shadow: var(--shadow-inset-sm);
 }
 
 .quest-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #4caf50 0%, #81c784 50%, #a5d6a7 100%);
-  border-radius: 10px;
-  transition: width 0.5s ease-in-out;
-  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+  background: linear-gradient(
+    90deg,
+    var(--color-green-progress) 0%,
+    var(--color-green-progress-light) 50%,
+    var(--color-green-progress-lighter) 100%
+  );
+  border-radius: var(--radius-xl);
+  transition: width var(--transition-slow) var(--ease-in-out);
+  box-shadow: var(--shadow-glow-green);
   position: relative;
   overflow: hidden;
 }
@@ -542,10 +688,7 @@ body {
 .quest-progress-bar::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: linear-gradient(
     90deg,
     transparent 0%,
@@ -553,23 +696,31 @@ body {
     transparent 100%
   );
   animation: shimmer 2s infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .quest-progress-bar.complete {
-  background: linear-gradient(90deg, #ffd700 0%, #ffeb3b 50%, #fff59d 100%);
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(
+    90deg,
+    var(--color-gold) 0%,
+    var(--color-gold-light) 50%,
+    var(--color-gold-lighter) 100%
+  );
+  box-shadow: var(--shadow-glow-gold);
 }
 
 @keyframes shimmer {
   0% {
-    transform: translateX(-100%);
+    transform: translate3d(-100%, 0, 0);
   }
   100% {
-    transform: translateX(100%);
+    transform: translate3d(100%, 0, 0);
   }
 }
 
-/* styles for the quest message panel */
+/* quest info column */
 .quest-info {
   flex: 1;
   min-width: 0;
@@ -578,14 +729,17 @@ body {
 }
 
 .quest-info-content {
-  background: linear-gradient(135deg, #ffffffaa 0%, #f5f5f5aa 100%);
-  border: 3px solid #438030;
-  border-radius: 12px;
-  padding: 15px 20px;
-  box-shadow: 1.95px 1.95px 2.6px rgba(0, 0, 0, 0.15),
-    0 4px 6px rgba(0, 0, 0, 0.1);
-  -webkit-backdrop-filter: blur(5px);
-  backdrop-filter: blur(5px);
+  background: linear-gradient(
+    135deg,
+    var(--color-backdrop-light) 0%,
+    rgba(245, 245, 245, 0.67) 100%
+  );
+  border: var(--border-width-thick) solid var(--color-green-primary);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  box-shadow: var(--shadow-sm), var(--shadow-lg);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  backdrop-filter: var(--backdrop-blur);
   width: 100%;
   height: 100%;
   display: flex;
@@ -593,94 +747,152 @@ body {
 }
 
 .quest-info-message {
-  font-family: "Poppins", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  color: #222;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-primary);
   margin: 0;
-  line-height: 1.5;
-  text-wrap: balance;
+  line-height: var(--line-height-normal);
 }
 
-@media only screen and (max-width: 768px) {
-  .quest-header {
-    flex-direction: column;
-    max-width: 100%;
-    margin: 5px 0 10px 0;
-    padding: 0 0.5rem;
-    gap: 10px;
-  }
+/* ============================================================================
+   GAME CONTROLS
+   ============================================================================ */
 
-  .quest-progress-content,
-  .quest-info-content {
-    padding: 12px 15px;
-  }
-
-  .quest-progress-text,
-  .quest-info-message {
-    font-size: 14px;
-  }
-
-  .quest-progress-bar-container {
-    height: 20px;
-  }
+.game-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  color: var(--color-text-primary);
 }
 
-/* settings menu button and dropdown */
+.game-controls > * {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.game-controls .game-sound {
+  gap: var(--spacing-lg);
+}
+
+.game-controls .game-sound-volume {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.game-controls .game-sound-volume label {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-700);
+}
+
+.game-controls input[type="range"] {
+  width: 100%;
+  cursor: pointer;
+}
+
+.game-controls .game-reset {
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-width-thin) solid var(--color-gray-200);
+}
+
+.game-controls .game-reset p {
+  margin: 0;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  font-style: italic;
+}
+
+.game-controls button {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-green-button);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: background-color var(--transition-base) var(--ease-in-out);
+  width: 100%;
+}
+
+.game-controls button:hover {
+  background-color: var(--color-green-button-hover);
+}
+
+.game-controls button:focus-visible {
+  outline: var(--border-width-medium) solid var(--color-green-primary);
+  outline-offset: var(--spacing-xs);
+}
+
+/* ============================================================================
+   SETTINGS MENU
+   ============================================================================ */
+
 .settings-menu-container {
   position: fixed;
-  top: 15px;
-  right: 15px;
-  z-index: 1000;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
+  z-index: var(--z-index-dropdown);
 }
 
 .settings-menu-button {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 3px solid #438030;
-  background-color: #ffffff;
-  font-size: 24px;
+  width: auto;
+  height: auto;
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-xl);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+  padding: 0;
+  transition: opacity var(--transition-base) var(--ease-in-out);
 }
 
 .settings-menu-button:hover {
-  background-color: #f0f0f0;
-  transform: scale(1.1);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+  opacity: 0.7;
 }
 
 .settings-menu-button:active {
-  transform: scale(0.95);
+  opacity: 0.5;
+}
+
+.settings-menu-button:focus-visible {
+  outline: var(--border-width-medium) solid var(--color-green-primary);
+  outline-offset: var(--spacing-xs);
+  border-radius: var(--radius-sm);
 }
 
 .settings-menu-dropdown {
   position: absolute;
   top: 60px;
   right: 0;
-  background-color: #ffffff;
-  border: 3px solid #438030;
-  border-radius: 10px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  background-color: var(--color-white);
+  border: var(--border-width-thick) solid var(--color-green-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
   min-width: 280px;
   max-width: 320px;
-  animation: slideDown 0.3s ease-out;
-  z-index: 1001;
+  animation: slideDown var(--transition-base) var(--ease-out);
+  z-index: var(--z-index-dropdown-content);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translate3d(0, -10px, 0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -688,61 +900,73 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
-  border-bottom: 2px solid #438030;
-  background-color: #d1f5d1;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: var(--border-width-medium) solid var(--color-green-primary);
+  background-color: var(--color-green-mint);
 }
 
 .settings-menu-header h3 {
   margin: 0;
-  font-size: 18px;
-  color: #222;
-  font-family: "Poppins", sans-serif;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-primary);
 }
 
 .settings-menu-close {
   background: none;
   border: none;
-  font-size: 28px;
+  font-size: var(--font-size-3xl);
   cursor: pointer;
-  color: #222;
+  color: var(--color-text-primary);
   line-height: 1;
   padding: 0;
-  width: 30px;
-  height: 30px;
+  width: var(--spacing-2xl);
+  height: var(--spacing-2xl);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s ease;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast) var(--ease-in-out);
 }
 
 .settings-menu-close:hover {
-  background-color: #438030;
-  color: #fff;
+  background-color: var(--color-green-primary);
+  color: var(--color-white);
+}
+
+.settings-menu-close:focus-visible {
+  outline: var(--border-width-medium) solid var(--color-green-primary);
+  outline-offset: var(--spacing-xs);
 }
 
 .settings-menu-content {
-  padding: 20px;
+  padding: var(--spacing-xl);
 }
+
+.settings-menu-content .game-controls {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* ============================================================================
+   GAME OVER MODAL
+   ============================================================================ */
 
 .game-over {
   opacity: 0;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  font-family: "Poppins", sans-serif;
-  background-color: rgba(0, 0, 0, 0.8);
+  inset: 0;
+  font-family: var(--font-family-primary);
+  background-color: var(--color-overlay-dark);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  transition: 500ms ease-in-out;
-  z-index: 9999;
-  animation: gameOver 1s ease forwards;
+  transition: var(--transition-slow) var(--ease-in-out);
+  z-index: var(--z-index-modal);
+  animation: gameOver 1s var(--ease-in-out) forwards;
 }
 
 @keyframes gameOver {
@@ -759,98 +983,148 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #00000060;
-  border-radius: 50%;
-  padding: 30px;
-  border: 5px dashed #e1e1e190;
-  outline: 5px solid #00000090;
+  background-color: var(--color-overlay-semi);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-3xl);
+  border: var(--border-width-extra-thick) dashed #e1e1e190;
+  outline: var(--border-width-extra-thick) solid #00000090;
+  width: 380px; /* fallback for older browsers */
+  height: 380px; /* fallback for older browsers */
   aspect-ratio: 1 / 1;
-  animation: scaleUp 1s ease forwards;
+  animation: scaleUp 1s var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 @keyframes scaleUp {
   from {
-    transform: scale(0.5);
+    transform: translate3d(0, 0, 0) scale3d(0.5, 0.5, 1);
   }
   to {
-    transform: scale(1);
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
   }
 }
 
 .game-over-message {
   text-align: center;
-  font-size: 24px;
-  color: white;
-  margin-bottom: 20px;
-  max-width: 250px;
-  text-wrap: balance;
-  text-shadow: 1px 1px 1px #000;
+  font-size: var(--font-size-2xl);
+  color: var(--color-white);
+  margin-bottom: var(--spacing-xl);
+  max-width: 320px;
+  text-shadow: var(--shadow-text);
 }
 
 .game-over-message > strong {
   display: inline-block;
-  font-size: 32px;
-  margin-bottom: 8px;
+  font-size: var(--font-size-4xl);
+  margin-bottom: var(--spacing-sm);
 }
 
 .game-over-buttons {
   display: flex;
-  gap: 10px;
+  gap: var(--spacing-md);
 }
 
 .game-over-cta {
-  padding: 6px 10px;
+  padding: var(--spacing-xs) var(--spacing-md);
   width: 70px;
-  color: white;
-  font-family: "Poppins", sans-serif;
-  font-size: 18px;
-  font-weight: bold;
-  letter-spacing: 1px;
+  color: var(--color-white);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--spacing-xs);
   text-transform: uppercase;
   border: none;
-  border-radius: 5px;
-  transition: 0.3s;
+  border-radius: var(--radius-md);
+  transition: var(--transition-base) var(--ease-in-out);
   cursor: pointer;
 }
 
 .game-over-cta.restart {
-  background-color: #4caf50;
+  background-color: var(--color-green-progress);
 }
 
 .game-over-cta.restart:hover {
-  background-color: #3e9342;
+  background-color: var(--color-green-progress-complete);
+}
+
+.game-over-cta.restart:focus-visible {
+  outline: var(--border-width-medium) solid var(--color-white);
+  outline-offset: var(--spacing-xs);
 }
 
 .game-over-cta.cancel {
-  background-color: #d4876a;
+  background-color: var(--color-orange);
 }
 
 .game-over-cta.cancel:hover {
-  background-color: #ce502e;
+  background-color: var(--color-orange-dark);
 }
 
-@media only screen and (max-width: 768px) {
-  .quest-wrapper {
-    text-align: center;
-    font-size: 14px;
-  }
-  .settings-menu-dropdown {
-    right: -10px;
-    left: 10px;
-    min-width: auto;
-  }
-  .game-controls {
-    gap: 10px;
-    font-size: 14px;
-  }
-  .game-controls .game-sound .game-sound-volume {
-    flex-direction: column;
-    justify-content: space-between;
-  }
+.game-over-cta.cancel:focus-visible {
+  outline: var(--border-width-medium) solid var(--color-white);
+  outline-offset: var(--spacing-xs);
 }
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
 
 @media only screen and (max-width: 768px) {
   body {
     background-image: url("./assets/images/background-mobile.jpg");
+  }
+
+  .quest-wrapper {
+    text-align: center;
+    font-size: var(--font-size-base);
+  }
+
+  .quest-header {
+    flex-direction: column;
+    max-width: 100%;
+    margin: var(--spacing-xs) 0 var(--spacing-md) 0;
+    padding: 0 0.5rem;
+    gap: var(--spacing-md);
+  }
+
+  .quest-progress-content,
+  .quest-info-content {
+    padding: var(--spacing-lg) var(--spacing-lg);
+  }
+
+  .quest-progress-text,
+  .quest-info-message {
+    font-size: var(--font-size-base);
+  }
+
+  .quest-progress-bar-container {
+    height: var(--spacing-xl);
+  }
+
+  .settings-menu-dropdown {
+    right: calc(-1 * var(--spacing-md));
+    left: var(--spacing-md);
+    min-width: auto;
+  }
+
+  .game-controls {
+    gap: var(--spacing-lg);
+  }
+
+  .game-over-content {
+    width: 280px;
+    height: 280px;
+    padding: var(--spacing-2xl);
+  }
+
+  .game-over-message {
+    font-size: var(--font-size-lg);
+    max-width: 250px;
+  }
+
+  .game-over-message > strong {
+    font-size: var(--font-size-2xl);
   }
 }
