@@ -64,19 +64,19 @@ const App: React.FC = () => {
 
   // make the wolf chase the player every so often
   useEffect(() => {
-    if (!gameState.wolfMoving || gameState.gameOver) return;
+    if (!gameState.wolfMoving || gameState.gameOver || gameState.isStuck) return;
 
     const intervalId = setInterval(() => {
       moveWolf();
     }, ENEMY_DELAY);
 
     return () => clearInterval(intervalId);
-  }, [gameState.wolfMoving, gameState.gameOver, moveWolf]);
+  }, [gameState.wolfMoving, gameState.gameOver, gameState.isStuck, moveWolf]);
 
   // handle when the player moves - play music, check house entry, etc.
   const handlePlayerMove = useCallback((direction: Direction) => {
-    // prevent movement if player has already entered the house
-    if (gameState.playerEnteredHouse) {
+    // prevent movement if player has already entered the house or is stuck
+    if (gameState.playerEnteredHouse || gameState.isStuck || gameState.gameOver) {
       return;
     }
 
@@ -109,6 +109,9 @@ const App: React.FC = () => {
     gameState.grannyHousePosition,
     gameState.isHouseOpen,
     gameState.collectedFlowers,
+    gameState.isStuck,
+    gameState.gameOver,
+    gameState.playerEnteredHouse,
     playedRestrictedEntrySound,
     playSound,
     movePlayer,
@@ -132,32 +135,41 @@ const App: React.FC = () => {
     questCompletedSoundPlayed.current = false;
   }, [resetMusic, resetGame]);
 
+  // don't render the board until the game is initialized (positions are valid)
+  const isGameInitialized = gameState.playerPosition.x >= 0 && gameState.playerPosition.y >= 0;
+
   return (
     <div className="App" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-      <ForestGrid
-        gridSize={GRID_SIZE}
-        playerPosition={gameState.playerPosition}
-        wolfPosition={gameState.wolfPosition}
-        grannyHousePosition={gameState.grannyHousePosition}
-        treePositions={gameState.treePositions}
-        playerDirection={gameState.playerDirection}
-        wolfDirection={gameState.wolfDirection}
-        isPlayerWolfOverlap={
-          gameState.playerPosition.x === gameState.wolfPosition.x &&
-          gameState.playerPosition.y === gameState.wolfPosition.y
-        }
-        flowers={gameState.flowers}
-        collectedFlowers={gameState.collectedFlowers}
-        isHouseOpen={gameState.isHouseOpen}
-        playerEnteredHouse={gameState.playerEnteredHouse}
-      />
-      <div className="quest-header">
-        <QuestInfo
-          collectedFlowers={gameState.collectedFlowers}
-          isHouseOpen={gameState.isHouseOpen}
-        />
-        <QuestProgress collectedFlowers={gameState.collectedFlowers} />
-      </div>
+      {isGameInitialized && (
+        <>
+          <ForestGrid
+            gridSize={GRID_SIZE}
+            playerPosition={gameState.playerPosition}
+            wolfPosition={gameState.wolfPosition}
+            grannyHousePosition={gameState.grannyHousePosition}
+            treePositions={gameState.treePositions}
+            playerDirection={gameState.playerDirection}
+            wolfDirection={gameState.wolfDirection}
+            isPlayerWolfOverlap={
+              gameState.playerPosition.x === gameState.wolfPosition.x &&
+              gameState.playerPosition.y === gameState.wolfPosition.y
+            }
+            flowers={gameState.flowers}
+            collectedFlowers={gameState.collectedFlowers}
+            isHouseOpen={gameState.isHouseOpen}
+            playerEnteredHouse={gameState.playerEnteredHouse}
+            gameOver={gameState.gameOver}
+            wolfWon={gameState.wolfWon}
+          />
+          <div className="quest-header">
+            <QuestInfo
+              collectedFlowers={gameState.collectedFlowers}
+              isHouseOpen={gameState.isHouseOpen}
+            />
+            <QuestProgress collectedFlowers={gameState.collectedFlowers} />
+          </div>
+        </>
+      )}
       <SettingsMenu
         volume={volume}
         isPlayingMusic={isPlayingMusic}
@@ -170,10 +182,11 @@ const App: React.FC = () => {
         <GameOver
           message={
             gameState.isStuck
-              ? `<strong>YOU'RE STUCK!</strong><br />${gameState.stuckReason || "You cannot reach any remaining flowers or the house."}<br /><br />Would you like to restart?`
+              ? `<strong>YOU'RE STUCK!</strong><br />${gameState.stuckReason || "You cannot reach any remaining flowers or the house."}<br /><br />Restart the game?`
               : "<strong>GAME OVER</strong><br />The wolf has caught you! Play again?"
           }
           onRestart={handleResetGame}
+          isStuck={gameState.isStuck}
         />
       )}
     </div>

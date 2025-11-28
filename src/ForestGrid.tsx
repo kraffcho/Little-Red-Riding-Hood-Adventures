@@ -14,6 +14,8 @@ interface Props {
   collectedFlowers: number;
   isHouseOpen: boolean;
   playerEnteredHouse: boolean;
+  gameOver: boolean;
+  wolfWon: boolean;
 }
 
 const ForestGrid: React.FC<Props> = ({
@@ -26,6 +28,8 @@ const ForestGrid: React.FC<Props> = ({
   isPlayerWolfOverlap,
   flowers,
   playerEnteredHouse,
+  gameOver,
+  wolfWon,
 }) => {
   // check if we're in portrait mode (mobile)
   const [isViewportWidthSmaller, setIsViewportWidthSmaller] = useState(
@@ -60,7 +64,8 @@ const ForestGrid: React.FC<Props> = ({
           <Tile
             key={`${rowIndex}-${columnIndex}`}
             isPlayer={
-              playerPosition.x === rowIndex && playerPosition.y === columnIndex
+              playerPosition.x === rowIndex && playerPosition.y === columnIndex &&
+              !(gameOver && wolfWon) // hide player when wolf wins
             }
             isWolf={
               wolfPosition.x === rowIndex && wolfPosition.y === columnIndex
@@ -72,6 +77,8 @@ const ForestGrid: React.FC<Props> = ({
             playerEnteredHouse={playerEnteredHouse}
             playerDirection={playerDirection}
             wolfDirection={wolfDirection}
+            gameOver={gameOver}
+            wolfWon={wolfWon}
           />
         );
       })}

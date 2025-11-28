@@ -292,11 +292,31 @@ body {
   will-change: transform;
 }
 
+/* ensure wolf sprite is always visible when present, even if player class is also present */
+.tile.wolf {
+  z-index: var(--z-index-elevated);
+}
+
 /* granny's house */
 .granny-house {
   position: relative;
   background: url("./assets/images/house.png") no-repeat center center / contain;
   transform: scale(2.5) translate(2px, 3px);
+  z-index: var(--z-index-elevated);
+}
+
+/* when player enters the house, hide the player sprite completely and show only the house */
+/* ensure house background is always visible when player is in house - override all player backgrounds */
+.tile.player-in-house.player.granny-house,
+.tile.player-in-house.player.granny-house.player-up,
+.tile.player-in-house.player.granny-house.player-down,
+.tile.player-in-house.player.granny-house.player-left,
+.tile.player-in-house.player.granny-house.player-right {
+  /* explicitly override all background properties to show house - must have all classes in selector */
+  background: url("./assets/images/house.png") no-repeat center center / contain !important;
+  background-image: url("./assets/images/house.png") !important;
+  transform: scale(2.5) translate(2px, 3px) !important;
+  animation: none !important;
 }
 
 .tile.player.granny-house.tooltip {
@@ -478,7 +498,7 @@ body {
   width: 120px;
   height: 3em;
   bottom: 100%;
-  right: 12px;
+  right: 8px;
   font-size: var(--font-size-xs);
   line-height: var(--line-height-tight);
   padding: var(--spacing-xs) var(--spacing-xs);
@@ -969,6 +989,11 @@ body {
   animation: gameOver 1s var(--ease-in-out) forwards;
 }
 
+/* lighter overlay when stuck so the board remains visible */
+.game-over.stuck {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
 @keyframes gameOver {
   from {
     opacity: 0;
@@ -984,7 +1009,6 @@ body {
   align-items: center;
   justify-content: center;
   background-color: var(--color-overlay-semi);
-  border-radius: var(--radius-full);
   padding: var(--spacing-3xl);
   border: var(--border-width-extra-thick) dashed #e1e1e190;
   outline: var(--border-width-extra-thick) solid #00000090;

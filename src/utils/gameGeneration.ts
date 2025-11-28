@@ -104,10 +104,10 @@ export const generateValidLevel = (
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     // place trees randomly
     const treePositions = generateTreePositions(wolfPosition, grannyHousePosition);
-    
+
     // place flowers randomly
     const flowerPositions = generateFlowerPositions(treePositions);
-    
+
     // make sure this level is actually playable
     const validation = validateLevel(treePositions, flowerPositions);
 
@@ -116,8 +116,8 @@ export const generateValidLevel = (
     }
   }
 
-  // if we couldn't make a good level after trying a bunch, give up
-  console.warn(`Failed to generate valid level after ${maxAttempts} attempts`);
+  // if we couldn't make a good level after trying a bunch, return null
+  // (outer loop will retry, so we don't need to warn here - it's expected with high tree density)
   return null;
 };
 

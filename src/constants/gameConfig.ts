@@ -1,8 +1,8 @@
 // all the game settings and constants
 
 export const GRID_SIZE = 20;
-export const NUM_TREES = 170;
-export const NUM_FLOWERS = 2;
+export const NUM_TREES = 60;
+export const NUM_FLOWERS = 30;
 export const PLAYER_DELAY = 100; // how long to wait between player moves
 export const ENEMY_DELAY = 500; // how often the wolf moves
 export const DEFAULT_VOLUME = 0.3;

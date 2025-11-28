@@ -13,7 +13,7 @@ import {
   positionsEqual,
   getDirectionFromMovement,
 } from "../utils/gridUtils";
-import { findPath } from "../utils/pathfinding";
+import { findPath, pathExists } from "../utils/pathfinding";
 import { generateValidLevel } from "../utils/gameGeneration";
 import { isPlayerStuck } from "../utils/levelValidation";
 
@@ -43,52 +43,104 @@ export const useGameState = () => {
     const wolfStartPosition = getWolfStartPosition();
     const grannyHousePosition = getGrannyHousePosition();
 
-    // create a level that can actually be completed
-    const levelData = generateValidLevel(wolfStartPosition);
+    // create a level that can actually be completed - keep trying until we get one that's not stuck
+    let levelData: { treePositions: Position[]; flowerPositions: Position[] } | null = null;
+    let initialStuckCheck: { stuck: boolean; reason?: string } = { stuck: true, reason: "Failed to generate valid level" };
 
-    if (!levelData) {
-      console.error("Failed to generate valid level, using fallback");
-      // fallback: use empty level if we couldn't generate a valid one (shouldn't happen)
+    // try to generate a valid, non-stuck level (up to 20 attempts to account for wolf stuck cases)
+    let attempts = 0;
+    let wolfStuckCheck: { stuck: boolean; reason?: string } = { stuck: false };
+
+    while (attempts < 20) {
+      attempts++;
+      levelData = generateValidLevel(wolfStartPosition);
+      if (levelData) {
+        initialStuckCheck = isPlayerStuck(
+          PLAYER_START_POSITION,
+          levelData.flowerPositions,
+          levelData.treePositions,
+          false
+        );
+
+        // check if wolf can reach the player - if not, wolf is stuck
+        const wolfCanReachPlayer = pathExists(
+          wolfStartPosition,
+          PLAYER_START_POSITION,
+          levelData.treePositions
+        );
+
+        wolfStuckCheck = {
+          stuck: !wolfCanReachPlayer,
+          reason: wolfCanReachPlayer ? undefined : `Wolf at (${wolfStartPosition.x}, ${wolfStartPosition.y}) cannot reach player at (${PLAYER_START_POSITION.x}, ${PLAYER_START_POSITION.y}) - no path exists`
+        };
+
+        // only accept level if player is not stuck AND wolf can reach player
+        if (!initialStuckCheck.stuck && !wolfStuckCheck.stuck) {
+          console.log(`✅ Game loaded successfully after ${attempts} attempt(s) - player can move, wolf can chase`);
+          break; // found a good level!
+        } else {
+          if (initialStuckCheck.stuck) {
+            console.log(`⚠️ Attempt ${attempts}: Player stuck - ${initialStuckCheck.reason || "Unknown reason"}`);
+          }
+          if (wolfStuckCheck.stuck) {
+            console.log(`⚠️ Attempt ${attempts}: ${wolfStuckCheck.reason || "Wolf cannot reach player"}`);
+          }
+        }
+      } else {
+        console.log(`⚠️ Attempt ${attempts}: Failed to generate valid level (level generation exhausted 50 internal attempts - will retry)`);
+      }
+    }
+
+    if (!levelData || initialStuckCheck.stuck || wolfStuckCheck.stuck) {
+      const failureReason = !levelData
+        ? "Failed to generate valid level"
+        : initialStuckCheck.stuck
+          ? initialStuckCheck.reason || "Player stuck"
+          : wolfStuckCheck.reason || "Wolf stuck";
+      console.error(`❌ Failed to generate playable level after ${attempts} attempt(s). Reason: ${failureReason}`);
+      // still set up the game state so the board shows something
       setGameState((prev) => ({
         ...prev,
         playerPosition: PLAYER_START_POSITION,
         wolfPosition: wolfStartPosition,
         grannyHousePosition,
-        treePositions: [],
-        flowers: [],
+        treePositions: levelData?.treePositions || [],
+        flowers: levelData?.flowerPositions || [],
         collectedFlowers: 0,
         isHouseOpen: false,
         playerEnteredHouse: false,
-        playerCanMove: true,
-        wolfMoving: true,
+        playerCanMove: false,
+        wolfMoving: false,
         wolfWon: false,
-        gameOver: false,
+        gameOver: true,
         playerDirection: "down",
         wolfDirection: "down",
-        isStuck: false,
-        stuckReason: undefined,
+        isStuck: true,
+        stuckReason: initialStuckCheck.reason || "Level generation failed",
       }));
       return;
     }
 
+    // levelData is guaranteed to be non-null here (TypeScript assertion)
+    const finalLevelData = levelData!;
     setGameState((prev) => ({
       ...prev,
       playerPosition: PLAYER_START_POSITION,
       wolfPosition: wolfStartPosition,
       grannyHousePosition,
-      treePositions: levelData.treePositions,
-      flowers: levelData.flowerPositions,
+      treePositions: finalLevelData.treePositions,
+      flowers: finalLevelData.flowerPositions,
       collectedFlowers: 0,
       isHouseOpen: false,
       playerEnteredHouse: false,
-      playerCanMove: true,
-      wolfMoving: true,
+      playerCanMove: !initialStuckCheck.stuck,
+      wolfMoving: !initialStuckCheck.stuck,
       wolfWon: false,
-      gameOver: false,
+      gameOver: initialStuckCheck.stuck,
       playerDirection: "down",
       wolfDirection: "down",
-      isStuck: false,
-      stuckReason: undefined,
+      isStuck: initialStuckCheck.stuck,
+      stuckReason: initialStuckCheck.reason,
     }));
   }, []);
 
@@ -152,6 +204,11 @@ export const useGameState = () => {
           isHouseOpen
         );
 
+        // log when player gets stuck
+        if (stuckCheck.stuck && !prev.isStuck) {
+          console.log(`🚫 PLAYER STUCK at position (${newPosition.x}, ${newPosition.y}): ${stuckCheck.reason || "Cannot reach objectives"}`);
+        }
+
         return {
           ...prev,
           playerPosition: newPosition,
@@ -160,7 +217,7 @@ export const useGameState = () => {
           collectedFlowers: newCollectedFlowers,
           isHouseOpen,
           playerEnteredHouse,
-          wolfMoving: playerEnteredHouse ? false : prev.wolfMoving,
+          wolfMoving: playerEnteredHouse || stuckCheck.stuck ? false : prev.wolfMoving,
           playerCanMove: !wolfWon && !stuckCheck.stuck && !playerEnteredHouse,
           wolfWon,
           gameOver: wolfWon || stuckCheck.stuck,
@@ -175,7 +232,7 @@ export const useGameState = () => {
   // move the wolf toward the player using pathfinding
   const moveWolf = useCallback(() => {
     setGameState((prev) => {
-      if (!prev.wolfMoving || prev.gameOver) return prev;
+      if (!prev.wolfMoving || prev.gameOver || prev.isStuck) return prev;
 
       // don't chase if player is safe in the house
       if (
@@ -192,13 +249,27 @@ export const useGameState = () => {
       );
 
       if (!nextPosition) {
-        // we're already there or can't find a path
+        // check if we're already at the same position (collision)
         const collision = positionsEqual(prev.wolfPosition, prev.playerPosition);
+
+        if (collision) {
+          // wolf caught the player
+          return {
+            ...prev,
+            playerCanMove: false,
+            wolfWon: true,
+            gameOver: true,
+          };
+        }
+
+        // wolf can't find a path to the player - wolf is stuck
+        const wolfStuckReason = `Wolf at (${prev.wolfPosition.x}, ${prev.wolfPosition.y}) cannot reach player at (${prev.playerPosition.x}, ${prev.playerPosition.y}) - no path exists`;
+        console.log(`🐺 WOLF STUCK: ${wolfStuckReason}`);
+
+        // stop the wolf from moving since it's stuck
         return {
           ...prev,
-          playerCanMove: !collision,
-          wolfWon: collision,
-          gameOver: collision,
+          wolfMoving: false,
         };
       }
 

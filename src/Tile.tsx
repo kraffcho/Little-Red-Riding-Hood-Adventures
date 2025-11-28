@@ -10,6 +10,8 @@ interface Props {
   playerEnteredHouse: boolean;
   playerDirection?: string;
   wolfDirection?: string;
+  gameOver?: boolean;
+  wolfWon?: boolean;
 }
 
 const Tile: React.FC<Props> = ({
@@ -22,6 +24,8 @@ const Tile: React.FC<Props> = ({
   playerEnteredHouse,
   playerDirection,
   wolfDirection,
+  gameOver,
+  wolfWon,
 }) => {
   const [scaleClass, setScaleClass] = useState("");
 
@@ -33,7 +37,8 @@ const Tile: React.FC<Props> = ({
   }, [isTree]);
 
   let className = "tile";
-  if (isPlayer) {
+  // hide player sprite when wolf wins the game
+  if (isPlayer && !(gameOver && wolfWon)) {
     className += " player";
     if (playerDirection === "left") className += " player-left";
     if (playerDirection === "right") className += " player-right";
@@ -52,6 +57,7 @@ const Tile: React.FC<Props> = ({
   if (isOverlap && isWolf) className += " wolf-overlap";
   if (isGrannyHouse) className += " granny-house";
   if (isGrannyHouse && playerEnteredHouse) className += " tooltip";
+  if (playerEnteredHouse && isPlayer && isGrannyHouse) className += " player-in-house";
 
   return <div className={className}></div>;
 };

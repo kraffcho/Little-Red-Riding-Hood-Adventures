@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 interface GameOverProps {
   message: string;
   onRestart: () => void;
+  isStuck?: boolean;
 }
 
-const GameOver: React.FC<GameOverProps> = ({ message, onRestart }) => {
+const GameOver: React.FC<GameOverProps> = ({ message, onRestart, isStuck = false }) => {
   const [visible, setVisible] = useState<boolean>(true);
 
   const handleRestart = () => {
@@ -18,7 +19,7 @@ const GameOver: React.FC<GameOverProps> = ({ message, onRestart }) => {
   };
 
   return visible ? (
-    <div className="game-over">
+    <div className={`game-over ${isStuck ? 'stuck' : ''}`}>
       <div className="game-over-content">
         <p className="game-over-message" dangerouslySetInnerHTML={{ __html: message }}></p>
         <div className="game-over-buttons">
