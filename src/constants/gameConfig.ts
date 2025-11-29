@@ -44,7 +44,7 @@ export const COOKIE_KEYS = {
 } as const;
 
 // special items configuration
-export const ITEM_SPAWN_DELAY = 3000; // 30 seconds in milliseconds
+export const ITEM_SPAWN_DELAY = 30000; // 30 seconds in milliseconds
 export const MAX_BOMBS_ON_MAP = 3; // maximum number of bombs that can be on the map at the same time
 export const BOMB_STUN_DURATION = 5000; // 5 seconds in milliseconds
 export const BOMB_EXPLOSION_RADIUS = 3; // 3 tiles in each direction
