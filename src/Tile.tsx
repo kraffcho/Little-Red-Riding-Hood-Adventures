@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { SpecialItem, ExplosionMark } from "./types/game";
 import { EXPLOSION_MARK_DURATION } from "./constants/gameConfig";
+import { classNames, getDirectionClass } from "./utils/classNames";
 
 interface Props {
   isPlayer: boolean;
@@ -19,6 +20,8 @@ interface Props {
   explosionMark?: ExplosionMark;
   showStunTimer?: boolean;
   stunEndTime?: number | null;
+  tooltipMessage?: string;
+  showTooltip?: boolean;
 }
 
 const Tile: React.FC<Props> = ({
@@ -38,6 +41,8 @@ const Tile: React.FC<Props> = ({
   explosionMark,
   showStunTimer,
   stunEndTime,
+  tooltipMessage,
+  showTooltip = false,
 }) => {
   const [scaleClass, setScaleClass] = useState("");
   const [stunTimeRemaining, setStunTimeRemaining] = useState<number>(0);
@@ -90,35 +95,51 @@ const Tile: React.FC<Props> = ({
     return () => clearInterval(interval);
   }, [explosionMark]);
 
-  let className = "tile";
-  // hide player sprite when wolf wins the game
-  if (isPlayer && !(gameOver && wolfWon)) {
-    className += " player";
-    if (playerDirection === "left") className += " player-left";
-    if (playerDirection === "right") className += " player-right";
-    if (playerDirection === "up") className += " player-up";
-    if (playerDirection === "down") className += " player-down";
-  }
-  if (isWolf) {
-    className += " wolf";
-    if (wolfDirection === "left") className += " wolf-left";
-    if (wolfDirection === "right") className += " wolf-right";
-    if (wolfDirection === "up") className += " wolf-up";
-    if (wolfDirection === "down") className += " wolf-down";
-  }
-  if (isTree) className += ` tree ${scaleClass}`;
-  if (isFlower) className += " flower";
-  if (isOverlap && isWolf) className += " wolf-overlap";
-  if (isGrannyHouse) className += " granny-house";
-  if (isGrannyHouse && playerEnteredHouse) className += " tooltip";
-  if (playerEnteredHouse && isPlayer && isGrannyHouse) className += " player-in-house";
-  if (specialItem) className += " special-item";
-  if (isInExplosion) className += " explosion";
-  if (explosionMark) className += " explosion-mark";
-  if (showStunTimer) className += " wolf-stunned";
+  // build className string declaratively using utility function
+  const shouldShowPlayer = isPlayer && !(gameOver && wolfWon);
+
+  const className = useMemo(
+    () =>
+      classNames(
+        "tile",
+        shouldShowPlayer && "player",
+        shouldShowPlayer && getDirectionClass("player", playerDirection),
+        isWolf && "wolf",
+        isWolf && getDirectionClass("wolf", wolfDirection),
+        isTree && "tree",
+        isTree && scaleClass,
+        isFlower && "flower",
+        isOverlap && isWolf && "wolf-overlap",
+        isGrannyHouse && "granny-house",
+        isGrannyHouse && showTooltip && "tooltip",
+        playerEnteredHouse && isPlayer && isGrannyHouse && "player-in-house",
+        specialItem && "special-item",
+        isInExplosion && "explosion",
+        explosionMark && "explosion-mark",
+        showStunTimer && "wolf-stunned"
+      ),
+    [
+      shouldShowPlayer,
+      playerDirection,
+      isWolf,
+      wolfDirection,
+      isTree,
+      scaleClass,
+      isFlower,
+      isOverlap,
+      isGrannyHouse,
+      showTooltip,
+      playerEnteredHouse,
+      isPlayer,
+      specialItem,
+      isInExplosion,
+      explosionMark,
+      showStunTimer,
+    ]
+  );
 
   return (
-    <div className={className}>
+    <div className={className} data-tooltip={showTooltip && tooltipMessage ? tooltipMessage : undefined}>
       {specialItem && (
         <div className={`special-item-icon ${specialItem.type}`}>
           {specialItem.type === "bomb" && "💣"}

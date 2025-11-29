@@ -23,6 +23,8 @@ interface Props {
   explosionMarks?: ExplosionMark[];
   wolfStunned?: boolean;
   wolfStunEndTime?: number | null;
+  tooltipMessage?: string;
+  showTooltip?: boolean;
 }
 
 const ForestGrid: React.FC<Props> = ({
@@ -42,6 +44,8 @@ const ForestGrid: React.FC<Props> = ({
   explosionMarks = [],
   wolfStunned = false,
   wolfStunEndTime = null,
+  tooltipMessage,
+  showTooltip = false,
 }) => {
   // check if we're in portrait mode (mobile)
   const [isViewportWidthSmaller, setIsViewportWidthSmaller] = useState(
@@ -114,6 +118,8 @@ const ForestGrid: React.FC<Props> = ({
             explosionMark={explosionMark}
             showStunTimer={showStunTimer}
             stunEndTime={wolfStunEndTime}
+            tooltipMessage={isGrannyHouse ? tooltipMessage : undefined}
+            showTooltip={isGrannyHouse ? showTooltip : false}
           />
         );
       })}

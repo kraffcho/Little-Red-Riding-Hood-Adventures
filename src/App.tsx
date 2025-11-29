@@ -5,8 +5,6 @@ import GameOver from "./components/GameOver";
 import Countdown from "./components/Countdown";
 import LevelComplete from "./components/LevelComplete";
 import TemporaryMessage from "./components/TemporaryMessage";
-import QuestProgress from "./components/ui/QuestProgress";
-import QuestInfo from "./components/ui/QuestInfo";
 import SettingsMenu from "./components/ui/SettingsMenu";
 import Inventory from "./components/ui/Inventory";
 
@@ -16,6 +14,7 @@ import { useKeyboardInput, useSwipeInput } from "./hooks/useInput";
 import { Direction, ItemType } from "./types/game";
 import { AUDIO_PATHS, NUM_FLOWERS, ENEMY_DELAY, GRID_SIZE } from "./constants/gameConfig";
 import { moveInDirection, positionsEqual } from "./utils/gridUtils";
+import { getGrannyQuestMessage, QuestMilestone } from "./utils/questMessages";
 
 const App: React.FC = () => {
   const {
@@ -50,6 +49,67 @@ const App: React.FC = () => {
   const [countdownComplete, setCountdownComplete] = useState(false);
   const gameResetKey = useRef(0);
   const previousExplosionEffect = useRef<string | null>(null);
+  const [currentTooltipMilestone, setCurrentTooltipMilestone] = useState<QuestMilestone | null>(null);
+  const [currentTooltipMessage, setCurrentTooltipMessage] = useState<string>("");
+  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const shownMilestonesRef = useRef<Set<QuestMilestone>>(new Set());
+
+  // detect quest milestones and show tooltip for 3 seconds
+  useEffect(() => {
+    // only check milestones when countdown is complete and game is initialized
+    if (!countdownComplete || gameState.playerPosition.x === -1) return;
+
+    // don't interfere if a tooltip is already showing (timeout is active)
+    if (tooltipTimeoutRef.current) {
+      return;
+    }
+
+    const halfwayPoint = Math.ceil(NUM_FLOWERS / 2);
+    let milestone: QuestMilestone | null = null;
+
+    // start milestone is handled in handleCountdownComplete, skip it here
+    // check for halfway milestone
+    if (
+      gameState.collectedFlowers >= halfwayPoint &&
+      gameState.collectedFlowers < NUM_FLOWERS &&
+      !shownMilestonesRef.current.has("halfway")
+    ) {
+      milestone = "halfway";
+      shownMilestonesRef.current.add("halfway");
+    }
+    // check for all collected milestone
+    else if (
+      gameState.collectedFlowers === NUM_FLOWERS &&
+      !shownMilestonesRef.current.has("all_collected")
+    ) {
+      milestone = "all_collected";
+      shownMilestonesRef.current.add("all_collected");
+    }
+    // check for entered house milestone
+    else if (gameState.playerEnteredHouse && !shownMilestonesRef.current.has("entered_house")) {
+      milestone = "entered_house";
+      shownMilestonesRef.current.add("entered_house");
+    }
+
+    // show tooltip if we have a new milestone
+    if (milestone) {
+      // get the message for this milestone
+      const questMsg = getGrannyQuestMessage(
+        gameState.collectedFlowers,
+        gameState.isHouseOpen,
+        gameState.playerEnteredHouse,
+        milestone
+      );
+      setCurrentTooltipMilestone(milestone);
+      setCurrentTooltipMessage(questMsg.message);
+      // hide tooltip after 3 seconds
+      tooltipTimeoutRef.current = setTimeout(() => {
+        setCurrentTooltipMilestone(null);
+        setCurrentTooltipMessage("");
+        tooltipTimeoutRef.current = null;
+      }, 3000);
+    }
+  }, [gameState.collectedFlowers, gameState.playerEnteredHouse, gameState.isHouseOpen, countdownComplete]);
 
   // play a sound when all flowers are collected
   useEffect(() => {
@@ -189,13 +249,43 @@ const App: React.FC = () => {
     previousExplosionEffect.current = null;
     setCountdownComplete(false); // reset countdown for new game
     gameResetKey.current += 1; // increment to force countdown remount
+    // reset tooltip milestones
+    setCurrentTooltipMilestone(null);
+    setCurrentTooltipMessage("");
+    shownMilestonesRef.current.clear();
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current);
+      tooltipTimeoutRef.current = null;
+    }
   }, [resetMusic, resetGame]);
 
   const handleCountdownComplete = useCallback(() => {
     setCountdownComplete(true);
     // start item spawning timer when countdown completes
     startItemSpawning();
-  }, [startItemSpawning]);
+    // trigger start milestone tooltip after a brief delay (so countdown message can fade)
+    setTimeout(() => {
+      if (!shownMilestonesRef.current.has("start") && gameState.collectedFlowers === 0) {
+        const questMsg = getGrannyQuestMessage(
+          gameState.collectedFlowers,
+          gameState.isHouseOpen,
+          gameState.playerEnteredHouse,
+          "start"
+        );
+        setCurrentTooltipMilestone("start");
+        setCurrentTooltipMessage(questMsg.message);
+        shownMilestonesRef.current.add("start");
+        if (tooltipTimeoutRef.current) {
+          clearTimeout(tooltipTimeoutRef.current);
+        }
+        tooltipTimeoutRef.current = setTimeout(() => {
+          setCurrentTooltipMilestone(null);
+          setCurrentTooltipMessage("");
+          tooltipTimeoutRef.current = null;
+        }, 3000);
+      }
+    }, 500);
+  }, [startItemSpawning, gameState.collectedFlowers]);
 
   // handle item usage
   const handleUseItem = useCallback((itemType: ItemType) => {
@@ -274,6 +364,8 @@ const App: React.FC = () => {
               explosionMarks={gameState.explosionMarks}
               wolfStunned={gameState.wolfStunned}
               wolfStunEndTime={gameState.wolfStunEndTime}
+              tooltipMessage={currentTooltipMessage}
+              showTooltip={currentTooltipMilestone !== null}
             />
             {gameState.gameOver && (
               <GameOver
@@ -287,21 +379,15 @@ const App: React.FC = () => {
               />
             )}
           </div>
-          <div className="quest-panel">
-            <QuestInfo
-              collectedFlowers={gameState.collectedFlowers}
-              isHouseOpen={gameState.isHouseOpen}
-            />
-            <div className="quest-progress-wrapper">
-              <QuestProgress collectedFlowers={gameState.collectedFlowers} />
-              <Inventory
-                inventory={gameState.inventory}
-                onUseItem={handleUseItem}
-                bombCooldownEndTime={gameState.bombCooldownEndTime}
-              />
-            </div>
-          </div>
         </>
+      )}
+      {/* floating inventory */}
+      {isGameInitialized && (
+        <Inventory
+          inventory={gameState.inventory}
+          onUseItem={handleUseItem}
+          bombCooldownEndTime={gameState.bombCooldownEndTime}
+        />
       )}
       <SettingsMenu
         volume={volume}
