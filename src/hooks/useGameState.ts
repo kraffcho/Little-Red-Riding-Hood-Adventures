@@ -184,9 +184,8 @@ export const useGameState = () => {
       temporaryMessage: null,
     }));
 
-    // reset game start time - the useEffect will start the spawning timer
-    gameStartTimeRef.current = Date.now();
-    // clear any existing timer so it can restart fresh
+    // clear game start time and timer - will be set when gameplay actually starts (after countdown)
+    gameStartTimeRef.current = null;
     if (itemSpawnTimerRef.current) {
       clearTimeout(itemSpawnTimerRef.current);
       itemSpawnTimerRef.current = null;
@@ -411,38 +410,39 @@ export const useGameState = () => {
     });
   }, []);
 
-  // start item spawning timer after game starts
-  useEffect(() => {
-    // check if game is properly initialized (player position is valid)
+  // start item spawning timer when gameplay begins (after countdown)
+  const startItemSpawning = useCallback(() => {
+    // check if game is properly initialized and ready
     const isGameInitialized = gameState.playerPosition.x >= 0 && gameState.playerPosition.y >= 0;
 
-    // only start spawning if game is initialized and not over/ended
-    if (isGameInitialized && gameStartTimeRef.current && !gameState.gameOver && !gameState.playerEnteredHouse && !gameState.isStuck) {
-      // clear any existing timer first
-      if (itemSpawnTimerRef.current) {
-        clearTimeout(itemSpawnTimerRef.current);
-      }
+    if (!isGameInitialized || gameState.gameOver || gameState.playerEnteredHouse || gameState.isStuck) {
+      return; // don't start if conditions aren't right
+    }
 
-      // start the spawning timer
-      itemSpawnTimerRef.current = setTimeout(() => {
-        spawnSpecialItem();
-      }, ITEM_SPAWN_DELAY);
+    // clear any existing timer first
+    if (itemSpawnTimerRef.current) {
+      clearTimeout(itemSpawnTimerRef.current);
+    }
 
-      return () => {
-        // cleanup on unmount or when conditions change
-        if (itemSpawnTimerRef.current) {
-          clearTimeout(itemSpawnTimerRef.current);
-          itemSpawnTimerRef.current = null;
-        }
-      };
-    } else {
-      // stop spawning if game is over, ended, stuck, or not initialized
+    // set game start time
+    gameStartTimeRef.current = Date.now();
+
+    // start the spawning timer - this will spawn the first item after ITEM_SPAWN_DELAY
+    itemSpawnTimerRef.current = setTimeout(() => {
+      spawnSpecialItem();
+    }, ITEM_SPAWN_DELAY);
+  }, [gameState.playerPosition, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, spawnSpecialItem]);
+
+  // stop item spawning when game ends or conditions change
+  useEffect(() => {
+    if (gameState.gameOver || gameState.playerEnteredHouse || gameState.isStuck) {
+      // stop spawning if game is over, ended, or stuck
       if (itemSpawnTimerRef.current) {
         clearTimeout(itemSpawnTimerRef.current);
         itemSpawnTimerRef.current = null;
       }
     }
-  }, [gameState.playerPosition, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, spawnSpecialItem]);
+  }, [gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck]);
 
   // update wolf stun timer
   useEffect(() => {
@@ -621,6 +621,7 @@ export const useGameState = () => {
     initializeGame,
     useBomb,
     clearTemporaryMessage,
+    startItemSpawning,
   };
 };
 

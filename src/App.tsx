@@ -25,6 +25,7 @@ const App: React.FC = () => {
     resetGame,
     useBomb,
     clearTemporaryMessage,
+    startItemSpawning,
   } = useGameState();
 
   const {
@@ -165,7 +166,9 @@ const App: React.FC = () => {
 
   const handleCountdownComplete = useCallback(() => {
     setCountdownComplete(true);
-  }, []);
+    // start item spawning timer when countdown completes
+    startItemSpawning();
+  }, [startItemSpawning]);
 
   // handle item usage
   const handleUseItem = useCallback((itemType: ItemType) => {
@@ -261,13 +264,15 @@ const App: React.FC = () => {
               collectedFlowers={gameState.collectedFlowers}
               isHouseOpen={gameState.isHouseOpen}
             />
-            <QuestProgress collectedFlowers={gameState.collectedFlowers} />
+            <div className="quest-progress-wrapper">
+              <QuestProgress collectedFlowers={gameState.collectedFlowers} />
+              <Inventory
+                inventory={gameState.inventory}
+                onUseItem={handleUseItem}
+                bombCooldownEndTime={gameState.bombCooldownEndTime}
+              />
+            </div>
           </div>
-          <Inventory
-            inventory={gameState.inventory}
-            onUseItem={handleUseItem}
-            bombCooldownEndTime={gameState.bombCooldownEndTime}
-          />
         </>
       )}
       <SettingsMenu
