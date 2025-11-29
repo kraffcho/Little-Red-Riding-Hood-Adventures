@@ -9,7 +9,7 @@ Welcome to the enchanting world of "Little Red Riding Hood Adventures"! A grid-b
 - On mobile/tablet, swipe in the direction you want to move
 - Wait for the countdown (3-2-1-GO!) before the game starts
 - Collect all flowers scattered throughout the forest
-- **Collect special items** (bombs) that spawn on the board after 30 seconds
+- **Collect special items** (bombs) that spawn on the board after gameplay starts
 - **Use bombs** to stun the wolf for 10 seconds (within 3-tile radius)
   - Click/tap the bomb in your inventory, or press **Space bar**
   - Bombs have a 10-second cooldown before you can use another
@@ -54,7 +54,8 @@ The optimized build will be in the `build` folder.
 - **TypeScript** - Type-safe JavaScript
 - **Create React App** - Build tooling
 - **CSS3** - Styling and animations with custom properties
-- **Titillium Web** - Typography font
+- **Titillium Web** - Primary typography font
+- **Bangers** - Display font for game messages
 
 ## 📁 Project Structure
 
@@ -62,55 +63,63 @@ The optimized build will be in the `build` folder.
 src/
 ├── components/
 │   ├── ui/
-│   │   ├── GameControls.tsx     # Game controls (sound, volume, restart)
-│   │   ├── QuestInfo.tsx        # Quest information display
-│   │   ├── QuestProgress.tsx    # Quest progress bar component
-│   │   ├── SettingsMenu.tsx     # Settings dropdown menu
-│   │   └── Inventory.tsx        # Inventory display with cooldown indicators
-│   ├── Countdown.tsx            # Countdown start screen (GET READY!)
-│   ├── GameOver.tsx             # Game over modal
-│   ├── LevelComplete.tsx        # Level complete overlay
-│   └── TemporaryMessage.tsx     # Temporary messages (hit/miss feedback)
+│   │   ├── Header.tsx              # Main header component (inventory, quest progress, settings)
+│   │   ├── HeaderInventory.tsx     # Compact inventory display in header
+│   │   ├── SettingsIcon.tsx        # SVG gear icon component
+│   │   ├── SettingsMenu.tsx        # Settings dropdown menu
+│   │   ├── QuestProgress.tsx       # Quest progress bar component
+│   │   ├── GameControls.tsx        # Legacy game controls component
+│   │   ├── Inventory.tsx           # Legacy inventory component
+│   │   └── QuestInfo.tsx           # Legacy quest info component
+│   ├── Countdown.tsx               # Countdown start screen (GET READY!)
+│   ├── GameOver.tsx                # Game over modal
+│   ├── LevelComplete.tsx           # Level complete overlay
+│   └── TemporaryMessage.tsx        # Temporary messages (hit/miss feedback)
 ├── constants/
-│   └── gameConfig.ts            # Game configuration constants
+│   └── gameConfig.ts               # Game configuration constants
 ├── hooks/
-│   ├── useGameState.ts          # Game state management
-│   ├── useAudio.ts              # Audio playback management
-│   ├── useInput.ts              # Keyboard (arrow keys + WASD + Space) and touch input
-│   └── useDebounce.ts           # Debounce utility
+│   ├── useGameState.ts             # Game state management
+│   ├── useAudio.ts                 # Audio playback management
+│   ├── useInput.ts                 # Keyboard (arrow keys + WASD + Space) and touch input
+│   └── useDebounce.ts              # Debounce utility
 ├── types/
-│   └── game.ts                  # TypeScript type definitions
+│   └── game.ts                     # TypeScript type definitions
 ├── utils/
-│   ├── gridUtils.ts             # Grid and position utilities
-│   ├── pathfinding.ts           # A* pathfinding algorithm
-│   ├── gameGeneration.ts        # Level generation logic
-│   ├── levelValidation.ts       # Level validation and stuck detection
-│   └── itemUtils.ts             # Special item utilities (positioning, radius checks)
-├── App.tsx                      # Main application component
-├── ForestGrid.tsx               # Game grid component
-├── Tile.tsx                     # Individual tile component
-└── styles.css                   # Global styles with CSS custom properties
+│   ├── gridUtils.ts                # Grid and position utilities
+│   ├── pathfinding.ts              # A* pathfinding algorithm
+│   ├── gameGeneration.ts           # Level generation logic
+│   ├── levelValidation.ts          # Level validation and stuck detection
+│   ├── itemUtils.ts                # Special item utilities (positioning, radius checks)
+│   ├── questMessages.ts            # Quest message generation for Granny tooltips
+│   ├── classNames.ts               # Utility for conditional CSS class names
+│   └── index.ts                    # Utility exports
+├── App.tsx                         # Main application component
+├── ForestGrid.tsx                  # Game grid component
+├── Tile.tsx                        # Individual tile component
+└── styles.css                      # Global styles with CSS custom properties
 ```
 
 ## 🎵 Features
 
-- 🎨 Beautiful forest-themed graphics with animated sprites
-- 🎵 Immersive background music and contextual sound effects
-- 📱 Fully responsive design for desktop and mobile devices
-- 🤖 Intelligent A\* pathfinding AI for the wolf enemy
-- 📋 Quest system with real-time progress tracking
-- 🎮 Countdown start screen with "GET READY!" animation
-- ⚙️ Settings menu with sound controls (top-right wheel icon)
-- 🎯 Level validation to ensure all games are solvable
-- 🔄 Smart level generation with retry logic
-- 📊 Two-column quest info panel at the bottom of screen
-- 🎭 Smooth animations with GPU acceleration
-- 🚫 Stuck detection and handling for both player and wolf
+- 🎨 **Beautiful forest-themed graphics** with animated sprites
+- 🎵 **Immersive audio** - Background music and contextual sound effects
+- 📱 **Fully responsive design** for desktop and mobile devices
+- 🤖 **Intelligent AI** - A\* pathfinding algorithm for the wolf enemy
+- 📋 **Quest system** with real-time progress tracking
+- 🎮 **Countdown start screen** - "GET READY!" animation (3-2-1-GO!)
+- 🎯 **Level validation** - Ensures all games are solvable
+- 🔄 **Smart level generation** - Retry logic with attempt logging
+- 🎭 **Smooth animations** - GPU-accelerated for optimal performance
+- 🚫 **Stuck detection** - Prevents unwinnable game states for player and wolf
 - 💣 **Special Items System** - Collect and use bombs to stun the wolf
-- 📦 **Inventory System** - Track collected items with visual cooldown indicators
-- 💥 **Explosion Effects** - Visual and audio feedback for bomb usage
+- 📦 **Compact Header Inventory** - 3-slot inventory in the header with visual cooldown
+- 🎯 **Quest Progress in Header** - Slim one-liner progress bar showing collected flowers
+- ⚙️ **Settings Menu** - Accessible via SVG gear icon in header (top-right)
+- 🏠 **Granny's Tooltips** - Dynamic quest messages appear above Granny's house
+- 💥 **Explosion Effects** - Visual feedback with screen shake and marks
 - 🎯 **Hit/Miss Feedback** - Temporary messages show bomb effectiveness
-- ⏱️ **Stun System** - Stun timer displays above the wolf when affected
+- ⏱️ **Stun System** - Visual countdown timer above stunned wolf
+- 📊 **Level Progression** - Complete levels to advance (infinite levels)
 
 ## 🏗️ Architecture
 
@@ -121,8 +130,9 @@ The codebase follows modern React best practices with a modular architecture:
 - **Component Separation** - UI components separated from business logic
 - **Type Safety** - Full TypeScript support with centralized type definitions
 - **Constants Management** - All game configuration in one place
-- **CSS Custom Properties** - Design tokens for colors, spacing, typography
+- **CSS Custom Properties** - Design tokens for colors, spacing, typography, and z-index
 - **DRY Principles** - No code duplication, reusable components and utilities
+- **Performance Optimized** - GPU-accelerated animations, efficient re-renders
 
 ## 📝 Available Scripts
 
@@ -135,34 +145,77 @@ The codebase follows modern React best practices with a modular architecture:
 
 - **Grid-Based Movement** - 20x20 tile-based navigation
 - **Collision Detection** - Trees block movement, wolf triggers game over
-- **Pathfinding** - Wolf uses A\* algorithm to chase the player
+- **Pathfinding** - Wolf uses A\* algorithm to chase the player intelligently
 - **Quest System** - Collect flowers to unlock Granny's house
-- **Audio System** - Background music and contextual sound effects
-- **Level Validation** - Ensures all generated levels are solvable
-- **Stuck Detection** - Prevents unwinnable game states
-- **Countdown Timer** - Game starts with a 3-2-1-GO! countdown
-- **Special Items** - Bombs spawn randomly after 30 seconds of gameplay (timer starts after countdown completes)
-- **Inventory System** - Collect and manage special items with visual feedback
+- **Audio System** - Background music and contextual sound effects with cookie persistence
+- **Level Validation** - Flood fill algorithm ensures all objectives are reachable
+- **Stuck Detection** - Runtime detection prevents unwinnable game states
+- **Countdown Timer** - Game starts with a 3-2-1-GO! countdown animation
+- **Special Items** - Bombs spawn randomly after configurable delay (default: 30 seconds)
+- **Inventory System** - Compact header-based inventory with 3 fixed slots
 - **Bomb Mechanics** - Stun the wolf within a 3-tile radius for 10 seconds
-- **Cooldown System** - 10-second cooldown between bomb uses
+- **Cooldown System** - 10-second cooldown between bomb uses with visual progress bar
 - **Level Progression** - Complete levels to advance (currently infinite levels)
+- **Explosion Marks** - Visual marks on tiles where bombs were used (fade after 3 seconds)
 
 ## 🎨 UI/UX Features
 
-- **Countdown Screen** - Animated "GET READY!" message with countdown before game starts
-- **Settings Menu** - Top-right wheel icon opens dropdown with game controls
-- **Quest Panel** - Two-column layout at bottom:
-  - Left column: Quest information and instructions
-  - Right column: Split into two sub-columns (Collected Flowers progress + Inventory)
-- **Responsive Layout** - Adapts to different screen sizes while maintaining 1:1 game board aspect ratio
-  - Desktop: Three-column layout (Quest Info | Collected Flowers | Inventory)
-  - Mobile: Vertical stacking of all panels
-- **Inventory Display** - Shows collected items with count and cooldown progress bars, integrated into quest panel
-- **Game Over Modal** - Clean overlay design centered on game board
-- **Level Complete Overlay** - Animated "LEVEL X COMPLETED" message when finishing a level
-- **Temporary Messages** - "WOLF STUNNED!" (white) or "MISSED!" (gold) feedback for bomb usage
-- **Stun Timer** - Visual countdown above the wolf when stunned
-- **Explosion Visual Effects** - Screen shake and radial explosion animation
+### Header
+
+- **Fixed Position Header** - Always visible at the top of the screen
+  - Desktop height: 34px
+  - Mobile height: 44px
+- **Left Section** - Compact inventory with 3 slots
+  - Shows collected items (bomb, health, speed - future items)
+  - Item count badges
+  - Cooldown progress bars for active items
+- **Center Section** - Quest progress bar
+  - Shows collected flowers count (e.g., "💐 15/30")
+  - Visual progress bar with gradient
+  - Gold animation when complete
+- **Right Section** - Settings button
+  - SVG gear icon (no emoji)
+  - Opens dropdown settings menu
+
+### Settings Menu
+
+- **Dropdown Menu** - Opens below the header when settings icon is clicked
+- **Volume Control** - Slider with percentage display
+- **Sound Toggle** - Mute/unmute background music
+- **Restart Game** - Resets the game and closes the menu
+- **Click Outside** - Menu closes when clicking outside
+
+### Quest System
+
+- **Granny's Tooltips** - Dynamic messages appear above Granny's house
+  - Start message: "My sweet RedHood! 💐 Gather 30 flowers for me."
+  - Halfway message: "Halfway there! 🌺"
+  - All collected: "Perfect! 🌸 Hurry here!"
+  - Entered house: "Oh my dear! 🧓 You made it safely!"
+- **Tooltip Display** - Messages fade in/out over 3 seconds at milestones
+- **Smart Timing** - Messages persist even if game state changes during display
+
+### Game Board
+
+- **1:1 Aspect Ratio** - Always maintains square game board
+- **Responsive Sizing** - Adapts to viewport while keeping square shape
+- **Centered Layout** - Game board centered on screen with proper spacing
+
+### Visual Feedback
+
+- **Countdown Screen** - Animated "GET READY!" with 3-2-1-GO! countdown
+- **Level Complete Overlay** - "LEVEL X COMPLETED" message centered on board
+- **Game Over Modal** - Clean overlay design without background box
+- **Temporary Messages** - "WOLF STUNNED!" (white) or "MISSED!" (gold) feedback
+- **Stun Timer** - Countdown above wolf when stunned (no background, text-only)
+- **Explosion Effects** - Screen shake and visual blast animation
+- **Explosion Marks** - Dark marks on tiles where bombs exploded (fade out over 3 seconds)
+
+### Typography
+
+- **Titillium Web** - Primary font for UI elements
+- **Bangers** - Display font for game messages (countdown, level complete, game over, etc.)
+- **Letter Spacing** - Enhanced readability with increased letter spacing on display text
 
 ## 💣 Special Items & Inventory System
 
@@ -170,16 +223,19 @@ The game features a special items system that adds strategic depth to gameplay. 
 
 ### Item Spawning
 
-- **Spawn Delay**: Special items (bombs) begin spawning after **30 seconds** of gameplay (timer starts when countdown completes, not during countdown)
-- **Continuous Spawning**: After the initial delay, new items spawn every **30 seconds** (configurable via `ITEM_SPAWN_DELAY`)
+- **Spawn Delay**: Special items (bombs) begin spawning after **30 seconds** of gameplay
+  - Timer starts when countdown completes (not during countdown)
+- **Continuous Spawning**: After the initial delay, new items spawn every **30 seconds** (configurable)
 - **Random Placement**: Items are placed randomly on valid tiles (avoiding obstacles and entities)
 - **Multiple Items**: You can collect multiple bombs - they stack in your inventory
+- **Max on Map**: Maximum of 3 bombs can exist on the map at the same time
 
 ### Collecting Items
 
 - Simply walk over a special item icon on the game board to collect it
 - Collected items are automatically added to your inventory
-- The inventory panel appears at the bottom of the screen when you have items
+- Collection sound effect plays when picking up a bomb
+- Inventory appears in the header (left section) with 3 fixed slots
 
 ### Using Bombs
 
@@ -187,7 +243,7 @@ Bombs are powerful items that can stun the wolf, giving you precious time to col
 
 **How to Use:**
 
-- **Click/Tap**: Click or tap the bomb icon in your inventory panel
+- **Click/Tap**: Click or tap the bomb icon in the header inventory
 - **Keyboard**: Press the **Space bar** to use a bomb
 
 **Bomb Effects:**
@@ -198,30 +254,33 @@ Bombs are powerful items that can stun the wolf, giving you precious time to col
   - Radial explosion animation at your position
   - Screen shake effect
   - Random explosion sound effect (3 variations)
+  - Dark explosion mark on the tile (fades after 3 seconds)
 - **Stun Timer**: A countdown timer appears above the wolf showing remaining stun time
 
 **Cooldown System:**
 
 - After using a bomb, there's a **10-second cooldown** before you can use another
-- A progress bar under the bomb icon in your inventory shows the cooldown progress
+- A progress bar under the bomb icon in the inventory shows the cooldown progress
 - The bomb button is disabled during cooldown
 
 ### Feedback Messages
 
 When you use a bomb, temporary messages appear in the center of the screen:
 
-- **"WOLF STUNNED!"** (white text) - Shown when the wolf is successfully stunned
-- **"MISSED!"** (gold text) - Shown when the wolf is outside the explosion radius
+- **"WOLF STUNNED!"** (white text with glow) - Shown when the wolf is successfully stunned
+- **"MISSED!"** (gold text with glow) - Shown when the wolf is outside the explosion radius
 
 ### Configuration
 
 All special item settings can be adjusted in `src/constants/gameConfig.ts`:
 
 - `ITEM_SPAWN_DELAY` - Time before first item spawns (default: 30000ms / 30 seconds)
+- `MAX_BOMBS_ON_MAP` - Maximum bombs on map simultaneously (default: 3)
 - `BOMB_STUN_DURATION` - How long the wolf stays stunned (default: 10000ms / 10 seconds)
 - `BOMB_EXPLOSION_RADIUS` - Blast radius in tiles (default: 3 tiles)
 - `BOMB_EXPLOSION_DURATION` - Visual effect duration (default: 1000ms / 1 second)
 - `BOMB_COOLDOWN_DURATION` - Cooldown between uses (default: 10000ms / 10 seconds)
+- `EXPLOSION_MARK_DURATION` - How long explosion marks remain visible (default: 3000ms / 3 seconds)
 
 ## 🤖 Pathfinding Algorithm (A\*)
 
@@ -280,22 +339,12 @@ A\* is a heuristic search algorithm that finds the shortest path from a starting
 - Trees are treated as impassable obstacles
 - If no path exists, the wolf stops moving and the game handles the stuck state
 - Level generation ensures both player and wolf can move at game start
-
-## 🐛 Bug Fixes & Improvements
-
-- ✅ Fixed player sprite visibility when entering house
-- ✅ Improved level generation with validation and retry logic
-- ✅ Enhanced stuck detection for both player and wolf
-- ✅ Optimized animations with GPU acceleration
-- ✅ Fixed autoplay audio restrictions
-- ✅ Improved mobile responsiveness
-- ✅ Better error handling and logging
-- ✅ Fixed item spawning timer to start after countdown completes (not during countdown)
-- ✅ Improved quest panel layout with split columns for Collected Flowers and Inventory
-- ✅ Enhanced mobile layout with vertical stacking of all panels
+- Console logging provides visibility into pathfinding failures
 
 ## 📄 License
 
 This project is licensed under the MIT License.
+
+---
 
 Enjoy your adventure! 🧺✨

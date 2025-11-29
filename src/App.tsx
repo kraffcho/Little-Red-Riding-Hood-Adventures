@@ -5,8 +5,8 @@ import GameOver from "./components/GameOver";
 import Countdown from "./components/Countdown";
 import LevelComplete from "./components/LevelComplete";
 import TemporaryMessage from "./components/TemporaryMessage";
+import Header from "./components/ui/Header";
 import SettingsMenu from "./components/ui/SettingsMenu";
-import Inventory from "./components/ui/Inventory";
 
 import { useGameState } from "./hooks/useGameState";
 import { useAudio } from "./hooks/useAudio";
@@ -53,6 +53,7 @@ const App: React.FC = () => {
   const [currentTooltipMessage, setCurrentTooltipMessage] = useState<string>("");
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const shownMilestonesRef = useRef<Set<QuestMilestone>>(new Set());
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // detect quest milestones and show tooltip for 3 seconds
   useEffect(() => {
@@ -257,6 +258,7 @@ const App: React.FC = () => {
       clearTimeout(tooltipTimeoutRef.current);
       tooltipTimeoutRef.current = null;
     }
+    setIsSettingsOpen(false); // close settings menu on restart
   }, [resetMusic, resetGame]);
 
   const handleCountdownComplete = useCallback(() => {
@@ -317,6 +319,30 @@ const App: React.FC = () => {
 
   return (
     <div className="App" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      {/* header with inventory and settings button */}
+      {isGameInitialized && (
+        <Header
+          inventory={gameState.inventory}
+          onUseItem={handleUseItem}
+          bombCooldownEndTime={gameState.bombCooldownEndTime}
+          collectedFlowers={gameState.collectedFlowers}
+          onSettingsClick={() => {
+            markUserInteracted();
+            setIsSettingsOpen(!isSettingsOpen);
+          }}
+        />
+      )}
+      {isGameInitialized && isSettingsOpen && (
+        <SettingsMenu
+          volume={volume}
+          isPlayingMusic={isPlayingMusic}
+          onVolumeChange={handleVolumeChange}
+          onToggleSound={handleToggleSound}
+          onRestart={handleResetGame}
+          isOpen={isSettingsOpen}
+          onToggle={() => setIsSettingsOpen(!isSettingsOpen)}
+        />
+      )}
       {isGameInitialized && (
         <>
           <div className={`game-board-wrapper ${gameState.explosionEffect ? 'screen-shake' : ''}`}>
@@ -381,22 +407,6 @@ const App: React.FC = () => {
           </div>
         </>
       )}
-      {/* floating inventory */}
-      {isGameInitialized && (
-        <Inventory
-          inventory={gameState.inventory}
-          onUseItem={handleUseItem}
-          bombCooldownEndTime={gameState.bombCooldownEndTime}
-        />
-      )}
-      <SettingsMenu
-        volume={volume}
-        isPlayingMusic={isPlayingMusic}
-        onVolumeChange={handleVolumeChange}
-        onToggleSound={handleToggleSound}
-        onRestart={handleResetGame}
-        onInteraction={markUserInteracted}
-      />
     </div>
   );
 };

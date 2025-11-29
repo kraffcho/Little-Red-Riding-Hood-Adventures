@@ -1,6 +1,4 @@
-/* ============================================================================
-   CSS CUSTOM PROPERTIES (DESIGN TOKENS)
-   ============================================================================ */
+/* CSS CUSTOM PROPERTIES (DESIGN TOKENS) */
 :root {
   /* colors - primary palette */
   --color-green-light: #9bca50;
@@ -118,9 +116,7 @@
   --backdrop-blur: blur(5px);
 }
 
-/* ============================================================================
-   RESET & BASE STYLES
-   ============================================================================ */
+/* RESET & BASE STYLES */
 @import url("https://fonts.googleapis.com/css2?family=Titillium+Web:wght@200;300;400;600;700;900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Bangers&display=swap");
 
@@ -139,9 +135,7 @@ body {
     cover;
 }
 
-/* ============================================================================
-   LAYOUT COMPONENTS
-   ============================================================================ */
+/* LAYOUT COMPONENTS */
 
 /* main app container */
 .App {
@@ -151,6 +145,251 @@ body {
   justify-content: center;
   height: 100vh;
   overflow: hidden;
+  padding-top: 44px; /* account for fixed header (34px) with breathing room */
+}
+
+/* GAME HEADER */
+
+.game-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: linear-gradient(
+    180deg,
+    rgba(57, 92, 20, 0.95) 0%,
+    rgba(67, 128, 48, 0.9) 50%,
+    rgba(57, 92, 20, 0.95) 100%
+  );
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-bottom: var(--border-width-thick) solid var(--color-green-dark);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  z-index: var(--z-index-dropdown);
+  min-height: 34px;
+}
+
+.game-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.game-header-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 var(--spacing-md);
+}
+
+.game-header-right {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.header-settings-button {
+  width: auto;
+  height: auto;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs);
+  transition: all var(--transition-base) var(--ease-in-out);
+  border-radius: var(--radius-sm);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  color: var(--color-white);
+}
+
+.header-settings-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.header-settings-button:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  transform: translate3d(0, -1px, 0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.header-settings-button:active {
+  transform: translate3d(0, 0, 0);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.header-settings-button:focus-visible {
+  outline: var(--border-width-medium) solid var(--color-gold);
+  outline-offset: var(--spacing-xs);
+}
+
+/* HEADER INVENTORY (COMPACT) */
+
+.header-inventory {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.header-inventory-slot {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: var(--border-width-medium) solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base) var(--ease-in-out);
+  overflow: hidden;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.header-inventory-slot.empty {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+  cursor: default;
+}
+
+.header-inventory-slot.has-item {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: var(--color-gold);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.header-inventory-slot.has-item:hover:not(:disabled) {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-green-button);
+}
+
+.header-inventory-slot.has-item:active:not(:disabled) {
+  transform: translate3d(0, 0, 0);
+}
+
+.header-inventory-slot.on-cooldown {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.header-inventory-icon {
+  font-size: var(--font-size-2xl);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.header-inventory-count {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  background-color: var(--color-gold);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-full);
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.header-inventory-cooldown {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--cooldown-progress, 0%);
+  height: 3px;
+  background-color: var(--color-orange);
+  transition: width 50ms linear;
+  z-index: 1;
+}
+
+/* HEADER QUEST PROGRESS */
+
+.header-quest-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  max-width: 300px;
+}
+
+.header-quest-label {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-white);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.header-quest-progress-bar-container {
+  flex: 1;
+  height: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  min-width: 60px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.header-quest-progress-bar {
+  height: 100%;
+  width: var(--quest-progress, 0%);
+  background: linear-gradient(
+    90deg,
+    var(--color-green-progress-light) 0%,
+    var(--color-green-progress) 50%,
+    var(--color-green-progress-light) 100%
+  );
+  border-radius: var(--radius-sm);
+  transition: width var(--transition-base) var(--ease-out);
+  box-shadow: var(--shadow-glow-green);
+}
+
+.header-quest-progress-bar.complete {
+  background: linear-gradient(
+    90deg,
+    var(--color-green-progress-complete) 0%,
+    var(--color-green-progress-light) 50%,
+    var(--color-green-progress-complete) 100%
+  );
+  animation: progressPulse 1.5s var(--ease-in-out) infinite;
+}
+
+@keyframes progressPulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: var(--shadow-glow-green);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+  }
 }
 
 /* wrapper for game board and overlays (game over, level complete) */
@@ -165,9 +404,7 @@ body {
   min-height: 0;
 }
 
-/* ============================================================================
-   GAME GRID & TILES
-   ============================================================================ */
+/* GAME GRID & TILES */
 
 /* game board container */
 .ForestGrid {
@@ -175,12 +412,12 @@ body {
   flex-direction: column;
   width: min(
     calc(100vw - var(--spacing-3xl)),
-    calc(100vh - var(--spacing-3xl))
+    calc(100vh - 44px - var(--spacing-3xl))
   );
   height: min(
     calc(100vw - var(--spacing-3xl)),
-    calc(100vh - var(--spacing-3xl))
-  ); /* fallback for older browsers */
+    calc(100vh - 44px - var(--spacing-3xl))
+  ); /* fallback for older browsers, accounting for header */
   aspect-ratio: 1 / 1;
   padding: 1rem;
   margin-block: var(--spacing-md);
@@ -211,12 +448,15 @@ body {
 
 /* mobile-specific grid adjustments */
 .Mobile {
-  width: min(calc(100vw - var(--spacing-xl)), calc(100vh - var(--spacing-2xl)));
+  width: min(
+    calc(100vw - var(--spacing-xl)),
+    calc(100vh - 54px - var(--spacing-2xl))
+  );
   height: min(
     calc(100vw - var(--spacing-xl)),
-    calc(100vh - var(--spacing-2xl))
-  ); /* fallback for older browsers */
-  aspect-ratio: 1 / 1;
+    calc(100vh - 54px - var(--spacing-2xl))
+  ); /* fallback for older browsers, accounting for header */
+  aspect-ratio: 1 / 1; /* ensure square board */
   box-shadow: var(--shadow-inset);
   border-radius: var(--radius-xl);
   box-sizing: border-box;
@@ -233,9 +473,7 @@ body {
   position: relative; /* create stacking context for z-index to work */
 }
 
-/* ============================================================================
-   GAME ENTITIES (SPRITES)
-   ============================================================================ */
+/* GAME ENTITIES (SPRITES) */
 
 /* tree variations */
 .tree {
@@ -362,9 +600,7 @@ body {
   filter: drop-shadow(var(--shadow-drop-shadow));
 }
 
-/* ============================================================================
-   PLAYER ANIMATIONS
-   ============================================================================ */
+/* PLAYER ANIMATIONS */
 
 .player-left {
   animation: leftMovePlayer var(--transition-fast) var(--ease-in-out) forwards;
@@ -439,9 +675,7 @@ body {
   }
 }
 
-/* ============================================================================
-   WOLF ANIMATIONS
-   ============================================================================ */
+/* WOLF ANIMATIONS */
 
 .wolf-left {
   animation: leftMoveWolf var(--transition-slow) var(--ease-in-out) forwards;
@@ -508,9 +742,7 @@ body {
   }
 }
 
-/* ============================================================================
-   GRANNY HOUSE TOOLTIP
-   ============================================================================ */
+/* GRANNY HOUSE TOOLTIP */
 
 .granny-house.tooltip {
   z-index: var(--z-index-elevated);
@@ -652,9 +884,7 @@ body {
   }
 }
 
-/* ============================================================================
-   QUEST HEADER (TWO-COLUMN LAYOUT)
-   ============================================================================ */
+/* QUEST HEADER (TWO-COLUMN LAYOUT) */
 
 .quest-panel {
   display: flex;
@@ -738,6 +968,7 @@ body {
 
 .quest-progress-bar {
   height: 100%;
+  width: var(--quest-progress, 0%);
   background: linear-gradient(
     90deg,
     var(--color-green-progress) 0%,
@@ -821,9 +1052,7 @@ body {
   line-height: var(--line-height-normal);
 }
 
-/* ============================================================================
-   GAME CONTROLS
-   ============================================================================ */
+/* GAME CONTROLS */
 
 .game-controls {
   display: flex;
@@ -895,9 +1124,7 @@ body {
   outline-offset: var(--spacing-xs);
 }
 
-/* ============================================================================
-   SETTINGS MENU
-   ============================================================================ */
+/* SETTINGS MENU */
 
 .settings-menu-container {
   position: fixed;
@@ -937,9 +1164,9 @@ body {
 }
 
 .settings-menu-dropdown {
-  position: absolute;
-  top: 30px;
-  right: 0;
+  position: fixed;
+  top: 42px; /* below the header (34px) */
+  right: var(--spacing-lg);
   background-color: var(--color-white);
   border: var(--border-width-thick) solid var(--color-green-primary);
   border-radius: var(--radius-xl);
@@ -1010,6 +1237,61 @@ body {
 
 .settings-menu-content {
   padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.settings-menu-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.settings-menu-section label {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.settings-menu-section input[type="range"] {
+  width: 100%;
+  cursor: pointer;
+}
+
+.settings-volume-value {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-600);
+  text-align: right;
+  margin-top: calc(var(--spacing-xs) * -1);
+}
+
+.settings-toggle-button,
+.settings-restart-button {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-green-button);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: background-color var(--transition-base) var(--ease-in-out);
+  width: 100%;
+}
+
+.settings-toggle-button:hover,
+.settings-restart-button:hover {
+  background-color: var(--color-green-button-hover);
+}
+
+.settings-restart-button {
+  margin-top: var(--spacing-md);
+  border-top: var(--border-width-thin) solid var(--color-gray-200);
+  padding-top: var(--spacing-lg);
 }
 
 .settings-menu-content .game-controls {
@@ -1018,9 +1300,7 @@ body {
   border-radius: 0;
 }
 
-/* ============================================================================
-   COUNTDOWN OVERLAY
-   ============================================================================ */
+/* COUNTDOWN OVERLAY */
 
 .countdown-overlay {
   position: absolute;
@@ -1118,9 +1398,7 @@ body {
   }
 }
 
-/* ============================================================================
-   LEVEL COMPLETE OVERLAY
-   ============================================================================ */
+/* LEVEL COMPLETE OVERLAY */
 
 .level-complete-overlay {
   position: absolute;
@@ -1205,9 +1483,7 @@ body {
   }
 }
 
-/* ============================================================================
-   TEMPORARY MESSAGE OVERLAY
-   ============================================================================ */
+/* TEMPORARY MESSAGE OVERLAY */
 
 .temporary-message-overlay {
   position: absolute;
@@ -1285,9 +1561,7 @@ body {
   }
 }
 
-/* ============================================================================
-   GAME OVER MODAL
-   ============================================================================ */
+/* GAME OVER MODAL */
 
 .game-over {
   position: absolute;
@@ -1425,9 +1699,7 @@ body {
   outline-offset: var(--spacing-xs);
 }
 
-/* ============================================================================
-   RESPONSIVE DESIGN
-   ============================================================================ */
+/* RESPONSIVE DESIGN */
 
 @media only screen and (max-width: 768px) {
   body {
@@ -1527,9 +1799,7 @@ body {
   }
 }
 
-/* ============================================================================
-   INVENTORY
-   ============================================================================ */
+/* INVENTORY */
 
 .inventory {
   position: fixed;
@@ -1644,9 +1914,7 @@ body {
   padding: var(--spacing-sm) 0;
 }
 
-/* ============================================================================
-   SPECIAL ITEMS ON TILES
-   ============================================================================ */
+/* SPECIAL ITEMS ON TILES */
 
 .tile.special-item {
   position: relative;
@@ -1680,9 +1948,7 @@ body {
   }
 }
 
-/* ============================================================================
-   EXPLOSION EFFECT
-   ============================================================================ */
+/* EXPLOSION EFFECT */
 
 .tile.explosion {
   position: relative;
@@ -1795,9 +2061,7 @@ body {
   }
 }
 
-/* ============================================================================
-   WOLF STUN TIMER
-   ============================================================================ */
+/* WOLF STUN TIMER */
 
 .tile.wolf-stunned {
   position: relative;
@@ -1843,8 +2107,43 @@ body {
   }
 }
 
-/* responsive adjustments for inventory */
+/* responsive adjustments for inventory and header */
 @media (max-width: 768px) {
+  .App {
+    padding-top: 54px;
+  }
+
+  .game-header {
+    padding: var(--spacing-xs) var(--spacing-md);
+    min-height: 44px;
+  }
+
+  .header-inventory-slot {
+    width: 36px;
+    height: 36px;
+  }
+
+  .header-inventory-icon {
+    font-size: var(--font-size-xl);
+  }
+
+  .header-inventory-count {
+    width: 16px;
+    height: 16px;
+    font-size: var(--font-size-xs);
+  }
+
+  .header-settings-button {
+    font-size: var(--font-size-lg);
+  }
+
+  .settings-menu-dropdown {
+    top: 52px;
+    right: var(--spacing-md);
+    min-width: 240px;
+    max-width: min(280px, calc(100vw - var(--spacing-xl)));
+  }
+
   .inventory {
     top: var(--spacing-sm);
     left: var(--spacing-sm);

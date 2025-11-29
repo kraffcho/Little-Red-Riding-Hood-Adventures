@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { NUM_FLOWERS } from "../../constants/gameConfig";
 
 interface QuestProgressProps {
@@ -8,6 +8,14 @@ interface QuestProgressProps {
 const QuestProgress: React.FC<QuestProgressProps> = ({ collectedFlowers }) => {
   const progress = (collectedFlowers / NUM_FLOWERS) * 100;
   const allFlowersCollected = collectedFlowers === NUM_FLOWERS;
+  const progressBarRef = useRef<HTMLDivElement>(null);
+
+  // update CSS custom property for progress bar width
+  useEffect(() => {
+    if (progressBarRef.current) {
+      progressBarRef.current.style.setProperty('--quest-progress', `${progress}%`);
+    }
+  }, [progress]);
 
   return (
     <div className="quest-progress">
@@ -20,8 +28,8 @@ const QuestProgress: React.FC<QuestProgressProps> = ({ collectedFlowers }) => {
         </div>
         <div className="quest-progress-bar-container">
           <div
+            ref={progressBarRef}
             className={`quest-progress-bar ${allFlowersCollected ? "complete" : ""}`}
-            style={{ width: `${progress}%` }}
           />
         </div>
       </div>
