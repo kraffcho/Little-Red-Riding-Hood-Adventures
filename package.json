@@ -1,11 +1,17 @@
 {
-  "name": "react-typescript",
+  "name": "little-red-riding-hood-adventures",
   "version": "1.0.0",
-  "description": "React and TypeScript example starter project",
+  "description": "A grid-based adventure game inspired by the classic fairy tale. Navigate through a mystical forest, collect flowers, and reach Granny's house while avoiding the wolf.",
   "keywords": [
-    "typescript",
+    "game",
+    "adventure",
+    "puzzle",
     "react",
-    "starter"
+    "typescript",
+    "little-red-riding-hood",
+    "grid-based",
+    "pathfinding",
+    "browser-game"
   ],
   "main": "src/index.tsx",
   "dependencies": {
