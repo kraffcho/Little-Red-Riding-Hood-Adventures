@@ -18,32 +18,37 @@ export const useKeyboardInput = (
     const handleKeyDown = (event: KeyboardEvent) => {
       let direction: Direction | null = null;
 
-      switch (event.key) {
-        case "ArrowUp":
-        case "w":
-        case "W":
-          direction = "up";
-          break;
-        case "ArrowDown":
-        case "s":
-        case "S":
-          direction = "down";
-          break;
-        case "ArrowLeft":
-        case "a":
-        case "A":
-          direction = "left";
-          break;
-        case "ArrowRight":
-        case "d":
-        case "D":
-          direction = "right";
-          break;
-        default:
-          return;
+      // check both event.key and event.code for better compatibility
+      const key = event.key.toLowerCase();
+      const code = event.code;
+
+      // handle arrow keys
+      if (event.key === "ArrowUp" || code === "ArrowUp") {
+        direction = "up";
+      } else if (event.key === "ArrowDown" || code === "ArrowDown") {
+        direction = "down";
+      } else if (event.key === "ArrowLeft" || code === "ArrowLeft") {
+        direction = "left";
+      } else if (event.key === "ArrowRight" || code === "ArrowRight") {
+        direction = "right";
+      }
+      // handle WASD keys (case-insensitive)
+      else if (key === "w" || code === "KeyW") {
+        direction = "up";
+      } else if (key === "s" || code === "KeyS") {
+        direction = "down";
+      } else if (key === "a" || code === "KeyA") {
+        direction = "left";
+      } else if (key === "d" || code === "KeyD") {
+        direction = "right";
+      } else {
+        // not a movement key, ignore
+        return;
       }
 
+      // prevent default browser behavior for these keys
       if (direction) {
+        event.preventDefault();
         debouncedMove(direction);
       }
     };
