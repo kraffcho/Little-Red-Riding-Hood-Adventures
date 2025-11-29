@@ -297,16 +297,16 @@ body {
 
 .header-inventory-count {
   position: absolute;
-  top: 3px;
-  right: 3px;
+  bottom: -1px;
+  right: -1px;
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   background-color: var(--color-gold);
   color: var(--color-text-primary);
-  border-radius: var(--radius-full);
-  width: 18px;
-  height: 18px;
+  border-radius: var(--radius-sm);
+  width: 13px;
+  height: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -799,9 +799,8 @@ body {
 
 /* when player enters house, use longer fade animation for tooltip arrow */
 .granny-house.tooltip.player-in-house::after {
-  animation: fadeIn 5s var(--ease-in-out) forwards;
+  animation: tooltipFadeArrowPlayerInHouse 5s var(--ease-in-out) forwards;
   opacity: 0;
-  background-color: rgba(238, 238, 238, 0.75);
 }
 
 /* tooltip fade animation - 3 seconds total */
@@ -881,6 +880,26 @@ body {
   100% {
     opacity: 0;
     transform: translate3d(0, -5px, 0);
+  }
+}
+
+/* tooltip arrow fade animation for player-in-house - 5 seconds with centering */
+@keyframes tooltipFadeArrowPlayerInHouse {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translate3d(0, -5px, 0);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-50%) translate3d(0, 0, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(-50%) translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translate3d(0, -5px, 0);
   }
 }
 
@@ -1211,18 +1230,22 @@ body {
 .settings-menu-close {
   background: none;
   border: none;
-  font-size: var(--font-size-3xl);
   cursor: pointer;
   color: var(--color-text-primary);
   line-height: 1;
-  padding: 0;
-  width: var(--spacing-2xl);
-  height: var(--spacing-2xl);
+  padding: var(--spacing-xs);
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-full);
-  transition: all var(--transition-fast) var(--ease-in-out);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base) var(--ease-in-out);
+}
+
+.settings-menu-close svg {
+  width: 20px;
+  height: 20px;
 }
 
 .settings-menu-close:hover {
@@ -1245,53 +1268,144 @@ body {
 .settings-menu-section {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.settings-menu-section-header {
+  display: flex;
+  align-items: center;
   gap: var(--spacing-sm);
 }
 
-.settings-menu-section label {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
+.settings-menu-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-green-primary);
+  flex-shrink: 0;
 }
 
-.settings-menu-section input[type="range"] {
-  width: 100%;
+.settings-menu-label {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.settings-volume-control {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.settings-volume-slider {
+  flex: 1;
   cursor: pointer;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--color-gray-300);
+  border-radius: var(--radius-full);
+  outline: none;
+}
+
+.settings-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--color-green-primary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-base) var(--ease-in-out);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.settings-volume-slider::-webkit-slider-thumb:hover {
+  background: var(--color-green-button-hover);
+  transform: scale(1.1);
+}
+
+.settings-volume-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--color-green-primary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition-base) var(--ease-in-out);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.settings-volume-slider::-moz-range-thumb:hover {
+  background: var(--color-green-button-hover);
+  transform: scale(1.1);
 }
 
 .settings-volume-value {
   font-family: var(--font-family-primary);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-gray-600);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-green-primary);
+  min-width: 45px;
   text-align: right;
-  margin-top: calc(var(--spacing-xs) * -1);
 }
 
-.settings-toggle-button,
-.settings-restart-button {
+.settings-menu-divider {
+  height: 1px;
+  background: var(--color-gray-200);
+  margin: var(--spacing-xs) 0;
+}
+
+.settings-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-lg);
   background-color: var(--color-green-button);
   font-family: var(--font-family-primary);
   font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   color: var(--color-white);
   border: none;
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: background-color var(--transition-base) var(--ease-in-out);
+  transition: all var(--transition-base) var(--ease-in-out);
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
-.settings-toggle-button:hover,
-.settings-restart-button:hover {
+.settings-action-button:hover {
   background-color: var(--color-green-button-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.settings-action-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.settings-action-button:focus-visible {
+  outline: var(--border-width-medium) solid var(--color-green-primary);
+  outline-offset: 2px;
+}
+
+.settings-action-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: currentColor;
 }
 
 .settings-restart-button {
-  margin-top: var(--spacing-md);
-  border-top: var(--border-width-thin) solid var(--color-gray-200);
-  padding-top: var(--spacing-lg);
+  background-color: var(--color-orange);
+}
+
+.settings-restart-button:hover {
+  background-color: #e67700;
 }
 
 .settings-menu-content .game-controls {

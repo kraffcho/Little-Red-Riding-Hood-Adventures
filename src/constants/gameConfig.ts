@@ -36,6 +36,7 @@ export const AUDIO_PATHS = {
     "/assets/audio/bomb-explosion3.mp3",
   ],
   COLLECT_BOMB: "/assets/audio/collect-bomb.mp3",
+  WOLF_HOWL: "/assets/audio/wolf-howl.mp3",
 } as const;
 
 // cookie names for storing settings
@@ -44,11 +45,15 @@ export const COOKIE_KEYS = {
 } as const;
 
 // special items configuration
-export const ITEM_SPAWN_DELAY = 30000; // 30 seconds in milliseconds
+export const ITEM_SPAWN_DELAY = 20000; // 20 seconds in milliseconds
 export const MAX_BOMBS_ON_MAP = 3; // maximum number of bombs that can be on the map at the same time
 export const BOMB_STUN_DURATION = 5000; // 5 seconds in milliseconds
 export const BOMB_EXPLOSION_RADIUS = 3; // 3 tiles in each direction
 export const BOMB_EXPLOSION_DURATION = 1000; // 1 second visual effect
-export const BOMB_COOLDOWN_DURATION = 10000; // 10 seconds cooldown before next bomb can be used
+export const BOMB_COOLDOWN_DURATION = 5000; // 5 seconds cooldown before next bomb can be used
 export const EXPLOSION_MARK_DURATION = 3000; // 3 seconds before explosion mark disappears
+
+// wolf speed increase after stun
+export const WOLF_SPEED_INCREASE_PERCENTAGE = 0.1; // 10% speed increase (delay reduction) per stun
+export const MAX_WOLF_SPEED_INCREASES = 5; // maximum number of times the wolf can get faster
 

@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
+import VolumeIcon from "./icons/VolumeIcon";
+import RestartIcon from "./icons/RestartIcon";
+import CloseIcon from "./icons/CloseIcon";
 
 interface SettingsMenuProps {
   volume: number;
@@ -48,41 +51,59 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
     <div className="settings-menu-dropdown" ref={menuRef}>
       <div className="settings-menu-header">
         <h3>Settings</h3>
-        <button type="button" className="settings-menu-close" onClick={onToggle}>
-          ×
+        <button type="button" className="settings-menu-close" onClick={onToggle} aria-label="Close settings">
+          <CloseIcon />
         </button>
       </div>
       <div className="settings-menu-content">
         <div className="settings-menu-section">
-          <label htmlFor="volumeSlider">🔊 Volume:</label>
-          <input
-            type="range"
-            id="volumeSlider"
-            min="0"
-            max="1"
-            step="0.1"
-            value={volume}
-            onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
-          />
-          <span className="settings-volume-value">{Math.round(volume * 100)}%</span>
+          <div className="settings-menu-section-header">
+            <VolumeIcon className="settings-menu-icon" muted={!isPlayingMusic} />
+            <label htmlFor="volumeSlider" className="settings-menu-label">Volume</label>
+          </div>
+          <div className="settings-volume-control">
+            <input
+              type="range"
+              id="volumeSlider"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
+              className="settings-volume-slider"
+            />
+            <span className="settings-volume-value">{Math.round(volume * 100)}%</span>
+          </div>
         </div>
+
+        <div className="settings-menu-divider"></div>
+
         <div className="settings-menu-section">
-          <button type="button" onClick={onToggleSound} className="settings-toggle-button">
-            {isPlayingMusic ? "🔇 Mute" : "🔊 Unmute"}
+          <button 
+            type="button" 
+            onClick={onToggleSound} 
+            className="settings-action-button settings-toggle-button"
+          >
+            <VolumeIcon className="settings-action-icon" muted={!isPlayingMusic} />
+            <span>{isPlayingMusic ? "Mute Sound" : "Unmute Sound"}</span>
           </button>
         </div>
+
+        <div className="settings-menu-divider"></div>
+
         <div className="settings-menu-section">
           <button 
             type="button"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              onToggle(); // close the menu first
-              onRestart(); // then restart the game
+              onToggle();
+              onRestart();
             }} 
-            className="settings-restart-button"
+            className="settings-action-button settings-restart-button"
           >
-            🔄 Restart Game
+            <RestartIcon className="settings-action-icon" />
+            <span>Restart Game</span>
           </button>
         </div>
       </div>

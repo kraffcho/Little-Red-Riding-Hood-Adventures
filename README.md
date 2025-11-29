@@ -10,9 +10,10 @@ Welcome to the enchanting world of "Little Red Riding Hood Adventures"! A grid-b
 - Wait for the countdown (3-2-1-GO!) before the game starts
 - Collect all flowers scattered throughout the forest
 - **Collect special items** (bombs) that spawn on the board after gameplay starts
-- **Use bombs** to stun the wolf for 10 seconds (within 3-tile radius)
+- **Use bombs** to stun the wolf for 5 seconds (within 3-tile radius)
+- ⚠️ **Warning**: Each time the wolf wakes up from a stun, it becomes 10% faster (max 5 times)!
   - Click/tap the bomb in your inventory, or press **Space bar**
-  - Bombs have a 10-second cooldown before you can use another
+  - Bombs have a 5-second cooldown before you can use another
 - Avoid the wolf - if it catches you, it's game over!
 - Once all flowers are collected, Granny's house will open
 - Reach Granny's house to complete the level
@@ -119,6 +120,8 @@ src/
 - 💥 **Explosion Effects** - Visual feedback with screen shake and marks
 - 🎯 **Hit/Miss Feedback** - Temporary messages show bomb effectiveness
 - ⏱️ **Stun System** - Visual countdown timer above stunned wolf
+- 🐺 **Wolf Speed Increase** - Wolf becomes faster after each stun (10% speed increase, max 5 times)
+- 🔊 **Wolf Howl** - Wolf howls when waking up from stun
 - 📊 **Level Progression** - Complete levels to advance (infinite levels)
 
 ## 🏗️ Architecture
@@ -146,15 +149,19 @@ The codebase follows modern React best practices with a modular architecture:
 - **Grid-Based Movement** - 20x20 tile-based navigation
 - **Collision Detection** - Trees block movement, wolf triggers game over
 - **Pathfinding** - Wolf uses A\* algorithm to chase the player intelligently
+- **Dynamic Wolf Speed** - Wolf movement delay adjusts based on stun count (faster after each stun)
 - **Quest System** - Collect flowers to unlock Granny's house
 - **Audio System** - Background music and contextual sound effects with cookie persistence
 - **Level Validation** - Flood fill algorithm ensures all objectives are reachable
 - **Stuck Detection** - Runtime detection prevents unwinnable game states
 - **Countdown Timer** - Game starts with a 3-2-1-GO! countdown animation
-- **Special Items** - Bombs spawn randomly after configurable delay (default: 30 seconds)
+- **Special Items** - Bombs spawn randomly after configurable delay (default: 5 seconds)
 - **Inventory System** - Compact header-based inventory with 3 fixed slots
-- **Bomb Mechanics** - Stun the wolf within a 3-tile radius for 10 seconds
-- **Cooldown System** - 10-second cooldown between bomb uses with visual progress bar
+- **Bomb Mechanics** - Stun the wolf within a 3-tile radius for 5 seconds
+- **Cooldown System** - 5-second cooldown between bomb uses with visual progress bar
+- **Wolf Speed Increase** - Wolf becomes 10% faster after each stun (cumulative, max 5 times)
+- **Wolf Howl Sound** - Wolf howls when waking up from stun, signaling increased speed
+- **Dynamic Wolf Speed** - Wolf movement delay decreases with each stun, making it progressively faster
 - **Level Progression** - Complete levels to advance (currently infinite levels)
 - **Explosion Marks** - Visual marks on tiles where bombs were used (fade after 3 seconds)
 
@@ -223,9 +230,9 @@ The game features a special items system that adds strategic depth to gameplay. 
 
 ### Item Spawning
 
-- **Spawn Delay**: Special items (bombs) begin spawning after **30 seconds** of gameplay
+- **Spawn Delay**: Special items (bombs) begin spawning after **5 seconds** of gameplay
   - Timer starts when countdown completes (not during countdown)
-- **Continuous Spawning**: After the initial delay, new items spawn every **30 seconds** (configurable)
+- **Continuous Spawning**: After the initial delay, new items spawn every **5 seconds** (configurable)
 - **Random Placement**: Items are placed randomly on valid tiles (avoiding obstacles and entities)
 - **Multiple Items**: You can collect multiple bombs - they stack in your inventory
 - **Max on Map**: Maximum of 3 bombs can exist on the map at the same time
@@ -249,17 +256,33 @@ Bombs are powerful items that can stun the wolf, giving you precious time to col
 **Bomb Effects:**
 
 - **Explosion Radius**: 3 tiles in all directions from your position
-- **Stun Duration**: If the wolf is within the explosion radius, it's stunned for 10 seconds
+- **Stun Duration**: If the wolf is within the explosion radius, it's stunned for 5 seconds
 - **Visual Effects**:
   - Radial explosion animation at your position
   - Screen shake effect
   - Random explosion sound effect (3 variations)
   - Dark explosion mark on the tile (fades after 3 seconds)
-- **Stun Timer**: A countdown timer appears above the wolf showing remaining stun time
+- **Stun Timer**: A countdown timer appears above the wolf showing remaining stun time (in seconds, no "s" suffix)
+
+**Wolf Speed Increase (New Challenge!):**
+
+⚠️ **Warning**: Each time the wolf wakes up from a stun, it becomes **10% faster**!
+
+- **Speed Increase**: Wolf movement delay reduces by 10% after each stun (cumulative)
+- **Maximum Increases**: The wolf can only get faster up to **5 times** maximum
+- **Example Progression**:
+  - 1st stun: 500ms → 450ms (10% faster)
+  - 2nd stun: 450ms → 405ms (10% faster)
+  - 3rd stun: 405ms → 364.5ms (10% faster)
+  - 4th stun: 364.5ms → 328ms (10% faster)
+  - 5th stun: 328ms → 295ms (10% faster)
+  - After 5 stuns: Speed stays at maximum (no further increase)
+- **Howl Sound**: When the wolf wakes up, it howls to signal its increased speed
+- **Strategic Gameplay**: Use bombs wisely! Each stun makes the wolf more dangerous
 
 **Cooldown System:**
 
-- After using a bomb, there's a **10-second cooldown** before you can use another
+- After using a bomb, there's a **5-second cooldown** before you can use another
 - A progress bar under the bomb icon in the inventory shows the cooldown progress
 - The bomb button is disabled during cooldown
 
@@ -274,13 +297,15 @@ When you use a bomb, temporary messages appear in the center of the screen:
 
 All special item settings can be adjusted in `src/constants/gameConfig.ts`:
 
-- `ITEM_SPAWN_DELAY` - Time before first item spawns (default: 30000ms / 30 seconds)
+- `ITEM_SPAWN_DELAY` - Time before first item spawns (default: 5000ms / 5 seconds)
 - `MAX_BOMBS_ON_MAP` - Maximum bombs on map simultaneously (default: 3)
-- `BOMB_STUN_DURATION` - How long the wolf stays stunned (default: 10000ms / 10 seconds)
+- `BOMB_STUN_DURATION` - How long the wolf stays stunned (default: 5000ms / 5 seconds)
 - `BOMB_EXPLOSION_RADIUS` - Blast radius in tiles (default: 3 tiles)
 - `BOMB_EXPLOSION_DURATION` - Visual effect duration (default: 1000ms / 1 second)
-- `BOMB_COOLDOWN_DURATION` - Cooldown between uses (default: 10000ms / 10 seconds)
+- `BOMB_COOLDOWN_DURATION` - Cooldown between uses (default: 5000ms / 5 seconds)
 - `EXPLOSION_MARK_DURATION` - How long explosion marks remain visible (default: 3000ms / 3 seconds)
+- `WOLF_SPEED_INCREASE_PERCENTAGE` - Speed increase per stun (default: 0.1 / 10%)
+- `MAX_WOLF_SPEED_INCREASES` - Maximum number of speed increases (default: 5)
 
 ## 🤖 Pathfinding Algorithm (A\*)
 
@@ -334,12 +359,14 @@ A\* is a heuristic search algorithm that finds the shortest path from a starting
 
 ### Implementation Details
 
-- The wolf recalculates its path every 500ms (configurable via `ENEMY_DELAY`)
+- The wolf recalculates its path every 500ms initially (configurable via `ENEMY_DELAY`)
+- **Dynamic Delay**: Wolf movement delay decreases by 10% after each stun (maximum 5 speed increases)
 - Manhattan distance is used because movement is restricted to 4 directions (no diagonals)
 - Trees are treated as impassable obstacles
 - If no path exists, the wolf stops moving and the game handles the stuck state
 - Level generation ensures both player and wolf can move at game start
 - Console logging provides visibility into pathfinding failures
+- Wolf howls when waking up from stun to signal increased speed
 
 ## 📄 License
 

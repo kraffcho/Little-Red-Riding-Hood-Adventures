@@ -151,7 +151,7 @@ const Tile: React.FC<Props> = ({
       )}
       {showStunTimer && stunTimeRemaining > 0 && (
         <div className="stun-timer">
-          <div className="stun-timer-text">{stunTimeRemaining}s</div>
+          <div className="stun-timer-text">{stunTimeRemaining}</div>
         </div>
       )}
     </div>

@@ -43,6 +43,9 @@ export type GameState = {
   temporaryMessage: { text: string; type: 'success' | 'error' } | null;
   // explosion marks - persistent dark spots where bombs exploded
   explosionMarks: ExplosionMark[];
+  // wolf speed - decreases with each stun (wolf becomes faster)
+  currentWolfDelay: number;
+  wolfStunCount: number; // track how many times the wolf has been stunned (max 5 speed increases)
 };
 
 export type AStarNode = {

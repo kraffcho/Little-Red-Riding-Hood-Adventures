@@ -12,7 +12,7 @@ import { useGameState } from "./hooks/useGameState";
 import { useAudio } from "./hooks/useAudio";
 import { useKeyboardInput, useSwipeInput } from "./hooks/useInput";
 import { Direction, ItemType } from "./types/game";
-import { AUDIO_PATHS, NUM_FLOWERS, ENEMY_DELAY, GRID_SIZE } from "./constants/gameConfig";
+import { AUDIO_PATHS, NUM_FLOWERS, GRID_SIZE } from "./constants/gameConfig";
 import { moveInDirection, positionsEqual } from "./utils/gridUtils";
 import { getGrannyQuestMessage, QuestMilestone } from "./utils/questMessages";
 
@@ -46,6 +46,7 @@ const App: React.FC = () => {
   const previousInventorySize = useRef(0);
   const questCompletedSoundPlayed = useRef(false);
   const wolfVictorySoundPlayed = useRef(false);
+  const previousWolfStunned = useRef(false);
   const [countdownComplete, setCountdownComplete] = useState(false);
   const gameResetKey = useRef(0);
   const previousExplosionEffect = useRef<string | null>(null);
@@ -158,6 +159,15 @@ const App: React.FC = () => {
     }
   }, [gameState.wolfWon, gameState.gameOver, gameState.playerEnteredHouse, playRandomSound]);
 
+  // play howl sound when wolf wakes up from stun
+  useEffect(() => {
+    // check if wolf just woke up (was stunned, now not stunned)
+    if (previousWolfStunned.current && !gameState.wolfStunned) {
+      playSound(AUDIO_PATHS.WOLF_HOWL);
+    }
+    previousWolfStunned.current = gameState.wolfStunned;
+  }, [gameState.wolfStunned, playSound]);
+
   // play a sound when bomb explodes
   useEffect(() => {
     if (gameState.explosionEffect) {
@@ -174,15 +184,16 @@ const App: React.FC = () => {
   }, [gameState.explosionEffect, playRandomSound]);
 
   // make the wolf chase the player every so often - wait for countdown to finish
+  // use dynamic delay that decreases after each stun (wolf becomes faster)
   useEffect(() => {
     if (!countdownComplete || !gameState.wolfMoving || gameState.gameOver || gameState.isStuck) return;
 
     const intervalId = setInterval(() => {
       moveWolf();
-    }, ENEMY_DELAY);
+    }, gameState.currentWolfDelay);
 
     return () => clearInterval(intervalId);
-  }, [countdownComplete, gameState.wolfMoving, gameState.gameOver, gameState.isStuck, moveWolf]);
+  }, [countdownComplete, gameState.wolfMoving, gameState.gameOver, gameState.isStuck, gameState.currentWolfDelay, moveWolf]);
 
   // handle when the player moves - play music, check house entry, etc.
   const handlePlayerMove = useCallback((direction: Direction) => {
@@ -247,6 +258,7 @@ const App: React.FC = () => {
     previousInventorySize.current = 0;
     questCompletedSoundPlayed.current = false;
     wolfVictorySoundPlayed.current = false;
+    previousWolfStunned.current = false;
     previousExplosionEffect.current = null;
     setCountdownComplete(false); // reset countdown for new game
     gameResetKey.current += 1; // increment to force countdown remount

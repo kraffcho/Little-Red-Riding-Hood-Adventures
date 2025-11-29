@@ -13,6 +13,9 @@ import {
   BOMB_EXPLOSION_DURATION,
   BOMB_COOLDOWN_DURATION,
   EXPLOSION_MARK_DURATION,
+  ENEMY_DELAY,
+  WOLF_SPEED_INCREASE_PERCENTAGE,
+  MAX_WOLF_SPEED_INCREASES,
 } from "../constants/gameConfig";
 import {
   isValidPosition,
@@ -62,6 +65,10 @@ export const useGameState = () => {
     temporaryMessage: null,
     // explosion marks
     explosionMarks: [],
+    // wolf speed - starts at base delay, decreases with each stun
+    currentWolfDelay: ENEMY_DELAY,
+    // track how many times wolf has been stunned (for max 5 speed increases)
+    wolfStunCount: 0,
   });
 
   const gameStartTimeRef = useRef<number | null>(null);
@@ -188,6 +195,10 @@ export const useGameState = () => {
       temporaryMessage: null,
       // explosion marks
       explosionMarks: [],
+      // reset wolf speed to base delay
+      currentWolfDelay: ENEMY_DELAY,
+      // reset stun count
+      wolfStunCount: 0,
     }));
 
     // clear game start time and timer - will be set when gameplay actually starts (after countdown)
@@ -463,17 +474,29 @@ export const useGameState = () => {
     }
   }, [gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck]);
 
-  // update wolf stun timer
+  // update wolf stun timer - when wolf wakes up, reduce delay (make it faster) by 10%, max 5 times
   useEffect(() => {
     if (gameState.wolfStunned && gameState.wolfStunEndTime) {
       const checkStun = setInterval(() => {
         setGameState((prev) => {
           if (prev.wolfStunEndTime && Date.now() >= prev.wolfStunEndTime) {
+            // wolf just woke up
+            // only reduce delay if we haven't reached the maximum speed increases yet (max 5 times)
+            const shouldIncreaseSpeed = prev.wolfStunCount < MAX_WOLF_SPEED_INCREASES;
+            const newDelay = shouldIncreaseSpeed
+              ? prev.currentWolfDelay * (1 - WOLF_SPEED_INCREASE_PERCENTAGE)
+              : prev.currentWolfDelay;
+            const newStunCount = shouldIncreaseSpeed
+              ? prev.wolfStunCount + 1
+              : prev.wolfStunCount;
+
             return {
               ...prev,
               wolfStunned: false,
               wolfStunEndTime: null,
               wolfMoving: !prev.gameOver && !prev.isStuck,
+              currentWolfDelay: newDelay,
+              wolfStunCount: newStunCount,
             };
           }
           return prev;
@@ -653,6 +676,10 @@ export const useGameState = () => {
       temporaryMessage: null,
       // explosion marks
       explosionMarks: [],
+      // reset wolf speed to base delay
+      currentWolfDelay: ENEMY_DELAY,
+      // reset stun count
+      wolfStunCount: 0,
     });
 
     // set up a new game after a tiny delay
