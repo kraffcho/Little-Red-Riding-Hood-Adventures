@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 interface LevelCompleteProps {
   level: number;
@@ -8,9 +8,12 @@ interface LevelCompleteProps {
 
 const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, show }) => {
   const [visible, setVisible] = useState(false);
+  const hasShownRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (show) {
+    // only show the message once per level - track which level we've shown
+    if (show && hasShownRef.current !== level) {
+      hasShownRef.current = level;
       setVisible(true);
       // show the message for 3 seconds, then call onComplete
       const timer = setTimeout(() => {
@@ -18,10 +21,14 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, show }
         onComplete();
       }, 3000);
       return () => clearTimeout(timer);
-    } else {
+    } else if (!show) {
+      // reset when show becomes false (new level starting)
+      if (hasShownRef.current === level) {
+        hasShownRef.current = null;
+      }
       setVisible(false);
     }
-  }, [show, onComplete]);
+  }, [show, level, onComplete]);
 
   if (!visible) {
     return null;

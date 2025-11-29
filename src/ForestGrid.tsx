@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Tile from "./Tile";
-import { SpecialItem, ExplosionEffect, Position } from "./types/game";
+import { SpecialItem, ExplosionEffect, Position, ExplosionMark } from "./types/game";
 import { getPositionsInRadius } from "./utils/itemUtils";
 
 interface Props {
@@ -20,6 +20,7 @@ interface Props {
   wolfWon: boolean;
   specialItems?: SpecialItem[];
   explosionEffect?: ExplosionEffect | null;
+  explosionMarks?: ExplosionMark[];
   wolfStunned?: boolean;
   wolfStunEndTime?: number | null;
 }
@@ -38,6 +39,7 @@ const ForestGrid: React.FC<Props> = ({
   wolfWon,
   specialItems = [],
   explosionEffect = null,
+  explosionMarks = [],
   wolfStunned = false,
   wolfStunEndTime = null,
 }) => {
@@ -85,6 +87,11 @@ const ForestGrid: React.FC<Props> = ({
         const isWolfTile = wolfPosition.x === rowIndex && wolfPosition.y === columnIndex;
         const showStunTimer = isWolfTile && wolfStunned && wolfStunEndTime !== null;
 
+        // find explosion mark for this tile (if any)
+        const explosionMark = explosionMarks.find(
+          (mark) => mark.position.x === rowIndex && mark.position.y === columnIndex
+        );
+
         return (
           <Tile
             key={`${rowIndex}-${columnIndex}`}
@@ -104,6 +111,7 @@ const ForestGrid: React.FC<Props> = ({
             wolfWon={wolfWon}
             specialItem={specialItem}
             isInExplosion={isInExplosion}
+            explosionMark={explosionMark}
             showStunTimer={showStunTimer}
             stunEndTime={wolfStunEndTime}
           />

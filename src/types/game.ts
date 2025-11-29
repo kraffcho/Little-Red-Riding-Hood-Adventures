@@ -41,6 +41,8 @@ export type GameState = {
   bombCooldownEndTime: number | null;
   // temporary message to display (e.g., "WOLF STUNNED!", "MISSED!")
   temporaryMessage: { text: string; type: 'success' | 'error' } | null;
+  // explosion marks - persistent dark spots where bombs exploded
+  explosionMarks: ExplosionMark[];
 };
 
 export type AStarNode = {
@@ -70,5 +72,11 @@ export type ExplosionEffect = {
   radius: number;
   startTime: number;
   duration: number;
+};
+
+// explosion mark - persistent mark where bomb exploded
+export type ExplosionMark = {
+  position: Position;
+  createdAt: number; // timestamp when the mark was created
 };
 

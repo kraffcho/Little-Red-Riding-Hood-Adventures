@@ -44,7 +44,9 @@ const App: React.FC = () => {
 
   const [playedRestrictedEntrySound, setPlayedRestrictedEntrySound] = useState(false);
   const previousFlowerCount = useRef(0);
+  const previousInventorySize = useRef(0);
   const questCompletedSoundPlayed = useRef(false);
+  const wolfVictorySoundPlayed = useRef(false);
   const [countdownComplete, setCountdownComplete] = useState(false);
   const gameResetKey = useRef(0);
   const previousExplosionEffect = useRef<string | null>(null);
@@ -65,12 +67,35 @@ const App: React.FC = () => {
     }
   }, [gameState.collectedFlowers, playFlowerCollectSound]);
 
-  // play a sound when the wolf catches us
+  // play a sound effect when we collect a bomb item
   useEffect(() => {
-    if (gameState.wolfWon && gameState.gameOver) {
-      playRandomSound(AUDIO_PATHS.WOLF_VICTORY);
+    if (gameState.inventory.length > previousInventorySize.current) {
+      // inventory size increased - a new item was collected
+      // check if the last item added is a bomb
+      const lastItem = gameState.inventory[gameState.inventory.length - 1];
+      if (lastItem === "bomb") {
+        playSound(AUDIO_PATHS.COLLECT_BOMB);
+      }
+      previousInventorySize.current = gameState.inventory.length;
+    } else if (gameState.inventory.length < previousInventorySize.current) {
+      // inventory decreased (item was used)
+      previousInventorySize.current = gameState.inventory.length;
     }
-  }, [gameState.wolfWon, gameState.gameOver, playRandomSound]);
+  }, [gameState.inventory, playSound]);
+
+  // play a sound when the wolf catches us (only if player hasn't entered house)
+  useEffect(() => {
+    if (gameState.wolfWon && gameState.gameOver && !gameState.playerEnteredHouse) {
+      // only play sound if we haven't already played it for this game over
+      if (!wolfVictorySoundPlayed.current) {
+        wolfVictorySoundPlayed.current = true;
+        playRandomSound(AUDIO_PATHS.WOLF_VICTORY);
+      }
+    } else if (!gameState.gameOver) {
+      // reset when game is not over
+      wolfVictorySoundPlayed.current = false;
+    }
+  }, [gameState.wolfWon, gameState.gameOver, gameState.playerEnteredHouse, playRandomSound]);
 
   // play a sound when bomb explodes
   useEffect(() => {
@@ -158,7 +183,9 @@ const App: React.FC = () => {
     resetGame();
     setPlayedRestrictedEntrySound(false);
     previousFlowerCount.current = 0;
+    previousInventorySize.current = 0;
     questCompletedSoundPlayed.current = false;
+    wolfVictorySoundPlayed.current = false;
     previousExplosionEffect.current = null;
     setCountdownComplete(false); // reset countdown for new game
     gameResetKey.current += 1; // increment to force countdown remount
@@ -244,6 +271,7 @@ const App: React.FC = () => {
               wolfWon={gameState.wolfWon}
               specialItems={gameState.specialItems}
               explosionEffect={gameState.explosionEffect}
+              explosionMarks={gameState.explosionMarks}
               wolfStunned={gameState.wolfStunned}
               wolfStunEndTime={gameState.wolfStunEndTime}
             />

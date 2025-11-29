@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { SpecialItem } from "./types/game";
+import { SpecialItem, ExplosionMark } from "./types/game";
+import { EXPLOSION_MARK_DURATION } from "./constants/gameConfig";
 
 interface Props {
   isPlayer: boolean;
@@ -15,6 +16,7 @@ interface Props {
   wolfWon?: boolean;
   specialItem?: SpecialItem;
   isInExplosion?: boolean;
+  explosionMark?: ExplosionMark;
   showStunTimer?: boolean;
   stunEndTime?: number | null;
 }
@@ -33,11 +35,13 @@ const Tile: React.FC<Props> = ({
   wolfWon,
   specialItem,
   isInExplosion,
+  explosionMark,
   showStunTimer,
   stunEndTime,
 }) => {
   const [scaleClass, setScaleClass] = useState("");
   const [stunTimeRemaining, setStunTimeRemaining] = useState<number>(0);
+  const [isFading, setIsFading] = useState(false);
 
   useEffect(() => {
     if (isTree) {
@@ -61,6 +65,30 @@ const Tile: React.FC<Props> = ({
       setStunTimeRemaining(0);
     }
   }, [showStunTimer, stunEndTime]);
+
+  // check if explosion mark should be fading (last 0.5 seconds before removal)
+  useEffect(() => {
+    if (!explosionMark) {
+      setIsFading(false);
+      return;
+    }
+
+    const checkFade = () => {
+      const now = Date.now();
+      const age = now - explosionMark.createdAt;
+      const fadeStartTime = EXPLOSION_MARK_DURATION - 500; // start fading 0.5 seconds before removal
+
+      if (age >= fadeStartTime) {
+        setIsFading(true);
+      } else {
+        setIsFading(false);
+      }
+    };
+
+    checkFade();
+    const interval = setInterval(checkFade, 50); // check every 50ms for smooth fade
+    return () => clearInterval(interval);
+  }, [explosionMark]);
 
   let className = "tile";
   // hide player sprite when wolf wins the game
@@ -86,6 +114,7 @@ const Tile: React.FC<Props> = ({
   if (playerEnteredHouse && isPlayer && isGrannyHouse) className += " player-in-house";
   if (specialItem) className += " special-item";
   if (isInExplosion) className += " explosion";
+  if (explosionMark) className += " explosion-mark";
   if (showStunTimer) className += " wolf-stunned";
 
   return (
@@ -96,6 +125,9 @@ const Tile: React.FC<Props> = ({
         </div>
       )}
       {isInExplosion && <div className="explosion-effect" />}
+      {explosionMark && (
+        <div className={`explosion-mark-effect ${isFading ? "fading" : ""}`} />
+      )}
       {showStunTimer && stunTimeRemaining > 0 && (
         <div className="stun-timer">
           <div className="stun-timer-text">{stunTimeRemaining}s</div>

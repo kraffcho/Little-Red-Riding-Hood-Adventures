@@ -50,6 +50,7 @@
   /* typography */
   --font-family-primary: "Titillium Web", sans-serif;
   --font-family-display: "Titillium Web", sans-serif;
+  --font-family-message: "Bangers", cursive;
 
   --font-size-xs: 6px;
   --font-size-sm: 13px;
@@ -121,6 +122,7 @@
    RESET & BASE STYLES
    ============================================================================ */
 @import url("https://fonts.googleapis.com/css2?family=Titillium+Web:wght@200;300;400;600;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bangers&display=swap");
 
 * {
   margin: 0;
@@ -221,6 +223,7 @@ body {
 .tile {
   flex: 1;
   aspect-ratio: 1 / 1; /* flex handles sizing in older browsers */
+  position: relative; /* create stacking context for z-index to work */
 }
 
 /* ============================================================================
@@ -945,7 +948,7 @@ body {
 }
 
 .countdown-message {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-message);
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-white);
@@ -953,10 +956,11 @@ body {
   animation: countdownMessagePulse 1s var(--ease-in-out) infinite;
   will-change: transform;
   backface-visibility: hidden;
+  letter-spacing: 3px;
 }
 
 .countdown-number {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-message);
   font-size: calc(var(--font-size-4xl) * 2);
   font-weight: var(--font-weight-bold);
   color: var(--color-gold);
@@ -964,6 +968,7 @@ body {
   animation: countdownNumberPop 0.5s var(--ease-in-out) forwards;
   will-change: transform, opacity;
   backface-visibility: hidden;
+  letter-spacing: 4px;
 }
 
 /* when showing "GO!", use different animation but keep same color */
@@ -1043,22 +1048,24 @@ body {
 }
 
 .level-complete-number {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-message);
   font-size: calc(var(--font-size-4xl) * 1.5);
   font-weight: var(--font-weight-bold);
   color: var(--color-gold);
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 215, 0, 0.6);
+  letter-spacing: 4px;
   animation: levelCompleteNumberPop 0.8s var(--ease-in-out) forwards;
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
 
 .level-complete-message {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-message);
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-white);
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.5);
+  letter-spacing: 3px;
   animation: levelCompleteMessageFadeIn 0.6s var(--ease-in-out) 0.3s forwards;
   opacity: 0;
   will-change: transform, opacity;
@@ -1127,10 +1134,11 @@ body {
 }
 
 .temporary-message-text {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-message);
   font-size: calc(var(--font-size-4xl) * 1.2);
   font-weight: var(--font-weight-bold);
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+  letter-spacing: 4px;
   animation: temporaryMessagePop 0.4s var(--ease-out) forwards,
     temporaryMessageFadeOut 0.3s var(--ease-in) 1.7s forwards;
   opacity: 0;
@@ -1214,11 +1222,12 @@ body {
 }
 
 .game-over-message {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-message);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-white);
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.5);
+  letter-spacing: 2px;
   animation: gameOverMessageFadeIn 0.5s var(--ease-in-out) forwards;
   will-change: transform, opacity;
   backface-visibility: hidden;
@@ -1264,10 +1273,11 @@ body {
   padding: var(--spacing-md) var(--spacing-2xl);
   min-width: 120px;
   color: var(--color-white);
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-message);
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
+  letter-spacing: 2px;
   border: var(--border-width-thick) solid var(--color-white);
   border-radius: var(--radius-lg);
   transition: var(--transition-base) var(--ease-in-out);
@@ -1529,7 +1539,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate3d(-50%, -50%, 0);
-  font-size: calc(var(--font-size-2xl) * 1.2);
+  font-size: var(--font-size-lg);
   z-index: 10;
   animation: itemPulse 2s var(--ease-in-out) infinite;
   pointer-events: none;
@@ -1588,6 +1598,38 @@ body {
   }
   100% {
     transform: scale3d(1.5, 1.5, 1);
+    opacity: 0;
+  }
+}
+
+/* explosion mark - persistent dark spot where bomb exploded */
+.tile.explosion-mark {
+  position: relative;
+}
+
+.explosion-mark-effect {
+  position: absolute;
+  inset: 0;
+  background-image: url("./assets/images/explosion-mark.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.8;
+  transition: opacity 0.5s var(--ease-out);
+}
+
+.explosion-mark-effect.fading {
+  opacity: 0;
+  animation: explosionMarkFadeOut 0.5s var(--ease-out) forwards;
+}
+
+@keyframes explosionMarkFadeOut {
+  0% {
+    opacity: 0.8;
+  }
+  100% {
     opacity: 0;
   }
 }

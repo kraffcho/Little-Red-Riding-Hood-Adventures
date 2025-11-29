@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Position, Direction, GameState, ItemType, SpecialItem, ExplosionEffect } from "../types/game";
+import { Position, Direction, GameState, ItemType, SpecialItem, ExplosionEffect, ExplosionMark } from "../types/game";
 import {
   GRID_SIZE,
   NUM_FLOWERS,
@@ -7,10 +7,12 @@ import {
   getWolfStartPosition,
   getGrannyHousePosition,
   ITEM_SPAWN_DELAY,
+  MAX_BOMBS_ON_MAP,
   BOMB_STUN_DURATION,
   BOMB_EXPLOSION_RADIUS,
   BOMB_EXPLOSION_DURATION,
   BOMB_COOLDOWN_DURATION,
+  EXPLOSION_MARK_DURATION,
 } from "../constants/gameConfig";
 import {
   isValidPosition,
@@ -58,6 +60,8 @@ export const useGameState = () => {
     bombCooldownEndTime: null,
     // temporary message
     temporaryMessage: null,
+    // explosion marks
+    explosionMarks: [],
   });
 
   const gameStartTimeRef = useRef<number | null>(null);
@@ -182,6 +186,8 @@ export const useGameState = () => {
       currentLevel: 1,
       // temporary message
       temporaryMessage: null,
+      // explosion marks
+      explosionMarks: [],
     }));
 
     // clear game start time and timer - will be set when gameplay actually starts (after countdown)
@@ -368,6 +374,19 @@ export const useGameState = () => {
         return prev;
       }
 
+      // count current bombs on the map
+      const currentBombCount = prev.specialItems.filter((item) => item.type === "bomb").length;
+
+      // don't spawn if we've reached the max number of bombs
+      if (currentBombCount >= MAX_BOMBS_ON_MAP) {
+        // schedule the next spawn attempt after a delay
+        if (itemSpawnTimerRef.current) {
+          clearTimeout(itemSpawnTimerRef.current);
+        }
+        itemSpawnTimerRef.current = setTimeout(spawnSpecialItem, ITEM_SPAWN_DELAY);
+        return prev;
+      }
+
       // find all existing positions to avoid
       const existingPositions: Position[] = [
         prev.playerPosition,
@@ -479,6 +498,32 @@ export const useGameState = () => {
     }
   }, [gameState.explosionEffect]);
 
+  // remove explosion marks after they expire (3 seconds)
+  useEffect(() => {
+    if (gameState.explosionMarks.length === 0) {
+      return;
+    }
+
+    const checkMarks = setInterval(() => {
+      setGameState((prev) => {
+        const now = Date.now();
+        const validMarks = prev.explosionMarks.filter(
+          (mark) => now - mark.createdAt < EXPLOSION_MARK_DURATION
+        );
+
+        if (validMarks.length !== prev.explosionMarks.length) {
+          return {
+            ...prev,
+            explosionMarks: validMarks,
+          };
+        }
+        return prev;
+      });
+    }, 100); // check every 100ms
+
+    return () => clearInterval(checkMarks);
+  }, [gameState.explosionMarks]);
+
   // update bomb cooldown timer
   useEffect(() => {
     if (gameState.bombCooldownEndTime) {
@@ -546,6 +591,14 @@ export const useGameState = () => {
         ? { text: "WOLF STUNNED!", type: 'success' as const }
         : { text: "MISSED!", type: 'error' as const };
 
+      // add explosion mark at the bomb position (only if not already marked)
+      const hasMark = prev.explosionMarks.some(
+        (mark) => mark.position.x === prev.playerPosition.x && mark.position.y === prev.playerPosition.y
+      );
+      const newExplosionMarks = hasMark
+        ? prev.explosionMarks
+        : [...prev.explosionMarks, { position: prev.playerPosition, createdAt: Date.now() }];
+
       return {
         ...prev,
         inventory: newInventory,
@@ -555,6 +608,7 @@ export const useGameState = () => {
         wolfMoving: newWolfMoving,
         bombCooldownEndTime: cooldownEndTime,
         temporaryMessage,
+        explosionMarks: newExplosionMarks,
       };
     });
   }, []);
@@ -597,6 +651,8 @@ export const useGameState = () => {
       bombCooldownEndTime: null,
       // temporary message
       temporaryMessage: null,
+      // explosion marks
+      explosionMarks: [],
     });
 
     // set up a new game after a tiny delay
