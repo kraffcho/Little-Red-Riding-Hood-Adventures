@@ -25,6 +25,7 @@ interface Props {
   wolfStunEndTime?: number | null;
   tooltipMessage?: string;
   showTooltip?: boolean;
+  playerInvisible?: boolean;
 }
 
 const ForestGrid: React.FC<Props> = ({
@@ -46,6 +47,7 @@ const ForestGrid: React.FC<Props> = ({
   wolfStunEndTime = null,
   tooltipMessage,
   showTooltip = false,
+  playerInvisible = false,
 }) => {
   // check if we're in portrait mode (mobile)
   const [isViewportWidthSmaller, setIsViewportWidthSmaller] = useState(
@@ -120,6 +122,12 @@ const ForestGrid: React.FC<Props> = ({
             stunEndTime={wolfStunEndTime}
             tooltipMessage={isGrannyHouse ? tooltipMessage : undefined}
             showTooltip={isGrannyHouse ? showTooltip : false}
+            playerInvisible={
+              playerPosition.x === rowIndex && playerPosition.y === columnIndex
+                ? playerInvisible
+                : false
+            }
+            wolfConfused={isWolfTile && playerInvisible}
           />
         );
       })}

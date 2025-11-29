@@ -8,16 +8,24 @@ interface HeaderProps {
   inventory: ItemType[];
   onUseItem: (itemType: ItemType) => void;
   bombCooldownEndTime: number | null;
+  cloakCooldownEndTime: number | null;
   collectedFlowers: number;
   onSettingsClick: () => void;
+  gameOver?: boolean;
+  playerEnteredHouse?: boolean;
+  isStuck?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
   inventory,
   onUseItem,
   bombCooldownEndTime,
+  cloakCooldownEndTime,
   collectedFlowers,
   onSettingsClick,
+  gameOver = false,
+  playerEnteredHouse = false,
+  isStuck = false,
 }) => {
   const progress = Math.min(100, Math.max(0, (collectedFlowers / NUM_FLOWERS) * 100));
   const allFlowersCollected = collectedFlowers === NUM_FLOWERS;
@@ -37,6 +45,10 @@ const Header: React.FC<HeaderProps> = ({
           inventory={inventory}
           onUseItem={onUseItem}
           bombCooldownEndTime={bombCooldownEndTime}
+          cloakCooldownEndTime={cloakCooldownEndTime}
+          gameOver={gameOver}
+          playerEnteredHouse={playerEnteredHouse}
+          isStuck={isStuck}
         />
       </div>
       <div className="game-header-center">

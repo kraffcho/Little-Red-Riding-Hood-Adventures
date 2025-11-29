@@ -16,6 +16,11 @@ import {
   ENEMY_DELAY,
   WOLF_SPEED_INCREASE_PERCENTAGE,
   MAX_WOLF_SPEED_INCREASES,
+  CLOAK_SPAWN_DELAY_MIN,
+  CLOAK_SPAWN_DELAY_MAX,
+  CLOAK_INVISIBILITY_DURATION,
+  CLOAK_COOLDOWN_DURATION,
+  CLOAK_WOLF_CONFUSION_INTERVAL,
 } from "../constants/gameConfig";
 import {
   isValidPosition,
@@ -69,10 +74,17 @@ export const useGameState = () => {
     currentWolfDelay: ENEMY_DELAY,
     // track how many times wolf has been stunned (for max 5 speed increases)
     wolfStunCount: 0,
+    // hunter's cloak system
+    playerInvisible: false,
+    cloakInvisibilityEndTime: null,
+    cloakCooldownEndTime: null,
+    cloakSpawned: false,
   });
 
   const gameStartTimeRef = useRef<number | null>(null);
   const itemSpawnTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const cloakSpawnTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const wolfConfusionIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // set up a new game
   const initializeGame = useCallback(() => {
@@ -199,6 +211,11 @@ export const useGameState = () => {
       currentWolfDelay: ENEMY_DELAY,
       // reset stun count
       wolfStunCount: 0,
+      // reset hunter's cloak system
+      playerInvisible: false,
+      cloakInvisibilityEndTime: null,
+      cloakCooldownEndTime: null,
+      cloakSpawned: false,
     }));
 
     // clear game start time and timer - will be set when gameplay actually starts (after countdown)
@@ -206,6 +223,14 @@ export const useGameState = () => {
     if (itemSpawnTimerRef.current) {
       clearTimeout(itemSpawnTimerRef.current);
       itemSpawnTimerRef.current = null;
+    }
+    if (cloakSpawnTimerRef.current) {
+      clearTimeout(cloakSpawnTimerRef.current);
+      cloakSpawnTimerRef.current = null;
+    }
+    if (wolfConfusionIntervalRef.current) {
+      clearInterval(wolfConfusionIntervalRef.current);
+      wolfConfusionIntervalRef.current = null;
     }
   }, []);
 
@@ -224,6 +249,11 @@ export const useGameState = () => {
 
         // make sure we can actually move here
         if (!isValidPosition(newPosition, prev.treePositions)) {
+          return prev;
+        }
+
+        // when player is invisible, treat wolf as an obstacle (can't move onto wolf's tile)
+        if (prev.playerInvisible && positionsEqual(newPosition, prev.wolfPosition)) {
           return prev;
         }
 
@@ -271,8 +301,8 @@ export const useGameState = () => {
           positionsEqual(newPosition, prev.grannyHousePosition) &&
           isHouseOpen;
 
-        // check if the wolf got us
-        const collision = positionsEqual(newPosition, prev.wolfPosition);
+        // check if the wolf got us (only if player is not invisible)
+        const collision = positionsEqual(newPosition, prev.wolfPosition) && !prev.playerInvisible;
         const wolfWon = collision;
 
         // make sure we didn't trap ourselves
@@ -286,6 +316,16 @@ export const useGameState = () => {
         // log when player gets stuck
         if (stuckCheck.stuck && !prev.isStuck) {
           console.log(`🚫 PLAYER STUCK at position (${newPosition.x}, ${newPosition.y}): ${stuckCheck.reason || "Cannot reach objectives"}`);
+        }
+
+        // set message when item is collected
+        let temporaryMessage = prev.temporaryMessage;
+        if (hasItem && collectedItem) {
+          if (collectedItem.type === "bomb") {
+            temporaryMessage = { text: "+1 💣 BOMB!", type: 'success' as const };
+          } else if (collectedItem.type === "cloak") {
+            temporaryMessage = { text: "🧥 HUNTER'S CLOAK!", type: 'success' as const };
+          }
         }
 
         return {
@@ -304,6 +344,7 @@ export const useGameState = () => {
           gameOver: wolfWon || stuckCheck.stuck,
           isStuck: stuckCheck.stuck,
           stuckReason: stuckCheck.reason,
+          temporaryMessage,
         };
       });
     },
@@ -313,7 +354,7 @@ export const useGameState = () => {
   // move the wolf toward the player using pathfinding
   const moveWolf = useCallback(() => {
     setGameState((prev) => {
-      if (!prev.wolfMoving || prev.gameOver || prev.isStuck || prev.wolfStunned) return prev;
+      if (!prev.wolfMoving || prev.gameOver || prev.isStuck || prev.wolfStunned || prev.playerInvisible) return prev;
 
       // don't chase if player is safe in the house
       if (
@@ -330,8 +371,8 @@ export const useGameState = () => {
       );
 
       if (!nextPosition) {
-        // check if we're already at the same position (collision)
-        const collision = positionsEqual(prev.wolfPosition, prev.playerPosition);
+        // check if we're already at the same position (collision) - only if player is visible
+        const collision = positionsEqual(prev.wolfPosition, prev.playerPosition) && !prev.playerInvisible;
 
         if (collision) {
           // wolf caught the player
@@ -440,6 +481,56 @@ export const useGameState = () => {
     });
   }, []);
 
+  // spawn the hunter's cloak once per level (random 20-40 seconds)
+  const spawnCloak = useCallback(() => {
+    setGameState((prev) => {
+      if (prev.gameOver || prev.playerEnteredHouse || prev.cloakSpawned) {
+        // clear timer if game is over or cloak already spawned
+        if (cloakSpawnTimerRef.current) {
+          clearTimeout(cloakSpawnTimerRef.current);
+          cloakSpawnTimerRef.current = null;
+        }
+        return prev;
+      }
+
+      // find all existing positions to avoid
+      const existingPositions: Position[] = [
+        prev.playerPosition,
+        prev.wolfPosition,
+        prev.grannyHousePosition,
+        ...prev.flowers,
+        ...prev.specialItems.map((item) => item.position),
+      ];
+
+      const itemPosition = generateRandomItemPosition(
+        existingPositions,
+        prev.treePositions
+      );
+
+      if (!itemPosition) {
+        // couldn't find a valid position, try again after a short delay
+        if (cloakSpawnTimerRef.current) {
+          clearTimeout(cloakSpawnTimerRef.current);
+        }
+        cloakSpawnTimerRef.current = setTimeout(spawnCloak, 2000);
+        return prev;
+      }
+
+      const newItem: SpecialItem = {
+        id: generateItemId(),
+        type: "cloak",
+        position: itemPosition,
+      };
+
+      return {
+        ...prev,
+        specialItems: [...prev.specialItems, newItem],
+        cloakSpawned: true,
+        temporaryMessage: { text: "🧥 HUNTER'S CLOAK APPEARED!", type: 'success' as const },
+      };
+    });
+  }, []);
+
   // start item spawning timer when gameplay begins (after countdown)
   const startItemSpawning = useCallback(() => {
     // check if game is properly initialized and ready
@@ -453,6 +544,9 @@ export const useGameState = () => {
     if (itemSpawnTimerRef.current) {
       clearTimeout(itemSpawnTimerRef.current);
     }
+    if (cloakSpawnTimerRef.current) {
+      clearTimeout(cloakSpawnTimerRef.current);
+    }
 
     // set game start time
     gameStartTimeRef.current = Date.now();
@@ -461,7 +555,15 @@ export const useGameState = () => {
     itemSpawnTimerRef.current = setTimeout(() => {
       spawnSpecialItem();
     }, ITEM_SPAWN_DELAY);
-  }, [gameState.playerPosition, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, spawnSpecialItem]);
+
+    // spawn cloak at random interval between 20-40 seconds (once per level)
+    const cloakSpawnDelay = Math.floor(
+      Math.random() * (CLOAK_SPAWN_DELAY_MAX - CLOAK_SPAWN_DELAY_MIN + 1) + CLOAK_SPAWN_DELAY_MIN
+    );
+    cloakSpawnTimerRef.current = setTimeout(() => {
+      spawnCloak();
+    }, cloakSpawnDelay);
+  }, [gameState.playerPosition, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, spawnSpecialItem, spawnCloak]);
 
   // stop item spawning when game ends or conditions change
   useEffect(() => {
@@ -470,6 +572,10 @@ export const useGameState = () => {
       if (itemSpawnTimerRef.current) {
         clearTimeout(itemSpawnTimerRef.current);
         itemSpawnTimerRef.current = null;
+      }
+      if (cloakSpawnTimerRef.current) {
+        clearTimeout(cloakSpawnTimerRef.current);
+        cloakSpawnTimerRef.current = null;
       }
     }
   }, [gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck]);
@@ -506,6 +612,61 @@ export const useGameState = () => {
       return () => clearInterval(checkStun);
     }
   }, [gameState.wolfStunned, gameState.wolfStunEndTime]);
+
+  // update invisibility timer - when invisibility ends, make player visible again
+  useEffect(() => {
+    if (gameState.playerInvisible && gameState.cloakInvisibilityEndTime) {
+      const checkInvisibility = setInterval(() => {
+        setGameState((prev) => {
+          if (prev.cloakInvisibilityEndTime && Date.now() >= prev.cloakInvisibilityEndTime) {
+            // invisibility ended
+            return {
+              ...prev,
+              playerInvisible: false,
+              cloakInvisibilityEndTime: null,
+              wolfMoving: !prev.gameOver && !prev.isStuck && !prev.wolfStunned,
+            };
+          }
+          return prev;
+        });
+      }, 100); // check every 100ms
+
+      return () => clearInterval(checkInvisibility);
+    }
+  }, [gameState.playerInvisible, gameState.cloakInvisibilityEndTime]);
+
+  // make wolf look confused (alternate left/right) when player is invisible
+  useEffect(() => {
+    if (gameState.playerInvisible) {
+      // start confusion animation
+      wolfConfusionIntervalRef.current = setInterval(() => {
+        setGameState((prev) => {
+          if (!prev.playerInvisible) {
+            return prev; // stop if invisibility ended
+          }
+          // alternate between left and right
+          const newDirection = prev.wolfDirection === "left" ? "right" : "left";
+          return {
+            ...prev,
+            wolfDirection: newDirection,
+          };
+        });
+      }, CLOAK_WOLF_CONFUSION_INTERVAL);
+
+      return () => {
+        if (wolfConfusionIntervalRef.current) {
+          clearInterval(wolfConfusionIntervalRef.current);
+          wolfConfusionIntervalRef.current = null;
+        }
+      };
+    } else {
+      // stop confusion animation when player becomes visible
+      if (wolfConfusionIntervalRef.current) {
+        clearInterval(wolfConfusionIntervalRef.current);
+        wolfConfusionIntervalRef.current = null;
+      }
+    }
+  }, [gameState.playerInvisible]);
 
   // clear explosion effect after duration
   useEffect(() => {
@@ -636,12 +797,46 @@ export const useGameState = () => {
     });
   }, []);
 
+  // use hunter's cloak to become invisible
+  const useCloak = useCallback(() => {
+    setGameState((prev) => {
+      // check if player has cloak and is not on cooldown
+      const hasCloak = prev.inventory.includes("cloak");
+      const isOnCooldown = prev.cloakCooldownEndTime !== null && Date.now() < prev.cloakCooldownEndTime;
+
+      if (!hasCloak || prev.gameOver || prev.playerEnteredHouse || isOnCooldown || prev.playerInvisible) {
+        return prev;
+      }
+
+      // activate invisibility
+      const invisibilityEndTime = Date.now() + CLOAK_INVISIBILITY_DURATION;
+      const cooldownEndTime = Date.now() + CLOAK_COOLDOWN_DURATION;
+
+      return {
+        ...prev,
+        playerInvisible: true,
+        cloakInvisibilityEndTime: invisibilityEndTime,
+        cloakCooldownEndTime: cooldownEndTime,
+        wolfMoving: false, // stop wolf when player becomes invisible
+        temporaryMessage: { text: "🧥 INVISIBLE!", type: 'success' as const },
+      };
+    });
+  }, []);
+
   // start over from the beginning
   const resetGame = useCallback(() => {
     // clear timers
     if (itemSpawnTimerRef.current) {
       clearTimeout(itemSpawnTimerRef.current);
       itemSpawnTimerRef.current = null;
+    }
+    if (cloakSpawnTimerRef.current) {
+      clearTimeout(cloakSpawnTimerRef.current);
+      cloakSpawnTimerRef.current = null;
+    }
+    if (wolfConfusionIntervalRef.current) {
+      clearInterval(wolfConfusionIntervalRef.current);
+      wolfConfusionIntervalRef.current = null;
     }
     gameStartTimeRef.current = null;
 
@@ -680,6 +875,11 @@ export const useGameState = () => {
       currentWolfDelay: ENEMY_DELAY,
       // reset stun count
       wolfStunCount: 0,
+      // reset hunter's cloak system
+      playerInvisible: false,
+      cloakInvisibilityEndTime: null,
+      cloakCooldownEndTime: null,
+      cloakSpawned: false,
     });
 
     // set up a new game after a tiny delay
@@ -703,6 +903,7 @@ export const useGameState = () => {
     resetGame,
     initializeGame,
     useBomb,
+    useCloak,
     clearTemporaryMessage,
     startItemSpawning,
   };

@@ -22,6 +22,8 @@ interface Props {
   stunEndTime?: number | null;
   tooltipMessage?: string;
   showTooltip?: boolean;
+  playerInvisible?: boolean;
+  wolfConfused?: boolean;
 }
 
 const Tile: React.FC<Props> = ({
@@ -43,6 +45,8 @@ const Tile: React.FC<Props> = ({
   stunEndTime,
   tooltipMessage,
   showTooltip = false,
+  playerInvisible = false,
+  wolfConfused = false,
 }) => {
   const [scaleClass, setScaleClass] = useState("");
   const [stunTimeRemaining, setStunTimeRemaining] = useState<number>(0);
@@ -116,7 +120,9 @@ const Tile: React.FC<Props> = ({
         specialItem && "special-item",
         isInExplosion && "explosion",
         explosionMark && "explosion-mark",
-        showStunTimer && "wolf-stunned"
+        showStunTimer && "wolf-stunned",
+        playerInvisible && isPlayer && "player-invisible",
+        wolfConfused && isWolf && "wolf-confused"
       ),
     [
       shouldShowPlayer,
@@ -135,6 +141,8 @@ const Tile: React.FC<Props> = ({
       isInExplosion,
       explosionMark,
       showStunTimer,
+      playerInvisible,
+      wolfConfused,
     ]
   );
 
@@ -143,6 +151,7 @@ const Tile: React.FC<Props> = ({
       {specialItem && (
         <div className={`special-item-icon ${specialItem.type}`}>
           {specialItem.type === "bomb" && "💣"}
+          {specialItem.type === "cloak" && "🧥"}
         </div>
       )}
       {isInExplosion && <div className="explosion-effect" />}

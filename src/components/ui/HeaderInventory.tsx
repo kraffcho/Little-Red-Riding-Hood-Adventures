@@ -1,32 +1,44 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ItemType } from "../../types/game";
-import { BOMB_COOLDOWN_DURATION } from "../../constants/gameConfig";
+import { BOMB_COOLDOWN_DURATION, CLOAK_COOLDOWN_DURATION } from "../../constants/gameConfig";
 
 interface HeaderInventoryProps {
   inventory: ItemType[];
   onUseItem: (itemType: ItemType) => void;
   bombCooldownEndTime: number | null;
+  cloakCooldownEndTime: number | null;
+  gameOver?: boolean;
+  playerEnteredHouse?: boolean;
+  isStuck?: boolean;
 }
 
 const INVENTORY_SLOTS = 3;
-const ITEM_ORDER: ItemType[] = ["bomb", "health", "speed"];
+const ITEM_ORDER: ItemType[] = ["bomb", "cloak", "health"];
 
 const HeaderInventory: React.FC<HeaderInventoryProps> = ({
   inventory,
   onUseItem,
   bombCooldownEndTime,
+  cloakCooldownEndTime,
+  gameOver = false,
+  playerEnteredHouse = false,
+  isStuck = false,
 }) => {
   const [cooldownProgress, setCooldownProgress] = useState<number>(0);
   const cooldownRef = useRef<HTMLDivElement>(null);
 
-  // count items by type
+  // count items by type (cloak is special - only 0 or 1, no count badge)
   const itemCounts: Record<ItemType, number> = {
     bomb: inventory.filter((item) => item === "bomb").length,
+    cloak: inventory.filter((item) => item === "cloak").length,
     health: inventory.filter((item) => item === "health").length,
     speed: inventory.filter((item) => item === "speed").length,
   };
 
-  // update cooldown progress
+  const [cloakCooldownProgress, setCloakCooldownProgress] = useState<number>(0);
+  const cloakCooldownRef = useRef<HTMLDivElement>(null);
+
+  // update bomb cooldown progress
   useEffect(() => {
     if (bombCooldownEndTime) {
       const updateProgress = () => {
@@ -44,12 +56,37 @@ const HeaderInventory: React.FC<HeaderInventoryProps> = ({
     }
   }, [bombCooldownEndTime]);
 
+  // update cloak cooldown progress
+  useEffect(() => {
+    if (cloakCooldownEndTime) {
+      const updateProgress = () => {
+        const now = Date.now();
+        const remaining = Math.max(0, cloakCooldownEndTime - now);
+        const progress = 1 - remaining / CLOAK_COOLDOWN_DURATION;
+        setCloakCooldownProgress(Math.min(1, Math.max(0, progress)));
+      };
+
+      updateProgress();
+      const interval = setInterval(updateProgress, 50);
+      return () => clearInterval(interval);
+    } else {
+      setCloakCooldownProgress(0);
+    }
+  }, [cloakCooldownEndTime]);
+
   // update CSS custom property for cooldown progress width
   useEffect(() => {
     if (cooldownRef.current) {
       cooldownRef.current.style.setProperty('--cooldown-progress', `${cooldownProgress * 100}%`);
     }
   }, [cooldownProgress]);
+
+  // update CSS custom property for cloak cooldown progress width
+  useEffect(() => {
+    if (cloakCooldownRef.current) {
+      cloakCooldownRef.current.style.setProperty('--cooldown-progress', `${cloakCooldownProgress * 100}%`);
+    }
+  }, [cloakCooldownProgress]);
 
   const handleItemClick = (itemType: ItemType) => {
     if (itemCounts[itemType] > 0) {
@@ -58,12 +95,15 @@ const HeaderInventory: React.FC<HeaderInventoryProps> = ({
   };
 
   const isBombOnCooldown = bombCooldownEndTime !== null && Date.now() < bombCooldownEndTime;
+  const isCloakOnCooldown = cloakCooldownEndTime !== null && Date.now() < cloakCooldownEndTime;
 
   // get item icon
   const getItemIcon = (itemType: ItemType): string => {
     switch (itemType) {
       case "bomb":
         return "💣";
+      case "cloak":
+        return "🧥";
       case "health":
         return "❤️";
       case "speed":
@@ -78,23 +118,35 @@ const HeaderInventory: React.FC<HeaderInventoryProps> = ({
       {ITEM_ORDER.slice(0, INVENTORY_SLOTS).map((itemType) => {
         const count = itemCounts[itemType];
         const hasItem = count > 0;
-        const isCooldown = itemType === "bomb" && isBombOnCooldown;
+        const isBombCooldown = itemType === "bomb" && isBombOnCooldown;
+        const isCloakCooldown = itemType === "cloak" && isCloakOnCooldown;
+        // cloak is disabled when level is completed or game is over
+        const isCloakDisabled = itemType === "cloak" && (gameOver || playerEnteredHouse || isStuck);
+        const isCooldown = isBombCooldown || isCloakCooldown;
+        // cloak doesn't show count badge (it's a special reusable item)
+        const showCount = itemType !== "cloak";
 
         return (
           <button
             key={itemType}
-            className={`header-inventory-slot ${hasItem ? `has-item ${itemType}-item` : "empty"} ${isCooldown ? "on-cooldown" : ""}`}
-            onClick={() => hasItem && handleItemClick(itemType)}
-            disabled={isCooldown}
-            title={hasItem ? `${itemType} (${count})${isCooldown ? " - On cooldown" : ""}` : "Empty slot"}
+            className={`header-inventory-slot ${hasItem ? `has-item ${itemType}-item` : "empty"} ${isCooldown || isCloakDisabled ? "on-cooldown" : ""}`}
+            onClick={() => hasItem && !isCooldown && !isCloakDisabled && handleItemClick(itemType)}
+            disabled={isCooldown || isCloakDisabled}
+            title={hasItem ? `${itemType}${showCount ? ` (${count})` : ""}${isCooldown ? " - On cooldown" : ""}` : "Empty slot"}
           >
             {hasItem && (
               <>
                 <span className="header-inventory-icon">{getItemIcon(itemType)}</span>
-                <span className="header-inventory-count">{count}</span>
-                {isCooldown && (
+                {showCount && <span className="header-inventory-count">{count}</span>}
+                {isBombCooldown && (
                   <div
                     ref={cooldownRef}
+                    className="header-inventory-cooldown"
+                  />
+                )}
+                {isCloakCooldown && (
+                  <div
+                    ref={cloakCooldownRef}
                     className="header-inventory-cooldown"
                   />
                 )}

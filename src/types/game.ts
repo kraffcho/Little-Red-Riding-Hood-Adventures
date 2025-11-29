@@ -46,6 +46,11 @@ export type GameState = {
   // wolf speed - decreases with each stun (wolf becomes faster)
   currentWolfDelay: number;
   wolfStunCount: number; // track how many times the wolf has been stunned (max 5 speed increases)
+  // hunter's cloak system
+  playerInvisible: boolean;
+  cloakInvisibilityEndTime: number | null;
+  cloakCooldownEndTime: number | null;
+  cloakSpawned: boolean; // track if cloak has been spawned this level
 };
 
 export type AStarNode = {
@@ -61,7 +66,7 @@ export type TouchPosition = {
 };
 
 // special item types
-export type ItemType = "bomb" | "health" | "speed"; // expandable for future items
+export type ItemType = "bomb" | "health" | "speed" | "cloak"; // expandable for future items
 
 export type SpecialItem = {
   id: string;

@@ -23,6 +23,7 @@ const App: React.FC = () => {
     moveWolf,
     resetGame,
     useBomb,
+    useCloak,
     clearTemporaryMessage,
     startItemSpawning,
   } = useGameState();
@@ -137,6 +138,8 @@ const App: React.FC = () => {
       const lastItem = gameState.inventory[gameState.inventory.length - 1];
       if (lastItem === "bomb") {
         playSound(AUDIO_PATHS.COLLECT_BOMB);
+      } else if (lastItem === "cloak") {
+        playSound(AUDIO_PATHS.COLLECT_ITEM); // reuse collect-item sound for cloak
       }
       previousInventorySize.current = gameState.inventory.length;
     } else if (gameState.inventory.length < previousInventorySize.current) {
@@ -303,11 +306,19 @@ const App: React.FC = () => {
 
   // handle item usage
   const handleUseItem = useCallback((itemType: ItemType) => {
+    // prevent item usage when level is completed or game is over
+    if (gameState.gameOver || gameState.playerEnteredHouse || gameState.isStuck) {
+      return; // do nothing and don't play sounds
+    }
+
     if (itemType === "bomb") {
       useBomb();
+    } else if (itemType === "cloak") {
+      useCloak();
+      playSound(AUDIO_PATHS.USE_CLOAK);
     }
     // future items can be handled here
-  }, [useBomb]);
+  }, [useBomb, useCloak, playSound, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck]);
 
   // listen for space bar to use bomb
   useEffect(() => {
@@ -337,7 +348,11 @@ const App: React.FC = () => {
           inventory={gameState.inventory}
           onUseItem={handleUseItem}
           bombCooldownEndTime={gameState.bombCooldownEndTime}
+          cloakCooldownEndTime={gameState.cloakCooldownEndTime}
           collectedFlowers={gameState.collectedFlowers}
+          gameOver={gameState.gameOver}
+          playerEnteredHouse={gameState.playerEnteredHouse}
+          isStuck={gameState.isStuck}
           onSettingsClick={() => {
             markUserInteracted();
             setIsSettingsOpen(!isSettingsOpen);
@@ -404,6 +419,7 @@ const App: React.FC = () => {
               wolfStunEndTime={gameState.wolfStunEndTime}
               tooltipMessage={currentTooltipMessage}
               showTooltip={currentTooltipMilestone !== null}
+              playerInvisible={gameState.playerInvisible}
             />
             {gameState.gameOver && (
               <GameOver

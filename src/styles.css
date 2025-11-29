@@ -2221,6 +2221,47 @@ body {
   }
 }
 
+/* player invisibility effect - use pseudo-element for shimmer to preserve movement animations */
+.tile.player-invisible.player {
+  opacity: 0.4;
+  filter: blur(1px);
+  position: relative;
+}
+
+/* shimmer effect overlay that doesn't interfere with movement animations */
+.tile.player-invisible.player::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  animation: invisibilityShimmer 1.5s var(--ease-in-out) infinite;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+/* movement animations work normally - they're not overridden */
+@keyframes invisibilityShimmer {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* wolf confusion - alternating direction when player is invisible */
+/* direction changes are handled by state updates every 5 seconds, no CSS animation needed */
+
+/* special item icon for cloak */
+.special-item-icon.cloak {
+  font-size: var(--font-size-2xl);
+}
+
 /* responsive adjustments for inventory and header */
 @media (max-width: 768px) {
   .App {

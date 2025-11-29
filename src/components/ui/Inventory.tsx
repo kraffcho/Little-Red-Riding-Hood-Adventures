@@ -15,6 +15,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUseItem, bombCooldow
   // count items by type
   const itemCounts: Record<ItemType, number> = {
     bomb: inventory.filter((item) => item === "bomb").length,
+    cloak: inventory.filter((item) => item === "cloak").length,
     health: inventory.filter((item) => item === "health").length,
     speed: inventory.filter((item) => item === "speed").length,
   };

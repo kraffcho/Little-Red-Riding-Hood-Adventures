@@ -9,11 +9,16 @@ Welcome to the enchanting world of "Little Red Riding Hood Adventures"! A grid-b
 - On mobile/tablet, swipe in the direction you want to move
 - Wait for the countdown (3-2-1-GO!) before the game starts
 - Collect all flowers scattered throughout the forest
-- **Collect special items** (bombs) that spawn on the board after gameplay starts
+- **Collect special items** (bombs, Hunter's Cloak) that spawn on the board after gameplay starts
 - **Use bombs** to stun the wolf for 5 seconds (within 3-tile radius)
-- ⚠️ **Warning**: Each time the wolf wakes up from a stun, it becomes 10% faster (max 5 times)!
   - Click/tap the bomb in your inventory, or press **Space bar**
   - Bombs have a 5-second cooldown before you can use another
+- ⚠️ **Warning**: Each time the wolf wakes up from a stun, it becomes 10% faster (max 5 times)!
+- **Use Hunter's Cloak** to become invisible for 10 seconds
+  - Click/tap the cloak icon in your inventory
+  - The wolf stops moving and becomes confused while you're invisible
+  - The wolf is treated as an obstacle during invisibility (can't move through it)
+  - Cloak has a 30-second cooldown before reuse
 - Avoid the wolf - if it catches you, it's game over!
 - Once all flowers are collected, Granny's house will open
 - Reach Granny's house to complete the level
@@ -113,6 +118,7 @@ src/
 - 🎭 **Smooth animations** - GPU-accelerated for optimal performance
 - 🚫 **Stuck detection** - Prevents unwinnable game states for player and wolf
 - 💣 **Special Items System** - Collect and use bombs to stun the wolf
+- 🧥 **Hunter's Cloak** - Become invisible to the wolf for strategic gameplay
 - 📦 **Compact Header Inventory** - 3-slot inventory in the header with visual cooldown
 - 🎯 **Quest Progress in Header** - Slim one-liner progress bar showing collected flowers
 - ⚙️ **Settings Menu** - Accessible via SVG gear icon in header (top-right)
@@ -155,9 +161,10 @@ The codebase follows modern React best practices with a modular architecture:
 - **Level Validation** - Flood fill algorithm ensures all objectives are reachable
 - **Stuck Detection** - Runtime detection prevents unwinnable game states
 - **Countdown Timer** - Game starts with a 3-2-1-GO! countdown animation
-- **Special Items** - Bombs spawn randomly after configurable delay (default: 5 seconds)
+- **Special Items** - Bombs spawn continuously, Hunter's Cloak spawns once per level
 - **Inventory System** - Compact header-based inventory with 3 fixed slots
 - **Bomb Mechanics** - Stun the wolf within a 3-tile radius for 5 seconds
+- **Hunter's Cloak Mechanics** - Become invisible for 10 seconds, making the wolf confused
 - **Cooldown System** - 5-second cooldown between bomb uses with visual progress bar
 - **Wolf Speed Increase** - Wolf becomes 10% faster after each stun (cumulative, max 5 times)
 - **Wolf Howl Sound** - Wolf howls when waking up from stun, signaling increased speed
@@ -213,7 +220,7 @@ The codebase follows modern React best practices with a modular architecture:
 - **Countdown Screen** - Animated "GET READY!" with 3-2-1-GO! countdown
 - **Level Complete Overlay** - "LEVEL X COMPLETED" message centered on board
 - **Game Over Modal** - Clean overlay design without background box
-- **Temporary Messages** - "WOLF STUNNED!" (white) or "MISSED!" (gold) feedback
+- **Temporary Messages** - "WOLF STUNNED!" (white) or "MISSED!" (gold) for bombs, "🧥 INVISIBLE!" for cloak activation, "🧥 HUNTER'S CLOAK APPEARED!" / "🧥 HUNTER'S CLOAK COLLECTED!" for cloak events
 - **Stun Timer** - Countdown above wolf when stunned (no background, text-only)
 - **Explosion Effects** - Screen shake and visual blast animation
 - **Explosion Marks** - Dark marks on tiles where bombs exploded (fade out over 3 seconds)
@@ -226,22 +233,26 @@ The codebase follows modern React best practices with a modular architecture:
 
 ## 💣 Special Items & Inventory System
 
-The game features a special items system that adds strategic depth to gameplay. Currently, bombs are the primary special item available.
+The game features a special items system that adds strategic depth to gameplay. Two types of special items are available: bombs and the Hunter's Cloak.
 
 ### Item Spawning
 
-- **Spawn Delay**: Special items (bombs) begin spawning after **5 seconds** of gameplay
+- **Bombs**: Begin spawning after **5 seconds** of gameplay
   - Timer starts when countdown completes (not during countdown)
-- **Continuous Spawning**: After the initial delay, new items spawn every **5 seconds** (configurable)
-- **Random Placement**: Items are placed randomly on valid tiles (avoiding obstacles and entities)
-- **Multiple Items**: You can collect multiple bombs - they stack in your inventory
-- **Max on Map**: Maximum of 3 bombs can exist on the map at the same time
+  - After the initial delay, new bombs spawn every **5 seconds** (configurable)
+  - You can collect multiple bombs - they stack in your inventory
+  - Maximum of 3 bombs can exist on the map at the same time
+- **Hunter's Cloak**: Spawns **once per level**
+  - Appears randomly between **20-40 seconds** after gameplay starts
+  - Only one cloak spawns per level
+- **Random Placement**: All items are placed randomly on valid tiles (avoiding obstacles and entities)
 
 ### Collecting Items
 
 - Simply walk over a special item icon on the game board to collect it
 - Collected items are automatically added to your inventory
-- Collection sound effect plays when picking up a bomb
+- Collection sound effect plays when picking up items
+- Collection messages appear: "💣 BOMB COLLECTED!" or "🧥 HUNTER'S CLOAK COLLECTED!"
 - Inventory appears in the header (left section) with 3 fixed slots
 
 ### Using Bombs
@@ -288,10 +299,16 @@ Bombs are powerful items that can stun the wolf, giving you precious time to col
 
 ### Feedback Messages
 
-When you use a bomb, temporary messages appear in the center of the screen:
+Temporary messages appear in the center of the screen for various events:
 
+**Bomb Usage:**
 - **"WOLF STUNNED!"** (white text with glow) - Shown when the wolf is successfully stunned
 - **"MISSED!"** (gold text with glow) - Shown when the wolf is outside the explosion radius
+
+**Hunter's Cloak:**
+- **"🧥 HUNTER'S CLOAK APPEARED!"** - Shown when the cloak spawns on the map
+- **"🧥 HUNTER'S CLOAK!"** - Shown when you collect the cloak
+- **"🧥 INVISIBLE!"** - Shown when you activate the cloak
 
 ### Configuration
 
@@ -306,6 +323,50 @@ All special item settings can be adjusted in `src/constants/gameConfig.ts`:
 - `EXPLOSION_MARK_DURATION` - How long explosion marks remain visible (default: 3000ms / 3 seconds)
 - `WOLF_SPEED_INCREASE_PERCENTAGE` - Speed increase per stun (default: 0.1 / 10%)
 - `MAX_WOLF_SPEED_INCREASES` - Maximum number of speed increases (default: 5)
+
+### Hunter's Cloak
+
+The Hunter's Cloak is a unique special item that allows you to become invisible to the wolf, providing strategic opportunities to collect flowers or escape danger.
+
+**Spawning:**
+- **Single Spawn**: The cloak spawns **once per level**
+- **Random Timing**: Appears randomly between **20-40 seconds** after gameplay starts
+- **Random Placement**: Placed on a valid tile (avoiding obstacles and entities)
+- **Collection Message**: Shows "🧥 HUNTER'S CLOAK APPEARED!" when it spawns
+
+**How to Use:**
+- **Click/Tap**: Click or tap the cloak icon (🧥) in the header inventory
+- The cloak is a reusable item (doesn't get consumed) but has a cooldown
+
+**Cloak Effects:**
+- **Invisibility Duration**: Become invisible for **10 seconds**
+- **Wolf Behavior**: When you activate the cloak:
+  - The wolf **stops moving** completely
+  - The wolf becomes **confused** (alternates looking left/right every 5 seconds)
+  - The wolf **cannot see you** (no collision detection)
+- **Physical Barrier**: Even when invisible, you **cannot move through the wolf** (it's treated as an obstacle)
+- **Visual Effect**: You become semi-transparent with a shimmer animation during invisibility
+- **Activation Message**: Shows "🧥 INVISIBLE!" when activated
+- **Collection Message**: Shows "🧥 HUNTER'S CLOAK COLLECTED!" when picked up
+
+**Cooldown System:**
+- After using the cloak, there's a **30-second cooldown** before you can use it again
+- A progress bar under the cloak icon in the inventory shows the cooldown progress
+- The cloak button is disabled during cooldown
+- The cloak button is also disabled when the level is completed or game is over (no sound feedback)
+
+**Strategic Gameplay:**
+- Use the cloak to safely collect flowers near the wolf
+- Escape dangerous situations when cornered
+- Plan your route before activating invisibility (wolf acts as a physical obstacle)
+- The wolf's confusion makes it clear you're invisible
+
+**Configuration:**
+- `CLOAK_SPAWN_DELAY_MIN` - Minimum spawn delay (default: 20000ms / 20 seconds)
+- `CLOAK_SPAWN_DELAY_MAX` - Maximum spawn delay (default: 40000ms / 40 seconds)
+- `CLOAK_INVISIBILITY_DURATION` - How long invisibility lasts (default: 10000ms / 10 seconds)
+- `CLOAK_COOLDOWN_DURATION` - Cooldown between uses (default: 30000ms / 30 seconds)
+- `CLOAK_WOLF_CONFUSION_INTERVAL` - How often wolf changes direction when confused (default: 5000ms / 5 seconds)
 
 ## 🤖 Pathfinding Algorithm (A\*)
 

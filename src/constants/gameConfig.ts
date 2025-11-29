@@ -37,6 +37,7 @@ export const AUDIO_PATHS = {
   ],
   COLLECT_BOMB: "/assets/audio/collect-bomb.mp3",
   WOLF_HOWL: "/assets/audio/wolf-howl.mp3",
+  USE_CLOAK: "/assets/audio/use-cloak.mp3",
 } as const;
 
 // cookie names for storing settings
@@ -56,4 +57,11 @@ export const EXPLOSION_MARK_DURATION = 3000; // 3 seconds before explosion mark 
 // wolf speed increase after stun
 export const WOLF_SPEED_INCREASE_PERCENTAGE = 0.1; // 10% speed increase (delay reduction) per stun
 export const MAX_WOLF_SPEED_INCREASES = 5; // maximum number of times the wolf can get faster
+
+// hunter's cloak configuration
+export const CLOAK_SPAWN_DELAY_MIN = 20000; // 20 seconds minimum spawn delay
+export const CLOAK_SPAWN_DELAY_MAX = 40000; // 40 seconds maximum spawn delay
+export const CLOAK_INVISIBILITY_DURATION = 10000; // 10 seconds invisibility duration
+export const CLOAK_COOLDOWN_DURATION = 30000; // 30 seconds cooldown before can use again
+export const CLOAK_WOLF_CONFUSION_INTERVAL = 2000; // how often wolf changes direction when confused (milliseconds)
 
