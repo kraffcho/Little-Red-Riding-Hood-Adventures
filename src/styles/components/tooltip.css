@@ -58,14 +58,3 @@
   animation: tooltipFadeArrowPlayerInHouse 5s var(--ease-in-out) forwards;
   opacity: 0;
 }
-
-/* tooltip fade animation - 3 seconds total */
-
-/* tooltip arrow fade animation - combines positioning and movement */
-
-/* mobile arrow fade animation - moves with tooltip box */
-
-/* welcome message fade animation - 5 seconds total */
-
-/* tooltip arrow fade animation for player-in-house - 5 seconds with centering */
-

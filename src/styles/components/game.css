@@ -188,7 +188,6 @@
   transform: translateZ(0);
 }
 
-
 .player-right {
   -webkit-transform: scale3d(-1, 1, 1) translateZ(0);
   transform: scale3d(-1, 1, 1) translateZ(0);
@@ -206,7 +205,6 @@
   transform: translateZ(0);
 }
 
-
 .player-down {
   background-image: url("../../assets/images/player-down.png");
   animation: downMovePlayer var(--transition-fast) var(--ease-in-out) forwards;
@@ -214,7 +212,6 @@
   backface-visibility: hidden;
   transform: translateZ(0);
 }
-
 
 /* WOLF ANIMATIONS */
 
@@ -225,7 +222,6 @@
   transform: translateZ(0);
 }
 
-
 .wolf-right {
   -webkit-transform: scale3d(-1, 1, 1) translateZ(0);
   transform: scale3d(-1, 1, 1) translateZ(0);
@@ -234,14 +230,12 @@
   backface-visibility: hidden;
 }
 
-
 .wolf-up {
   animation: upMoveWolf var(--transition-slow) var(--ease-in-out) forwards;
   will-change: transform;
   backface-visibility: hidden;
   transform: translateZ(0);
 }
-
 
 .wolf-down {
   animation: downMoveWolf var(--transition-slow) var(--ease-in-out) forwards;
@@ -272,7 +266,6 @@
   animation: itemPulse 2s var(--ease-in-out) infinite;
 }
 
-
 /* EXPLOSION EFFECT */
 
 .tile.explosion {
@@ -295,7 +288,6 @@
   z-index: 11;
   pointer-events: none;
 }
-
 
 /* explosion mark - persistent dark spot where bomb exploded */
 .tile.explosion-mark {
@@ -327,7 +319,6 @@
   will-change: transform;
   backface-visibility: hidden;
 }
-
 
 /* WOLF STUN TIMER */
 
@@ -363,7 +354,6 @@
   display: inline-block;
 }
 
-
 /* player invisibility effect - use pseudo-element for shimmer to preserve movement animations */
 .tile.player-invisible.player {
   opacity: 0.4;
@@ -386,13 +376,7 @@
   mix-blend-mode: overlay;
 }
 
-/* movement animations work normally - they're not overridden */
-
-/* wolf confusion - alternating direction when player is invisible */
-/* direction changes are handled by state updates every 5 seconds, no CSS animation needed */
-
 /* special item icon for cloak */
 .special-item-icon.cloak {
   font-size: var(--font-size-2xl);
 }
-

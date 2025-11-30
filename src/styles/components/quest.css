@@ -122,7 +122,6 @@
   box-shadow: var(--shadow-glow-gold);
 }
 
-
 /* quest info column */
 .quest-info {
   flex: 1;
@@ -157,4 +156,3 @@
   margin: 0;
   line-height: var(--line-height-normal);
 }
-

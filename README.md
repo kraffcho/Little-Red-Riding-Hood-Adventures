@@ -60,7 +60,10 @@ The optimized build will be in the `build` folder.
 - **React 18** - UI framework
 - **TypeScript** - Type-safe JavaScript
 - **Create React App** - Build tooling
-- **CSS3** - Styling and animations with custom properties
+- **CSS3** - Modular styling and animations with custom properties
+  - **12 organized CSS modules** for better maintainability
+  - CSS custom properties (variables) for design tokens
+  - GPU-accelerated animations for optimal performance
 - **Titillium Web** - Primary typography font
 - **Bangers** - Display font for game messages
 
@@ -69,6 +72,9 @@ The optimized build will be in the `build` folder.
 ```
 src/
 ├── components/
+│   ├── game/
+│   │   ├── ForestGrid.tsx          # Game grid component
+│   │   └── Tile.tsx                # Individual tile component
 │   ├── ui/
 │   │   ├── Header.tsx              # Main header component (inventory, quest progress, settings)
 │   │   ├── HeaderInventory.tsx     # Compact inventory display in header
@@ -76,10 +82,11 @@ src/
 │   │   ├── SettingsMenu.tsx        # Settings dropdown menu
 │   │   ├── PauseIcon.tsx           # SVG pause icon component
 │   │   ├── PlayIcon.tsx            # SVG play icon component
+│   │   ├── VolumeIcon.tsx          # SVG volume icon component
+│   │   ├── RestartIcon.tsx         # SVG restart icon component
+│   │   ├── CloseIcon.tsx           # SVG close icon component
 │   │   ├── QuestProgress.tsx       # Quest progress bar component
-│   │   ├── GameControls.tsx        # Legacy game controls component
-│   │   ├── Inventory.tsx           # Legacy inventory component
-│   │   └── QuestInfo.tsx           # Legacy quest info component
+│   │   └── QuestInfo.tsx           # Quest info component
 │   ├── Countdown.tsx               # Countdown start screen (GET READY!)
 │   ├── GameOver.tsx                # Game over modal
 │   ├── LevelComplete.tsx           # Level complete overlay
@@ -88,25 +95,41 @@ src/
 ├── constants/
 │   └── gameConfig.ts               # Game configuration constants
 ├── hooks/
+│   ├── index.ts                    # Centralized hook exports
 │   ├── useGameState.ts             # Game state management
 │   ├── useAudio.ts                 # Audio playback management
 │   ├── useInput.ts                 # Keyboard (arrow keys + WASD + Space) and touch input
 │   └── useDebounce.ts              # Debounce utility
 ├── types/
+│   ├── index.ts                    # Centralized type exports
 │   └── game.ts                     # TypeScript type definitions
 ├── utils/
+│   ├── index.ts                    # Centralized utility exports
 │   ├── gridUtils.ts                # Grid and position utilities
 │   ├── pathfinding.ts              # A* pathfinding algorithm
 │   ├── gameGeneration.ts           # Level generation logic
 │   ├── levelValidation.ts          # Level validation and stuck detection
 │   ├── itemUtils.ts                # Special item utilities (positioning, radius checks)
 │   ├── questMessages.ts            # Quest message generation for Granny tooltips
-│   ├── classNames.ts               # Utility for conditional CSS class names
-│   └── index.ts                    # Utility exports
+│   └── classNames.ts               # Utility for conditional CSS class names
+├── styles/
+│   ├── variables.css               # CSS custom properties (design tokens)
+│   ├── base.css                    # Reset styles, fonts, base body styles
+│   ├── layouts.css                 # Layout components (App, game-board-wrapper)
+│   ├── animations.css              # All keyframe animations
+│   ├── responsive.css              # Responsive media queries
+│   └── components/
+│       ├── header.css              # Header, inventory, quest progress styles
+│       ├── game.css                # Game grid, tiles, sprites, animations
+│       ├── tooltip.css             # Granny house tooltip styles
+│       ├── quest.css               # Quest panel styles
+│       ├── controls.css            # Game controls styles
+│       ├── settings.css            # Settings menu styles
+│       └── overlays.css            # Overlay styles (countdown, game over, pause, etc.)
+├── assets/
+│   └── images/                     # Game images (background, sprites)
 ├── App.tsx                         # Main application component
-├── ForestGrid.tsx                  # Game grid component
-├── Tile.tsx                        # Individual tile component
-└── styles.css                      # Global styles with CSS custom properties
+└── index.tsx                       # Application entry point
 ```
 
 ## 🎵 Features
@@ -137,16 +160,89 @@ src/
 
 ## 🏗️ Architecture
 
-The codebase follows modern React best practices with a modular architecture:
+The codebase follows modern React best practices with a modular, well-organized architecture:
 
 - **Custom Hooks** - Reusable logic for game state, audio, and input handling
+  - Centralized exports via `hooks/index.ts`
 - **Utility Functions** - Pure functions for grid operations, pathfinding, and game generation
+  - Centralized exports via `utils/index.ts`
 - **Component Separation** - UI components separated from business logic
+  - Game components organized in `components/game/`
+  - UI components organized in `components/ui/`
 - **Type Safety** - Full TypeScript support with centralized type definitions
+  - Centralized exports via `types/index.ts`
 - **Constants Management** - All game configuration in one place
+- **Modular CSS Architecture** - 12 organized CSS modules for better maintainability
+  - Design tokens in `variables.css`
+  - Component-specific styles in `components/`
+  - Responsive styles separated for clarity
+  - All keyframe animations in one file
 - **CSS Custom Properties** - Design tokens for colors, spacing, typography, and z-index
 - **DRY Principles** - No code duplication, reusable components and utilities
 - **Performance Optimized** - GPU-accelerated animations, efficient re-renders
+- **Clean Import Paths** - Index files provide cleaner, more maintainable imports
+
+## 📦 Code Organization
+
+The project follows a clean, modular structure that promotes maintainability and scalability:
+
+### CSS Modularization
+
+The CSS has been reorganized from a single 2,500+ line file into **12 organized modules**:
+
+- **`variables.css`** - All CSS custom properties (design tokens: colors, spacing, typography, z-index)
+- **`base.css`** - Reset styles, font imports, base body styles
+- **`layouts.css`** - Layout components (App container, game board wrapper)
+- **`animations.css`** - All keyframe animations (34 animations) in one place
+- **`responsive.css`** - Responsive media queries and mobile-specific overrides
+- **`components/header.css`** - Header, inventory, quest progress styles
+- **`components/game.css`** - Game grid, tiles, sprites, game entities
+- **`components/tooltip.css`** - Granny house tooltip styles
+- **`components/quest.css`** - Quest panel styles
+- **`components/controls.css`** - Game controls styles
+- **`components/settings.css`** - Settings menu styles
+- **`components/overlays.css`** - Overlay styles (countdown, game over, pause menu, etc.)
+
+**Benefits:**
+
+- ✅ Easier to locate and modify specific styles
+- ✅ Better organization and maintainability
+- ✅ Reduced cognitive load when working on styles
+- ✅ Better performance with webpack's CSS processing
+
+### Component Organization
+
+- **Game Components** (`components/game/`) - Core game logic components
+  - `ForestGrid.tsx` - Main game grid rendering
+  - `Tile.tsx` - Individual tile component with all game entities
+- **UI Components** (`components/ui/`) - Header, inventory, settings, icons
+- **Overlay Components** (root of `components/`) - Game state overlays (countdown, game over, pause, etc.)
+
+### Centralized Exports
+
+All imports use centralized index files for cleaner import paths:
+
+- **`hooks/index.ts`** - Single import point for all custom hooks
+  ```typescript
+  import { useGameState, useAudio, useKeyboardInput } from "./hooks";
+  ```
+- **`utils/index.ts`** - Single import point for all utility functions
+  ```typescript
+  import { findPath, isValidPosition, classNames } from "./utils";
+  ```
+- **`types/index.ts`** - Single import point for all TypeScript types
+  ```typescript
+  import { GameState, ItemType, Position } from "./types";
+  ```
+
+### File Structure Benefits
+
+- ✅ **Cleaner imports**: Fewer import statements, easier to refactor
+- ✅ **Better organization**: Related files grouped together by domain
+- ✅ **Easier maintenance**: Clear structure, easier to find files
+- ✅ **Scalability**: Structure supports growth without becoming unwieldy
+- ✅ **Modular CSS**: Easier to maintain and update styles
+- ✅ **Type safety**: Centralized type definitions prevent inconsistencies
 
 ## 📝 Available Scripts
 
