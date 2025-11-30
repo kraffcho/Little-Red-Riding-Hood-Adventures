@@ -79,6 +79,8 @@ export const useGameState = () => {
     cloakInvisibilityEndTime: null,
     cloakCooldownEndTime: null,
     cloakSpawned: false,
+    // pause system
+    paused: false,
   });
 
   const gameStartTimeRef = useRef<number | null>(null);
@@ -216,6 +218,8 @@ export const useGameState = () => {
       cloakInvisibilityEndTime: null,
       cloakCooldownEndTime: null,
       cloakSpawned: false,
+      // reset pause state
+      paused: false,
     }));
 
     // clear game start time and timer - will be set when gameplay actually starts (after countdown)
@@ -417,11 +421,20 @@ export const useGameState = () => {
   // spawn a special item on the board
   const spawnSpecialItem = useCallback(() => {
     setGameState((prev) => {
-      if (prev.gameOver || prev.playerEnteredHouse) {
-        // clear timer if game is over
-        if (itemSpawnTimerRef.current) {
-          clearTimeout(itemSpawnTimerRef.current);
-          itemSpawnTimerRef.current = null;
+      if (prev.gameOver || prev.playerEnteredHouse || prev.paused) {
+        // clear timer if game is over or paused
+        if (prev.gameOver || prev.playerEnteredHouse) {
+          if (itemSpawnTimerRef.current) {
+            clearTimeout(itemSpawnTimerRef.current);
+            itemSpawnTimerRef.current = null;
+          }
+        }
+        // if paused, reschedule for later
+        if (prev.paused && !prev.gameOver && !prev.playerEnteredHouse) {
+          if (itemSpawnTimerRef.current) {
+            clearTimeout(itemSpawnTimerRef.current);
+          }
+          itemSpawnTimerRef.current = setTimeout(spawnSpecialItem, ITEM_SPAWN_DELAY);
         }
         return prev;
       }
@@ -484,11 +497,20 @@ export const useGameState = () => {
   // spawn the hunter's cloak once per level (random 20-40 seconds)
   const spawnCloak = useCallback(() => {
     setGameState((prev) => {
-      if (prev.gameOver || prev.playerEnteredHouse || prev.cloakSpawned) {
+      if (prev.gameOver || prev.playerEnteredHouse || prev.cloakSpawned || prev.paused) {
         // clear timer if game is over or cloak already spawned
-        if (cloakSpawnTimerRef.current) {
-          clearTimeout(cloakSpawnTimerRef.current);
-          cloakSpawnTimerRef.current = null;
+        if (prev.gameOver || prev.playerEnteredHouse || prev.cloakSpawned) {
+          if (cloakSpawnTimerRef.current) {
+            clearTimeout(cloakSpawnTimerRef.current);
+            cloakSpawnTimerRef.current = null;
+          }
+        }
+        // if paused, reschedule for later
+        if (prev.paused && !prev.gameOver && !prev.playerEnteredHouse && !prev.cloakSpawned) {
+          if (cloakSpawnTimerRef.current) {
+            clearTimeout(cloakSpawnTimerRef.current);
+          }
+          cloakSpawnTimerRef.current = setTimeout(spawnCloak, 2000);
         }
         return prev;
       }
@@ -880,6 +902,8 @@ export const useGameState = () => {
       cloakInvisibilityEndTime: null,
       cloakCooldownEndTime: null,
       cloakSpawned: false,
+      // reset pause state
+      paused: false,
     });
 
     // set up a new game after a tiny delay
@@ -896,6 +920,63 @@ export const useGameState = () => {
     }));
   }, []);
 
+  // pause the game
+  const pauseGame = useCallback(() => {
+    setGameState((prev) => {
+      // don't pause if game is over, completed, or already paused
+      if (prev.gameOver || prev.playerEnteredHouse || prev.isStuck || prev.paused) {
+        return prev;
+      }
+      return {
+        ...prev,
+        paused: true,
+        playerCanMove: false,
+        wolfMoving: false,
+      };
+    });
+  }, []);
+
+  // unpause the game
+  const unpauseGame = useCallback(() => {
+    setGameState((prev) => {
+      // don't unpause if game is over, completed, or not paused
+      if (prev.gameOver || prev.playerEnteredHouse || prev.isStuck || !prev.paused) {
+        return prev;
+      }
+      return {
+        ...prev,
+        paused: false,
+        playerCanMove: true,
+        wolfMoving: !prev.wolfStunned && !prev.playerInvisible,
+      };
+    });
+  }, []);
+
+  // toggle pause state
+  const togglePause = useCallback(() => {
+    setGameState((prev) => {
+      // don't allow pausing if game is over, completed, or stuck
+      if (prev.gameOver || prev.playerEnteredHouse || prev.isStuck) {
+        return prev;
+      }
+      if (prev.paused) {
+        return {
+          ...prev,
+          paused: false,
+          playerCanMove: true,
+          wolfMoving: !prev.wolfStunned && !prev.playerInvisible,
+        };
+      } else {
+        return {
+          ...prev,
+          paused: true,
+          playerCanMove: false,
+          wolfMoving: false,
+        };
+      }
+    });
+  }, []);
+
   return {
     gameState,
     movePlayer,
@@ -905,6 +986,9 @@ export const useGameState = () => {
     useBomb,
     useCloak,
     clearTemporaryMessage,
+    pauseGame,
+    unpauseGame,
+    togglePause,
     startItemSpawning,
   };
 };

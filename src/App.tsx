@@ -5,6 +5,7 @@ import GameOver from "./components/GameOver";
 import Countdown from "./components/Countdown";
 import LevelComplete from "./components/LevelComplete";
 import TemporaryMessage from "./components/TemporaryMessage";
+import PauseMenu from "./components/PauseMenu";
 import Header from "./components/ui/Header";
 import SettingsMenu from "./components/ui/SettingsMenu";
 
@@ -26,6 +27,9 @@ const App: React.FC = () => {
     useCloak,
     clearTemporaryMessage,
     startItemSpawning,
+    togglePause,
+    pauseGame,
+    unpauseGame,
   } = useGameState();
 
   const {
@@ -56,6 +60,8 @@ const App: React.FC = () => {
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const shownMilestonesRef = useRef<Set<QuestMilestone>>(new Set());
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [showPauseMenu, setShowPauseMenu] = useState(false);
+  const pauseMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // detect quest milestones and show tooltip for 3 seconds
   useEffect(() => {
@@ -186,22 +192,68 @@ const App: React.FC = () => {
     }
   }, [gameState.explosionEffect, playRandomSound]);
 
+  // handle Esc key for pause/unpause
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" || event.code === "Escape") {
+        // prevent default browser behavior (e.g., closing modals)
+        event.preventDefault();
+        // don't allow pausing if game is over, completed, or stuck
+        if (!gameState.gameOver && !gameState.playerEnteredHouse && !gameState.isStuck && countdownComplete) {
+          togglePause();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, countdownComplete, togglePause]);
+
+  // handle pause menu visibility with fade animations
+  useEffect(() => {
+    if (gameState.paused && countdownComplete) {
+      // Show pause menu immediately when paused
+      setShowPauseMenu(true);
+      // Clear any existing timeout
+      if (pauseMenuTimeoutRef.current) {
+        clearTimeout(pauseMenuTimeoutRef.current);
+        pauseMenuTimeoutRef.current = null;
+      }
+    } else if (!gameState.paused && showPauseMenu) {
+      // When unpaused, wait for fade-out animation before hiding
+      if (pauseMenuTimeoutRef.current) {
+        clearTimeout(pauseMenuTimeoutRef.current);
+      }
+      pauseMenuTimeoutRef.current = setTimeout(() => {
+        setShowPauseMenu(false);
+        pauseMenuTimeoutRef.current = null;
+      }, 300); // Match fade-out animation duration
+    }
+
+    return () => {
+      if (pauseMenuTimeoutRef.current) {
+        clearTimeout(pauseMenuTimeoutRef.current);
+        pauseMenuTimeoutRef.current = null;
+      }
+    };
+  }, [gameState.paused, countdownComplete]);
+
   // make the wolf chase the player every so often - wait for countdown to finish
   // use dynamic delay that decreases after each stun (wolf becomes faster)
   useEffect(() => {
-    if (!countdownComplete || !gameState.wolfMoving || gameState.gameOver || gameState.isStuck) return;
+    if (!countdownComplete || !gameState.wolfMoving || gameState.gameOver || gameState.isStuck || gameState.paused) return;
 
     const intervalId = setInterval(() => {
       moveWolf();
     }, gameState.currentWolfDelay);
 
     return () => clearInterval(intervalId);
-  }, [countdownComplete, gameState.wolfMoving, gameState.gameOver, gameState.isStuck, gameState.currentWolfDelay, moveWolf]);
+  }, [countdownComplete, gameState.wolfMoving, gameState.gameOver, gameState.isStuck, gameState.paused, gameState.currentWolfDelay, moveWolf]);
 
   // handle when the player moves - play music, check house entry, etc.
   const handlePlayerMove = useCallback((direction: Direction) => {
-    // prevent movement if countdown hasn't finished, player has entered house, is stuck, or game is over
-    if (!countdownComplete || gameState.playerEnteredHouse || gameState.isStuck || gameState.gameOver) {
+    // prevent movement if countdown hasn't finished, player has entered house, is stuck, game is over, or paused
+    if (!countdownComplete || gameState.playerEnteredHouse || gameState.isStuck || gameState.gameOver || gameState.paused) {
       return;
     }
 
@@ -245,12 +297,12 @@ const App: React.FC = () => {
   ]);
 
   // listen for arrow key presses - disable during countdown
-  useKeyboardInput(handlePlayerMove, gameState.playerCanMove && countdownComplete);
+  useKeyboardInput(handlePlayerMove, gameState.playerCanMove && countdownComplete && !gameState.paused);
 
   // handle touch/swipe gestures for mobile - disable during countdown
   const { handleTouchStart, handleTouchEnd } = useSwipeInput(
     handlePlayerMove,
-    gameState.playerCanMove && countdownComplete
+    gameState.playerCanMove && countdownComplete && !gameState.paused
   );
 
   const handleResetGame = useCallback(() => {
@@ -306,8 +358,8 @@ const App: React.FC = () => {
 
   // handle item usage
   const handleUseItem = useCallback((itemType: ItemType) => {
-    // prevent item usage when level is completed or game is over
-    if (gameState.gameOver || gameState.playerEnteredHouse || gameState.isStuck) {
+    // prevent item usage when level is completed, game is over, or paused
+    if (gameState.gameOver || gameState.playerEnteredHouse || gameState.isStuck || gameState.paused) {
       return; // do nothing and don't play sounds
     }
 
@@ -318,11 +370,11 @@ const App: React.FC = () => {
       playSound(AUDIO_PATHS.USE_CLOAK);
     }
     // future items can be handled here
-  }, [useBomb, useCloak, playSound, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck]);
+  }, [useBomb, useCloak, playSound, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, gameState.paused]);
 
   // listen for space bar to use bomb
   useEffect(() => {
-    if (!countdownComplete || gameState.gameOver || gameState.playerEnteredHouse || gameState.isStuck) {
+    if (!countdownComplete || gameState.gameOver || gameState.playerEnteredHouse || gameState.isStuck || gameState.paused) {
       return;
     }
 
@@ -335,7 +387,7 @@ const App: React.FC = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [countdownComplete, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, handleUseItem]);
+  }, [countdownComplete, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, gameState.paused, handleUseItem]);
 
   // don't render the board until the game is initialized (positions are valid)
   const isGameInitialized = gameState.playerPosition.x >= 0 && gameState.playerPosition.y >= 0;
@@ -353,6 +405,12 @@ const App: React.FC = () => {
           gameOver={gameState.gameOver}
           playerEnteredHouse={gameState.playerEnteredHouse}
           isStuck={gameState.isStuck}
+          paused={gameState.paused}
+          countdownComplete={countdownComplete}
+          onPauseClick={() => {
+            markUserInteracted();
+            togglePause();
+          }}
           onSettingsClick={() => {
             markUserInteracted();
             setIsSettingsOpen(!isSettingsOpen);
@@ -386,6 +444,12 @@ const App: React.FC = () => {
                 // could trigger next level or keep showing
               }}
             />
+            {showPauseMenu && countdownComplete && (
+              <PauseMenu
+                onResume={unpauseGame}
+                isVisible={gameState.paused}
+              />
+            )}
             {gameState.temporaryMessage && (
               <TemporaryMessage
                 message={gameState.temporaryMessage.text}

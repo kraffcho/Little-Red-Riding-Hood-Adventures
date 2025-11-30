@@ -51,6 +51,8 @@ export type GameState = {
   cloakInvisibilityEndTime: number | null;
   cloakCooldownEndTime: number | null;
   cloakSpawned: boolean; // track if cloak has been spawned this level
+  // pause system
+  paused: boolean;
 };
 
 export type AStarNode = {

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import HeaderInventory from "./HeaderInventory";
 import SettingsIcon from "./SettingsIcon";
+import PauseIcon from "./PauseIcon";
+import PlayIcon from "./PlayIcon";
 import { ItemType } from "../../types/game";
 import { NUM_FLOWERS } from "../../constants/gameConfig";
 
@@ -11,9 +13,12 @@ interface HeaderProps {
   cloakCooldownEndTime: number | null;
   collectedFlowers: number;
   onSettingsClick: () => void;
+  onPauseClick: () => void;
   gameOver?: boolean;
   playerEnteredHouse?: boolean;
   isStuck?: boolean;
+  paused?: boolean;
+  countdownComplete?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -23,9 +28,12 @@ const Header: React.FC<HeaderProps> = ({
   cloakCooldownEndTime,
   collectedFlowers,
   onSettingsClick,
+  onPauseClick,
   gameOver = false,
   playerEnteredHouse = false,
   isStuck = false,
+  paused = false,
+  countdownComplete = false,
 }) => {
   const progress = Math.min(100, Math.max(0, (collectedFlowers / NUM_FLOWERS) * 100));
   const allFlowersCollected = collectedFlowers === NUM_FLOWERS;
@@ -54,7 +62,7 @@ const Header: React.FC<HeaderProps> = ({
       <div className="game-header-center">
         <div className="header-quest-progress">
           <div className="header-quest-progress-text">
-            <span className="header-quest-label">💐 Collected Flowers:</span>
+            <span className="header-quest-label">💐 Collect Flowers</span>
             <span className="header-quest-count">{collectedFlowers}/{NUM_FLOWERS}</span>
           </div>
           <div className="header-quest-progress-bar-container">
@@ -66,6 +74,14 @@ const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
       <div className="game-header-right">
+        <button
+          className="header-pause-button"
+          onClick={onPauseClick}
+          disabled={!countdownComplete || gameOver || playerEnteredHouse || isStuck}
+          aria-label={paused ? "Resume" : "Pause"}
+        >
+          {paused ? <PlayIcon /> : <PauseIcon />}
+        </button>
         <button
           className="header-settings-button"
           onClick={onSettingsClick}
