@@ -9,7 +9,7 @@ export const useGameLifecycle = () => {
   const [stuckReason, setStuckReason] = useState<string | undefined>(undefined);
   const [temporaryMessage, setTemporaryMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [paused, setPaused] = useState<boolean>(false);
-  
+
   const gameStartTimeRef = useRef<number | null>(null);
 
   /**
@@ -103,7 +103,7 @@ export const useGameLifecycle = () => {
     temporaryMessage,
     paused,
     gameStartTimeRef,
-    
+
     // Actions
     setGameOverState,
     setStuckState,

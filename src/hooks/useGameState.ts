@@ -47,7 +47,7 @@ export const useGameState = () => {
   // use level state hook for level generation logic
   // Note: For now, we only use generateLevel. Level state remains in gameState for backward compatibility
   const { generateLevel } = useLevelState();
-  
+
   // use inventory state hook for timer refs and helper functions
   // Note: State remains in gameState for now, we use the hook for refs and future migration
   const { itemSpawnTimerRef, cloakSpawnTimerRef } = useInventoryState();
