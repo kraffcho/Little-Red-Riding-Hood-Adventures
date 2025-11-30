@@ -19,6 +19,7 @@ interface HeaderProps {
   isStuck?: boolean;
   paused?: boolean;
   countdownComplete?: boolean;
+  isSettingsOpen?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -34,6 +35,7 @@ const Header: React.FC<HeaderProps> = ({
   isStuck = false,
   paused = false,
   countdownComplete = false,
+  isSettingsOpen = false,
 }) => {
   const progress = Math.min(100, Math.max(0, (collectedFlowers / NUM_FLOWERS) * 100));
   const allFlowersCollected = collectedFlowers === NUM_FLOWERS;
@@ -85,7 +87,8 @@ const Header: React.FC<HeaderProps> = ({
         <button
           className="header-settings-button"
           onClick={onSettingsClick}
-          aria-label="Settings"
+          aria-label={isSettingsOpen ? "Close settings" : "Open settings"}
+          {...(isSettingsOpen && { "aria-expanded": true })}
         >
           <SettingsIcon />
         </button>

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import VolumeIcon from "./icons/VolumeIcon";
 import RestartIcon from "./icons/RestartIcon";
-import CloseIcon from "./icons/CloseIcon";
 
 interface SettingsMenuProps {
   volume: number;
@@ -24,10 +23,14 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // close the menu if user clicks somewhere else
+  // close the menu if user clicks somewhere else (but not the settings button)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      const target = event.target as HTMLElement;
+      // don't close if clicking on the settings button or its children
+      const isSettingsButton = target.closest('.header-settings-button');
+      
+      if (menuRef.current && !menuRef.current.contains(target) && !isSettingsButton) {
         if (isOpen) {
           onToggle();
         }
@@ -51,9 +54,6 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
     <div className="settings-menu-dropdown" ref={menuRef}>
       <div className="settings-menu-header">
         <h3>Settings</h3>
-        <button type="button" className="settings-menu-close" onClick={onToggle} aria-label="Close settings">
-          <CloseIcon />
-        </button>
       </div>
       <div className="settings-menu-content">
         <div className="settings-menu-section">

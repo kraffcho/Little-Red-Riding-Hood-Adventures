@@ -39,13 +39,11 @@
     gap: var(--spacing-md);
   }
 
-  .quest-progress-content,
-  .quest-info-content {
+  .quest-progress-content {
     padding: var(--spacing-lg) var(--spacing-lg);
   }
 
-  .quest-progress-text,
-  .quest-info-message {
+  .quest-progress-text {
     font-size: var(--font-size-base);
   }
 
@@ -68,10 +66,6 @@
     min-width: auto;
     max-width: calc(100vw - var(--spacing-xl));
     width: auto;
-  }
-
-  .game-controls {
-    gap: var(--spacing-lg);
   }
 
   .game-over-message {

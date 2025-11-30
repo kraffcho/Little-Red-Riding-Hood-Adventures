@@ -8,7 +8,6 @@ import "./styles/components/header.css";
 import "./styles/components/game.css";
 import "./styles/components/tooltip.css";
 import "./styles/components/quest.css";
-import "./styles/components/controls.css";
 import "./styles/components/settings.css";
 import "./styles/components/overlays.css";
 import "./styles/responsive.css";
@@ -424,6 +423,7 @@ const App: React.FC = () => {
             markUserInteracted();
             setIsSettingsOpen(!isSettingsOpen);
           }}
+          isSettingsOpen={isSettingsOpen}
         />
       )}
       {isGameInitialized && isSettingsOpen && (
