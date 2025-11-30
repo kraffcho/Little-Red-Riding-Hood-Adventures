@@ -38,6 +38,7 @@ import {
   generateItemId,
 } from "../utils";
 import { useLevelState } from "./useLevelState";
+import { useInventoryState } from "./useInventoryState";
 
 /**
  * hook that handles all the game state and logic
@@ -46,6 +47,10 @@ export const useGameState = () => {
   // use level state hook for level generation logic
   // Note: For now, we only use generateLevel. Level state remains in gameState for backward compatibility
   const { generateLevel } = useLevelState();
+  
+  // use inventory state hook for timer refs and helper functions
+  // Note: State remains in gameState for now, we use the hook for refs and future migration
+  const { itemSpawnTimerRef, cloakSpawnTimerRef } = useInventoryState();
   const [gameState, setGameState] = useState<GameState>({
     playerPosition: { x: -1, y: -1 },
     wolfPosition: { x: -1, y: -1 },
@@ -90,8 +95,7 @@ export const useGameState = () => {
   });
 
   const gameStartTimeRef = useRef<number | null>(null);
-  const itemSpawnTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const cloakSpawnTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Note: itemSpawnTimerRef and cloakSpawnTimerRef are now provided by useInventoryState hook
   const wolfConfusionIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // set up a new game

@@ -18,7 +18,7 @@ import {
 export const useInventoryState = () => {
   const [inventory, setInventory] = useState<ItemType[]>([]);
   const [specialItems, setSpecialItems] = useState<SpecialItem[]>([]);
-  
+
   const itemSpawnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const cloakSpawnTimerRef = useRef<NodeJS.Timeout | null>(null);
 
