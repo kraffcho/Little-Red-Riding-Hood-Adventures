@@ -1,5 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import "./styles/index.css";
+// Import all CSS modules in correct order
+import "./styles/variables.css";
+import "./styles/base.css";
+import "./styles/layouts.css";
+import "./styles/animations.css";
+import "./styles/components/header.css";
+import "./styles/components/game.css";
+import "./styles/components/tooltip.css";
+import "./styles/components/quest.css";
+import "./styles/components/controls.css";
+import "./styles/components/settings.css";
+import "./styles/components/overlays.css";
+import "./styles/responsive.css";
 import ForestGrid from "./components/game/ForestGrid";
 import GameOver from "./components/GameOver";
 import Countdown from "./components/Countdown";
