@@ -287,7 +287,7 @@ export const useGameState = () => {
 
     // Note: We're using generateLevel from useLevelState for level generation logic,
     // but keeping all state in gameState for now to maintain backward compatibility
-  }, [generateLevel, resetWolfSpeed, resetWolfState, setWolfPositionState, setWolfDirectionState, setWolfMovingState, initializePlayer, setPlayerCanMoveState]);
+  }, [generateLevel, resetWolfSpeed, resetWolfState, resetPlayerState, setWolfPositionState, setWolfDirectionState, setWolfMovingState, initializePlayer, setPlayerCanMoveState]);
 
   // start the game when component loads
   useEffect(() => {
