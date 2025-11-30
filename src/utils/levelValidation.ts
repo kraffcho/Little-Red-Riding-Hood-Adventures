@@ -12,12 +12,13 @@ import { positionsEqual } from "./gridUtils";
  */
 export const validateLevel = (
   treePositions: Position[],
-  flowerPositions: Position[]
+  flowerPositions: Position[],
+  grannyHousePosition: Position,
+  gridSize: number
 ): { isValid: boolean; reason?: string } => {
-  const grannyHousePosition = getGrannyHousePosition();
 
   // first, make sure we can reach the house from the start
-  if (!pathExists(PLAYER_START_POSITION, grannyHousePosition, treePositions)) {
+  if (!pathExists(PLAYER_START_POSITION, grannyHousePosition, treePositions, gridSize)) {
     return {
       isValid: false,
       reason: "House is not reachable from starting position",
@@ -26,7 +27,7 @@ export const validateLevel = (
 
   // next, make sure we can reach all flowers from the start
   for (const flower of flowerPositions) {
-    if (!pathExists(PLAYER_START_POSITION, flower, treePositions)) {
+    if (!pathExists(PLAYER_START_POSITION, flower, treePositions, gridSize)) {
       return {
         isValid: false,
         reason: `Flower at (${flower.x}, ${flower.y}) is not reachable from start`,
@@ -37,7 +38,7 @@ export const validateLevel = (
   // also check that we can get to the house from each flower
   // this makes sure the player can actually finish the quest
   for (const flower of flowerPositions) {
-    if (!pathExists(flower, grannyHousePosition, treePositions)) {
+    if (!pathExists(flower, grannyHousePosition, treePositions, gridSize)) {
       return {
         isValid: false,
         reason: `House is not reachable from flower at (${flower.x}, ${flower.y})`,
@@ -47,7 +48,7 @@ export const validateLevel = (
 
   // finally, make sure everything is connected using flood fill
   // this checks if all important spots are in one connected area
-  const reachableFromStart = findAllReachablePositions(PLAYER_START_POSITION, treePositions);
+  const reachableFromStart = findAllReachablePositions(PLAYER_START_POSITION, treePositions, gridSize);
 
   const posKey = (pos: Position) => `${pos.x},${pos.y}`;
 
@@ -79,13 +80,14 @@ export const isPlayerStuck = (
   playerPosition: Position,
   remainingFlowers: Position[],
   treePositions: Position[],
-  isHouseOpen: boolean
+  grannyHousePosition: Position,
+  isHouseOpen: boolean,
+  gridSize: number
 ): { stuck: boolean; reason?: string } => {
-  const grannyHousePosition = getGrannyHousePosition();
 
   // if the house is open and we can reach it, we're good
   if (isHouseOpen) {
-    if (pathExists(playerPosition, grannyHousePosition, treePositions)) {
+    if (pathExists(playerPosition, grannyHousePosition, treePositions, gridSize)) {
       return { stuck: false };
     } else {
       return {
@@ -105,7 +107,7 @@ export const isPlayerStuck = (
 
   // see if we can reach at least one flower
   for (const flower of remainingFlowers) {
-    if (pathExists(playerPosition, flower, treePositions)) {
+    if (pathExists(playerPosition, flower, treePositions, gridSize)) {
       return { stuck: false };
     }
   }

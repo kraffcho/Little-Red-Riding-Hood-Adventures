@@ -9,7 +9,8 @@ import { GRID_SIZE } from "../constants/gameConfig";
 export const findPath = (
   start: Position,
   goal: Position,
-  treePositions: Position[]
+  treePositions: Position[],
+  gridSize: number = GRID_SIZE
 ): Position | null => {
   const openList: AStarNode[] = [];
   const closedList: AStarNode[] = [];
@@ -72,7 +73,7 @@ export const findPath = (
     for (const adjacentPos of adjacentPositions) {
       // skip if invalid or already checked
       if (
-        !isValidPosition(adjacentPos, treePositions) ||
+        !isValidPosition(adjacentPos, treePositions, gridSize) ||
         isInClosedList(adjacentPos)
       ) {
         continue;
@@ -117,7 +118,8 @@ export const findPath = (
 export const pathExists = (
   start: Position,
   goal: Position,
-  treePositions: Position[]
+  treePositions: Position[],
+  gridSize: number = GRID_SIZE
 ): boolean => {
   if (start.x === goal.x && start.y === goal.y) {
     return true;
@@ -164,7 +166,7 @@ export const pathExists = (
 
       // skip if invalid, already visited, or already queued
       if (
-        !isValidPosition(adjacentPos, treePositions) ||
+        !isValidPosition(adjacentPos, treePositions, gridSize) ||
         closedSet.has(adjKey) ||
         openList.some(node => posKey(node.position) === adjKey)
       ) {
@@ -189,7 +191,8 @@ export const pathExists = (
  */
 export const findAllReachablePositions = (
   start: Position,
-  treePositions: Position[]
+  treePositions: Position[],
+  gridSize: number = GRID_SIZE
 ): Set<string> => {
   const reachable = new Set<string>();
   const visited = new Set<string>();
@@ -209,7 +212,7 @@ export const findAllReachablePositions = (
     for (const adjacentPos of adjacentPositions) {
       const adjKey = posKey(adjacentPos);
       if (
-        isValidPosition(adjacentPos, treePositions) &&
+        isValidPosition(adjacentPos, treePositions, gridSize) &&
         !visited.has(adjKey) &&
         !queue.some(pos => posKey(pos) === adjKey)
       ) {

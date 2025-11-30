@@ -1,7 +1,34 @@
 // all the game settings and constants
 
-export const GRID_SIZE = 20;
-export const NUM_TREES = 60;
+// default values (for desktop and larger screens)
+export const GRID_SIZE_DESKTOP = 20;
+export const NUM_TREES_DESKTOP = 60;
+
+// mobile values (for screens < 420px)
+export const GRID_SIZE_MOBILE = 15;
+export const NUM_TREES_MOBILE = 40;
+
+// responsive grid size and number of trees based on viewport width
+export const getGridSize = (width?: number): number => {
+  const viewportWidth = width ?? (typeof window !== "undefined" ? window.innerWidth : GRID_SIZE_DESKTOP);
+  if (viewportWidth < 420) {
+    return GRID_SIZE_MOBILE;
+  }
+  return GRID_SIZE_DESKTOP;
+};
+
+export const getNumTrees = (width?: number): number => {
+  const viewportWidth = width ?? (typeof window !== "undefined" ? window.innerWidth : NUM_TREES_DESKTOP);
+  if (viewportWidth < 420) {
+    return NUM_TREES_MOBILE;
+  }
+  return NUM_TREES_DESKTOP;
+};
+
+// legacy exports for backwards compatibility (use getGridSize() instead)
+export const GRID_SIZE = GRID_SIZE_DESKTOP;
+export const NUM_TREES = NUM_TREES_DESKTOP;
+
 export const NUM_FLOWERS = 30;
 export const PLAYER_DELAY = 100; // how long to wait between player moves
 export const ENEMY_DELAY = 500; // how often the wolf moves
@@ -9,14 +36,20 @@ export const DEFAULT_VOLUME = 0.3;
 
 // where things start on the grid
 export const PLAYER_START_POSITION = { x: 0, y: 0 };
-export const getWolfStartPosition = () => ({
-  x: Math.floor(GRID_SIZE / 2),
-  y: Math.floor(GRID_SIZE / 2),
-});
-export const getGrannyHousePosition = () => ({
-  x: GRID_SIZE - 1,
-  y: GRID_SIZE - 1,
-});
+export const getWolfStartPosition = (gridSize?: number) => {
+  const size = gridSize ?? GRID_SIZE_DESKTOP;
+  return {
+    x: Math.floor(size / 2),
+    y: Math.floor(size / 2),
+  };
+};
+export const getGrannyHousePosition = (gridSize?: number) => {
+  const size = gridSize ?? GRID_SIZE_DESKTOP;
+  return {
+    x: size - 1,
+    y: size - 1,
+  };
+};
 
 // paths to all the sound files
 export const AUDIO_PATHS = {

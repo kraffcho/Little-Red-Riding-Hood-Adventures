@@ -13,7 +13,7 @@ import { useGameState } from "./hooks/useGameState";
 import { useAudio } from "./hooks/useAudio";
 import { useKeyboardInput, useSwipeInput } from "./hooks/useInput";
 import { Direction, ItemType } from "./types/game";
-import { AUDIO_PATHS, NUM_FLOWERS, GRID_SIZE } from "./constants/gameConfig";
+import { AUDIO_PATHS, NUM_FLOWERS } from "./constants/gameConfig";
 import { moveInDirection, positionsEqual } from "./utils/gridUtils";
 import { getGrannyQuestMessage, QuestMilestone } from "./utils/questMessages";
 
@@ -459,7 +459,7 @@ const App: React.FC = () => {
               />
             )}
             <ForestGrid
-              gridSize={GRID_SIZE}
+              gridSize={gameState.gridSize}
               playerPosition={gameState.playerPosition}
               wolfPosition={gameState.wolfPosition}
               grannyHousePosition={gameState.grannyHousePosition}

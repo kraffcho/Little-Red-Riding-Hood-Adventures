@@ -4,12 +4,12 @@ import { GRID_SIZE } from "../constants/gameConfig";
 /**
  * checks if a position is within the grid boundaries
  */
-export const isWithinBounds = (position: Position): boolean => {
+export const isWithinBounds = (position: Position, gridSize: number = GRID_SIZE): boolean => {
   return (
     position.x >= 0 &&
-    position.x < GRID_SIZE &&
+    position.x < gridSize &&
     position.y >= 0 &&
-    position.y < GRID_SIZE
+    position.y < gridSize
   );
 };
 
@@ -18,9 +18,10 @@ export const isWithinBounds = (position: Position): boolean => {
  */
 export const isValidPosition = (
   position: Position,
-  treePositions: Position[]
+  treePositions: Position[],
+  gridSize: number = GRID_SIZE
 ): boolean => {
-  if (!isWithinBounds(position)) {
+  if (!isWithinBounds(position, gridSize)) {
     return false;
   }
 

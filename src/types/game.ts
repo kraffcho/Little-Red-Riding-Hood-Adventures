@@ -29,6 +29,8 @@ export type GameState = {
   gameOver: boolean;
   isStuck?: boolean;
   stuckReason?: string;
+  // grid size (responsive - 15 for mobile, 20 for desktop)
+  gridSize: number;
   // special items system
   inventory: ItemType[];
   specialItems: SpecialItem[];

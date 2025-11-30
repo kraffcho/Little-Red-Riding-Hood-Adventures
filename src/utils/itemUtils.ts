@@ -9,13 +9,15 @@ import { isValidPosition } from "./gridUtils";
  */
 export const generateRandomItemPosition = (
   existingPositions: Position[],
-  treePositions: Position[]
+  treePositions: Position[],
+  gridSize: number = GRID_SIZE,
+  grannyHousePosition: Position
 ): Position | null => {
   // try to find a valid empty position
   const maxAttempts = 100;
   for (let i = 0; i < maxAttempts; i++) {
-    const x = Math.floor(Math.random() * GRID_SIZE);
-    const y = Math.floor(Math.random() * GRID_SIZE);
+    const x = Math.floor(Math.random() * gridSize);
+    const y = Math.floor(Math.random() * gridSize);
     const position = { x, y };
 
     // make sure this position is not occupied by trees, existing items, or other entities
@@ -30,9 +32,9 @@ export const generateRandomItemPosition = (
     // also avoid player start position and house position
     const isPlayerStart = position.x === 0 && position.y === 0;
     const isHousePosition =
-      position.x === GRID_SIZE - 1 && position.y === GRID_SIZE - 1;
+      position.x === grannyHousePosition.x && position.y === grannyHousePosition.y;
 
-    if (!isOccupied && !hasTree && !isPlayerStart && !isHousePosition && isValidPosition(position, treePositions)) {
+    if (!isOccupied && !hasTree && !isPlayerStart && !isHousePosition && isValidPosition(position, treePositions, gridSize)) {
       return position;
     }
   }
@@ -58,16 +60,17 @@ export const isWithinRadius = (
  */
 export const getPositionsInRadius = (
   center: Position,
-  radius: number
+  radius: number,
+  gridSize: number = GRID_SIZE
 ): Position[] => {
   const positions: Position[] = [];
   for (let x = center.x - radius; x <= center.x + radius; x++) {
     for (let y = center.y - radius; y <= center.y + radius; y++) {
       if (
         x >= 0 &&
-        x < GRID_SIZE &&
+        x < gridSize &&
         y >= 0 &&
-        y < GRID_SIZE &&
+        y < gridSize &&
         isWithinRadius({ x, y }, center, radius)
       ) {
         positions.push({ x, y });

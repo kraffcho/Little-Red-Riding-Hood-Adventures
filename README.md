@@ -7,6 +7,7 @@ Welcome to the enchanting world of "Little Red Riding Hood Adventures"! A grid-b
 - Use **arrow keys** (↑ ↓ ← →) or **WASD keys** to move Little Red Riding Hood
   - `W` = Up, `S` = Down, `A` = Left, `D` = Right
 - On mobile/tablet, swipe in the direction you want to move
+- Press **ESC** or click the pause button (⏸) in the header to pause/unpause the game
 - Wait for the countdown (3-2-1-GO!) before the game starts
 - Collect all flowers scattered throughout the forest
 - **Collect special items** (bombs, Hunter's Cloak) that spawn on the board after gameplay starts
@@ -73,6 +74,8 @@ src/
 │   │   ├── HeaderInventory.tsx     # Compact inventory display in header
 │   │   ├── SettingsIcon.tsx        # SVG gear icon component
 │   │   ├── SettingsMenu.tsx        # Settings dropdown menu
+│   │   ├── PauseIcon.tsx           # SVG pause icon component
+│   │   ├── PlayIcon.tsx            # SVG play icon component
 │   │   ├── QuestProgress.tsx       # Quest progress bar component
 │   │   ├── GameControls.tsx        # Legacy game controls component
 │   │   ├── Inventory.tsx           # Legacy inventory component
@@ -80,6 +83,7 @@ src/
 │   ├── Countdown.tsx               # Countdown start screen (GET READY!)
 │   ├── GameOver.tsx                # Game over modal
 │   ├── LevelComplete.tsx           # Level complete overlay
+│   ├── PauseMenu.tsx               # Pause menu overlay with game information
 │   └── TemporaryMessage.tsx        # Temporary messages (hit/miss feedback)
 ├── constants/
 │   └── gameConfig.ts               # Game configuration constants
@@ -109,7 +113,7 @@ src/
 
 - 🎨 **Beautiful forest-themed graphics** with animated sprites
 - 🎵 **Immersive audio** - Background music and contextual sound effects
-- 📱 **Fully responsive design** for desktop and mobile devices
+- 📱 **Fully responsive design** for desktop and mobile devices with adaptive grid size
 - 🤖 **Intelligent AI** - A\* pathfinding algorithm for the wolf enemy
 - 📋 **Quest system** with real-time progress tracking
 - 🎮 **Countdown start screen** - "GET READY!" animation (3-2-1-GO!)
@@ -119,6 +123,7 @@ src/
 - 🚫 **Stuck detection** - Prevents unwinnable game states for player and wolf
 - 💣 **Special Items System** - Collect and use bombs to stun the wolf
 - 🧥 **Hunter's Cloak** - Become invisible to the wolf for strategic gameplay
+- ⏸️ **Pause System** - Pause/unpause with ESC key or header button, shows game information menu
 - 📦 **Compact Header Inventory** - 3-slot inventory in the header with visual cooldown
 - 🎯 **Quest Progress in Header** - Slim one-liner progress bar showing collected flowers
 - ⚙️ **Settings Menu** - Accessible via SVG gear icon in header (top-right)
@@ -152,7 +157,11 @@ The codebase follows modern React best practices with a modular architecture:
 
 ## 🎯 Game Mechanics
 
-- **Grid-Based Movement** - 20x20 tile-based navigation
+- **Responsive Grid-Based Movement** - Adaptive grid size based on screen width
+  - Mobile (<420px): 15x15 grid with 40 trees
+  - Desktop (≥420px): 20x20 grid with 60 trees
+  - Grid size is calculated at game initialization and stored in game state
+  - All boundary checks and pathfinding respect the responsive grid size
 - **Collision Detection** - Trees block movement, wolf triggers game over
 - **Pathfinding** - Wolf uses A\* algorithm to chase the player intelligently
 - **Dynamic Wolf Speed** - Wolf movement delay adjusts based on stun count (faster after each stun)
@@ -165,12 +174,49 @@ The codebase follows modern React best practices with a modular architecture:
 - **Inventory System** - Compact header-based inventory with 3 fixed slots
 - **Bomb Mechanics** - Stun the wolf within a 3-tile radius for 5 seconds
 - **Hunter's Cloak Mechanics** - Become invisible for 10 seconds, making the wolf confused
+- **Pause System** - Pause/unpause gameplay with ESC key or header button, shows information menu
 - **Cooldown System** - 5-second cooldown between bomb uses with visual progress bar
 - **Wolf Speed Increase** - Wolf becomes 10% faster after each stun (cumulative, max 5 times)
 - **Wolf Howl Sound** - Wolf howls when waking up from stun, signaling increased speed
 - **Dynamic Wolf Speed** - Wolf movement delay decreases with each stun, making it progressively faster
 - **Level Progression** - Complete levels to advance (currently infinite levels)
 - **Explosion Marks** - Visual marks on tiles where bombs were used (fade after 3 seconds)
+- **Responsive Grid System** - Grid size adapts based on viewport width for optimal gameplay
+
+## 📱 Responsive Grid System
+
+The game features an adaptive grid system that adjusts the game board size based on the device's screen width, ensuring optimal gameplay experience across all devices.
+
+**Grid Sizes:**
+
+- **Mobile (<420px)**: 15x15 grid with 40 trees
+  - Optimized for smaller screens
+  - Reduces complexity for touch-based gameplay
+  - Ensures all tiles are visible and accessible
+- **Desktop/Tablet (≥420px)**: 20x20 grid with 60 trees
+  - Full gameplay experience
+  - More strategic depth with larger map
+  - Better for mouse/keyboard controls
+
+**Implementation Details:**
+
+- Grid size is calculated at game initialization based on viewport width
+- Grid size is stored in game state for consistent boundary checking
+- All movement validation respects the responsive grid size
+- Pathfinding algorithm uses the correct grid boundaries
+- Level generation creates appropriate layouts for each grid size
+- Number of trees scales proportionally (40 for 15x15, 60 for 20x20)
+- Boundary checks prevent movement outside the visible grid area
+
+**Configuration:**
+
+- `GRID_SIZE_DESKTOP` - Desktop grid size (default: 20)
+- `GRID_SIZE_MOBILE` - Mobile grid size (default: 15)
+- `NUM_TREES_DESKTOP` - Number of trees on desktop (default: 60)
+- `NUM_TREES_MOBILE` - Number of trees on mobile (default: 40)
+- `getGridSize()` - Function that returns responsive grid size based on viewport width
+- `getNumTrees()` - Function that returns responsive number of trees based on viewport width
+- Breakpoint: 420px (viewport width)
 
 ## 🎨 UI/UX Features
 
@@ -180,15 +226,17 @@ The codebase follows modern React best practices with a modular architecture:
   - Desktop height: 34px
   - Mobile height: 44px
 - **Left Section** - Compact inventory with 3 slots
-  - Shows collected items (bomb, health, speed - future items)
-  - Item count badges
+  - Shows collected items (bomb, Hunter's Cloak, health, speed - future items)
+  - Item count badges (cloak doesn't show count - it's reusable)
   - Cooldown progress bars for active items
 - **Center Section** - Quest progress bar
-  - Shows collected flowers count (e.g., "💐 15/30")
-  - Visual progress bar with gradient
+  - Shows "💐 Collect Flowers" label on left
+  - Shows collected flowers count on right (e.g., "15/30")
+  - Visual progress bar with gradient below
   - Gold animation when complete
-- **Right Section** - Settings button
-  - SVG gear icon (no emoji)
+- **Right Section** - Pause and Settings buttons
+  - **Pause Button** - Shows pause (⏸) or play (▶) icon based on game state
+  - **Settings Button** - SVG gear icon (no emoji)
   - Opens dropdown settings menu
 
 ### Settings Menu
@@ -213,6 +261,9 @@ The codebase follows modern React best practices with a modular architecture:
 
 - **1:1 Aspect Ratio** - Always maintains square game board
 - **Responsive Sizing** - Adapts to viewport while keeping square shape
+- **Adaptive Grid Size** - Grid dimensions automatically adjust based on screen width
+  - Mobile devices (<420px): 15x15 grid for optimal gameplay on smaller screens
+  - Desktop/Tablet (≥420px): 20x20 grid for full gameplay experience
 - **Centered Layout** - Game board centered on screen with proper spacing
 
 ### Visual Feedback
@@ -376,6 +427,50 @@ The Hunter's Cloak is a unique special item that allows you to become invisible 
 - `CLOAK_COOLDOWN_DURATION` - Cooldown between uses (default: 30000ms / 30 seconds)
 - `CLOAK_WOLF_CONFUSION_INTERVAL` - How often wolf changes direction when confused (default: 5000ms / 5 seconds)
 
+### Pause System
+
+The game features a comprehensive pause system that allows you to temporarily stop gameplay and access helpful game information.
+
+**How to Pause:**
+
+- **Keyboard**: Press the **ESC** key
+- **Header Button**: Click the pause button (⏸) next to the settings icon in the header
+  - The icon changes to a play icon (▶) when the game is paused
+
+**When Pause is Available:**
+
+- Pause is only available after the countdown completes
+- Pause is disabled when the game is over
+- Pause is disabled when the level is completed
+- Pause is disabled when the game is stuck
+
+**Pause Menu Features:**
+
+When paused, a menu overlay appears with:
+
+- **Game Information**:
+  - **Controls Section**: Lists all available controls (Arrow keys, WASD, Space, ESC, Swipe)
+  - **Special Items Section**: Details about bombs and Hunter's Cloak with their mechanics
+  - **Objective Section**: Game goals and objectives
+- **Resume Button**: Click to continue playing
+- **Smooth Animations**: Fade-in and fade-out transitions
+
+**What Stops When Paused:**
+
+- Player movement
+- Wolf movement
+- Item spawning
+- All game timers (cooldowns continue based on absolute time)
+
+**Mobile Optimizations:**
+
+- **Responsive Grid Size**: 15x15 grid with 40 trees (vs 20x20 with 60 trees on desktop)
+- Full-screen overlay (no border-radius)
+- Positioned below the header for optimal space usage
+- Scrollable content area for game information
+- Smaller special item icons on the map
+- All boundary checks and movement validation respect the smaller grid size
+
 ## 🤖 Pathfinding Algorithm (A\*)
 
 The wolf uses the **A\* (A-star) pathfinding algorithm** to intelligently chase the player through the forest, navigating around trees and obstacles.
@@ -432,6 +527,8 @@ A\* is a heuristic search algorithm that finds the shortest path from a starting
 - **Dynamic Delay**: Wolf movement delay decreases by 10% after each stun (maximum 5 speed increases)
 - Manhattan distance is used because movement is restricted to 4 directions (no diagonals)
 - Trees are treated as impassable obstacles
+- **Responsive Boundaries**: Pathfinding respects the responsive grid size (15x15 on mobile, 20x20 on desktop)
+- All boundary checks use the correct grid size to prevent pathfinding outside visible area
 - If no path exists, the wolf stops moving and the game handles the stuck state
 - Level generation ensures both player and wolf can move at game start
 - Console logging provides visibility into pathfinding failures

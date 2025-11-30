@@ -2634,7 +2634,6 @@ body {
   .header-inventory-count {
     width: 16px;
     height: 16px;
-    font-size: var(--font-size-xs);
   }
 
   .header-settings-button {
@@ -2644,8 +2643,8 @@ body {
   .settings-menu-dropdown {
     top: 52px;
     right: var(--spacing-md);
+    width: 100%;
     min-width: 240px;
-    max-width: min(280px, calc(100vw - var(--spacing-xl)));
   }
 
   .inventory {

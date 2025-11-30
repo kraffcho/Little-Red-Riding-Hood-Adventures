@@ -84,7 +84,7 @@ const ForestGrid: React.FC<Props> = ({
 
         // check if this tile is in the explosion radius
         const isInExplosion = explosionEffect
-          ? getPositionsInRadius(explosionEffect.position, explosionEffect.radius).some(
+          ? getPositionsInRadius(explosionEffect.position, explosionEffect.radius, gridSize).some(
             (pos: Position) => pos.x === rowIndex && pos.y === columnIndex
           )
           : false;

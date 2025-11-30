@@ -6,6 +6,8 @@ import {
   PLAYER_START_POSITION,
   getWolfStartPosition,
   getGrannyHousePosition,
+  getGridSize,
+  getNumTrees,
   ITEM_SPAWN_DELAY,
   MAX_BOMBS_ON_MAP,
   BOMB_STUN_DURATION,
@@ -56,6 +58,7 @@ export const useGameState = () => {
     wolfMoving: true,
     wolfWon: false,
     gameOver: false,
+    gridSize: getGridSize(), // initialize with current responsive grid size
     // special items system
     inventory: [],
     specialItems: [],
@@ -90,8 +93,11 @@ export const useGameState = () => {
 
   // set up a new game
   const initializeGame = useCallback(() => {
-    const wolfStartPosition = getWolfStartPosition();
-    const grannyHousePosition = getGrannyHousePosition();
+    // get responsive grid size and number of trees based on viewport width
+    const gridSize = getGridSize();
+    const numTrees = getNumTrees();
+    const wolfStartPosition = getWolfStartPosition(gridSize);
+    const grannyHousePosition = getGrannyHousePosition(gridSize);
 
     // create a level that can actually be completed - keep trying until we get one that's not stuck
     let levelData: { treePositions: Position[]; flowerPositions: Position[] } | null = null;
@@ -103,20 +109,23 @@ export const useGameState = () => {
 
     while (attempts < 20) {
       attempts++;
-      levelData = generateValidLevel(wolfStartPosition);
+      levelData = generateValidLevel(wolfStartPosition, grannyHousePosition, gridSize, numTrees);
       if (levelData) {
         initialStuckCheck = isPlayerStuck(
           PLAYER_START_POSITION,
           levelData.flowerPositions,
           levelData.treePositions,
-          false
+          grannyHousePosition,
+          false,
+          gridSize
         );
 
         // check if wolf can reach the player - if not, wolf is stuck
         const wolfCanReachPlayer = pathExists(
           wolfStartPosition,
           PLAYER_START_POSITION,
-          levelData.treePositions
+          levelData.treePositions,
+          gridSize
         );
 
         wolfStuckCheck = {
@@ -167,6 +176,7 @@ export const useGameState = () => {
         wolfDirection: "down",
         isStuck: true,
         stuckReason: initialStuckCheck.reason || "Level generation failed",
+        gridSize: gridSize, // store the responsive grid size
         // reset special items
         inventory: [],
         specialItems: [],
@@ -197,6 +207,7 @@ export const useGameState = () => {
       wolfDirection: "down",
       isStuck: initialStuckCheck.stuck,
       stuckReason: initialStuckCheck.reason,
+      gridSize: gridSize, // store the responsive grid size
       // reset special items
       inventory: [],
       specialItems: [],
@@ -251,8 +262,8 @@ export const useGameState = () => {
 
         const newPosition = moveInDirection(prev.playerPosition, direction);
 
-        // make sure we can actually move here
-        if (!isValidPosition(newPosition, prev.treePositions)) {
+        // make sure we can actually move here (use gridSize from state)
+        if (!isValidPosition(newPosition, prev.treePositions, prev.gridSize)) {
           return prev;
         }
 
@@ -314,7 +325,9 @@ export const useGameState = () => {
           newPosition,
           newFlowers,
           prev.treePositions,
-          isHouseOpen
+          prev.grannyHousePosition,
+          isHouseOpen,
+          prev.gridSize
         );
 
         // log when player gets stuck
@@ -371,7 +384,8 @@ export const useGameState = () => {
       const nextPosition = findPath(
         prev.wolfPosition,
         prev.playerPosition,
-        prev.treePositions
+        prev.treePositions,
+        prev.gridSize
       );
 
       if (!nextPosition) {
@@ -461,9 +475,12 @@ export const useGameState = () => {
         ...prev.specialItems.map((item) => item.position),
       ];
 
+      const gridSize = getGridSize();
       const itemPosition = generateRandomItemPosition(
         existingPositions,
-        prev.treePositions
+        prev.treePositions,
+        gridSize,
+        prev.grannyHousePosition
       );
 
       if (!itemPosition) {
@@ -524,9 +541,12 @@ export const useGameState = () => {
         ...prev.specialItems.map((item) => item.position),
       ];
 
+      const gridSize = getGridSize();
       const itemPosition = generateRandomItemPosition(
         existingPositions,
-        prev.treePositions
+        prev.treePositions,
+        gridSize,
+        prev.grannyHousePosition
       );
 
       if (!itemPosition) {
@@ -879,6 +899,7 @@ export const useGameState = () => {
       gameOver: false,
       isStuck: false,
       stuckReason: undefined,
+      gridSize: getGridSize(), // preserve or update grid size on reset
       // reset special items
       inventory: [],
       specialItems: [],
