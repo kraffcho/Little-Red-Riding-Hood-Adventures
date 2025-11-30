@@ -43,6 +43,7 @@ import { useGameLifecycle } from "./useGameLifecycle";
 import { useBombMechanics } from "./useBombMechanics";
 import { useCloakMechanics } from "./useCloakMechanics";
 import { useWolfState } from "./useWolfState";
+import { usePlayerState } from "./usePlayerState";
 
 /**
  * hook that handles all the game state and logic
@@ -112,6 +113,24 @@ export const useGameState = () => {
     resetWolfState,
   } = useWolfState();
 
+  // use player state hook for player-related logic
+  // Note: Player state is synced with gameState for compatibility
+  const {
+    playerPosition: hookPlayerPosition,
+    playerDirection: hookPlayerDirection,
+    playerCanMove: hookPlayerCanMove,
+    playerEnteredHouse: hookPlayerEnteredHouse,
+    isHouseOpen: hookIsHouseOpen,
+    setPlayerPositionState,
+    setPlayerDirectionState,
+    setPlayerCanMoveState,
+    openHouse,
+    setPlayerEnteredHouseState,
+    movePlayer: hookMovePlayer,
+    resetPlayerState,
+    initializePlayer,
+  } = usePlayerState();
+
   const [gameState, setGameState] = useState<GameState>({
     playerPosition: { x: -1, y: -1 },
     wolfPosition: { x: -1, y: -1 },
@@ -171,11 +190,11 @@ export const useGameState = () => {
       const grannyHousePosition = getGrannyHousePosition(gridSize);
 
       console.error(`❌ Failed to generate playable level. Reason: Level generation failed`);
-      
+
       // reset wolf state using hook
       resetWolfState();
       setWolfPositionState(wolfStartPosition);
-      
+
       // still set up the game state so the board shows something
       setGameState((prev) => ({
         ...prev,
@@ -218,19 +237,18 @@ export const useGameState = () => {
     setWolfDirectionState("down");
     setWolfMovingState(!initialStuckCheck.stuck);
 
+    // reset player state using hook
+    initializePlayer();
+    setPlayerCanMoveState(!initialStuckCheck.stuck);
+
     // level generation succeeded - set up game state
     setGameState((prev) => ({
       ...prev,
-      playerPosition: PLAYER_START_POSITION,
       grannyHousePosition: levelData.grannyHousePosition,
       treePositions: levelData.treePositions,
       flowers: levelData.flowerPositions,
       collectedFlowers: 0,
-      isHouseOpen: false,
-      playerEnteredHouse: false,
-      playerCanMove: !initialStuckCheck.stuck,
       gameOver: initialStuckCheck.stuck,
-      playerDirection: "down",
       isStuck: initialStuckCheck.stuck,
       stuckReason: initialStuckCheck.reason,
       gridSize: levelData.gridSize, // store the responsive grid size
@@ -244,6 +262,7 @@ export const useGameState = () => {
       temporaryMessage: null,
       // explosion marks
       explosionMarks: [],
+      // Note: player state (position, direction, canMove, enteredHouse, isHouseOpen) will be synced from hook via useEffect
       // Note: wolf state (position, direction, moving, stunned, etc.) will be synced from hook via useEffect
       // reset hunter's cloak system
       playerInvisible: false,
@@ -268,45 +287,47 @@ export const useGameState = () => {
 
     // Note: We're using generateLevel from useLevelState for level generation logic,
     // but keeping all state in gameState for now to maintain backward compatibility
-  }, [generateLevel, resetWolfSpeed, resetWolfState, setWolfPositionState, setWolfDirectionState, setWolfMovingState]);
+  }, [generateLevel, resetWolfSpeed, resetWolfState, setWolfPositionState, setWolfDirectionState, setWolfMovingState, initializePlayer, setPlayerCanMoveState]);
 
   // start the game when component loads
   useEffect(() => {
     initializeGame();
   }, [initializeGame]);
 
-  // move the player in the given direction
+  // move the player in the given direction - now using usePlayerState hook
   const movePlayer = useCallback(
     (direction: Direction) => {
       setGameState((prev) => {
-        if (!prev.playerCanMove) return prev;
+        // use hook's movePlayer function to handle movement logic
+        const moveResult = hookMovePlayer({
+          direction,
+          treePositions: prev.treePositions,
+          gridSize: prev.gridSize,
+          wolfPosition: hookWolfPosition,
+          playerInvisible: hookPlayerInvisible,
+          grannyHousePosition: prev.grannyHousePosition,
+          flowers: prev.flowers,
+          collectedFlowers: prev.collectedFlowers,
+          isHouseOpen: hookIsHouseOpen,
+          gameOver: prev.gameOver,
+          paused: prev.paused,
+        });
 
-        const newPosition = moveInDirection(prev.playerPosition, direction);
-
-        // make sure we can actually move here (use gridSize from state)
-        if (!isValidPosition(newPosition, prev.treePositions, prev.gridSize)) {
+        if (!moveResult.success || !moveResult.newPosition) {
           return prev;
         }
 
-        // when player is invisible, treat wolf as an obstacle (can't move onto wolf's tile)
-        if (prev.playerInvisible && positionsEqual(newPosition, prev.wolfPosition)) {
-          return prev;
-        }
+        const newPosition = moveResult.newPosition;
 
-        // block entry if trying to get into the house before finishing the quest
-        if (
-          positionsEqual(newPosition, prev.grannyHousePosition) &&
-          !prev.isHouseOpen
-        ) {
-          return prev;
-        }
+        // update hook state (will sync to gameState via useEffect)
+        setPlayerPositionState(newPosition);
+        setPlayerDirectionState(direction);
 
-        // see if we picked up a flower
+        // handle flower collection
         const flowerIndex = prev.flowers.findIndex(
-          (flower) =>
-            flower.x === newPosition.x && flower.y === newPosition.y
+          (flower) => flower.x === newPosition.x && flower.y === newPosition.y
         );
-        const hasFlower = flowerIndex !== -1;
+        const hasFlower = moveResult.collectedFlower || flowerIndex !== -1;
         const newFlowers = hasFlower
           ? prev.flowers.filter((_, index) => index !== flowerIndex)
           : prev.flowers;
@@ -314,10 +335,15 @@ export const useGameState = () => {
           ? prev.collectedFlowers + 1
           : prev.collectedFlowers;
 
+        // check if all flowers collected - open house via hook
+        const allFlowersCollected = newCollectedFlowers === NUM_FLOWERS;
+        if (allFlowersCollected && !hookIsHouseOpen) {
+          openHouse();
+        }
+
         // see if we picked up a special item
         const itemIndex = prev.specialItems.findIndex(
-          (item) =>
-            item.position.x === newPosition.x && item.position.y === newPosition.y
+          (item) => item.position.x === newPosition.x && item.position.y === newPosition.y
         );
         const hasItem = itemIndex !== -1;
         const collectedItem = hasItem ? prev.specialItems[itemIndex] : null;
@@ -328,38 +354,23 @@ export const useGameState = () => {
           ? [...prev.inventory, collectedItem.type]
           : prev.inventory;
 
-        // check if we got all the flowers
-        const allFlowersCollected = newCollectedFlowers === NUM_FLOWERS;
-        const isHouseOpen = allFlowersCollected || prev.isHouseOpen;
-
-        // see if we made it into the house
-        const playerEnteredHouse =
-          positionsEqual(newPosition, prev.grannyHousePosition) &&
-          isHouseOpen;
-
-        // if player enters house while invisible, immediately clear invisibility
-        // this prevents the house and tooltip from becoming invisible
-        if (playerEnteredHouse && hookPlayerInvisible) {
-          clearInvisibility();
+        // handle house entry
+        if (moveResult.enteredHouse) {
+          setPlayerEnteredHouseState(true);
+          
+          // if player enters house while invisible, immediately clear invisibility
+          if (hookPlayerInvisible) {
+            clearInvisibility();
+          }
         }
 
-        // check if the wolf got us (only if player is not invisible)
-        const collision = positionsEqual(newPosition, prev.wolfPosition) && !hookPlayerInvisible;
-        const wolfWon = collision;
+        // handle collision with wolf
+        const wolfWon = moveResult.collision || false;
 
-        // make sure we didn't trap ourselves
-        const stuckCheck = isPlayerStuck(
-          newPosition,
-          newFlowers,
-          prev.treePositions,
-          prev.grannyHousePosition,
-          isHouseOpen,
-          prev.gridSize
-        );
-
-        // log when player gets stuck
-        if (stuckCheck.stuck && !prev.isStuck) {
-          console.log(`🚫 PLAYER STUCK at position (${newPosition.x}, ${newPosition.y}): ${stuckCheck.reason || "Cannot reach objectives"}`);
+        // handle stuck state
+        const stuck = moveResult.stuck || false;
+        if (stuck && !prev.isStuck && moveResult.stuckReason) {
+          console.log(`🚫 PLAYER STUCK at position (${newPosition.x}, ${newPosition.y}): ${moveResult.stuckReason}`);
         }
 
         // set message when item is collected
@@ -372,28 +383,27 @@ export const useGameState = () => {
           }
         }
 
-        // Note: playerInvisible and cloakInvisibilityEndTime will be synced from hook via useEffect
+        // update wolf movement based on game state
+        if (moveResult.enteredHouse || stuck || hookWolfStunned) {
+          setWolfMovingState(false);
+        }
+
+        // Note: player state (position, direction, canMove, enteredHouse, isHouseOpen) will be synced from hook via useEffect
         return {
           ...prev,
-          playerPosition: newPosition,
-          playerDirection: direction,
           flowers: newFlowers,
           collectedFlowers: newCollectedFlowers,
           specialItems: newSpecialItems,
           inventory: newInventory,
-          isHouseOpen,
-          playerEnteredHouse,
-          wolfMoving: playerEnteredHouse || stuckCheck.stuck || prev.wolfStunned ? false : prev.wolfMoving,
-          playerCanMove: !wolfWon && !stuckCheck.stuck && !playerEnteredHouse,
           wolfWon,
-          gameOver: wolfWon || stuckCheck.stuck,
-          isStuck: stuckCheck.stuck,
-          stuckReason: stuckCheck.reason,
+          gameOver: wolfWon || stuck,
+          isStuck: stuck,
+          stuckReason: moveResult.stuckReason,
           temporaryMessage,
         };
       });
     },
-    []
+    [hookMovePlayer, hookWolfPosition, hookPlayerInvisible, hookIsHouseOpen, hookWolfStunned, setPlayerPositionState, setPlayerDirectionState, setPlayerEnteredHouseState, setWolfMovingState, openHouse, clearInvisibility]
   );
 
   // move the wolf toward the player using pathfinding - now using useWolfState hook
@@ -419,7 +429,7 @@ export const useGameState = () => {
           setWolfMovingState(false);
           return prev;
         }
-        
+
         if (result.collision) {
           // wolf caught the player (already at same position)
           setWolfMovingState(false);
@@ -430,7 +440,7 @@ export const useGameState = () => {
             gameOver: true,
           };
         }
-        
+
         return prev;
       }
 
@@ -653,7 +663,7 @@ export const useGameState = () => {
         if (hookWolfStunEndTime && Date.now() >= hookWolfStunEndTime) {
           // wolf just woke up - use hook's wakeWolf (it handles speed increase automatically)
           wakeWolf();
-          
+
           // resume wolf movement if game is still active
           setGameState((prev) => {
             if (!prev.gameOver && !prev.isStuck) {
@@ -733,6 +743,18 @@ export const useGameState = () => {
       wolfWon: hookWolfWon,
     }));
   }, [hookWolfPosition, hookWolfDirection, hookWolfMoving, hookWolfStunned, hookWolfStunEndTime, hookCurrentWolfDelay, hookWolfStunCount, hookWolfWon]);
+
+  // sync player state from hook to gameState
+  useEffect(() => {
+    setGameState((prev) => ({
+      ...prev,
+      playerPosition: hookPlayerPosition,
+      playerDirection: hookPlayerDirection,
+      playerCanMove: hookPlayerCanMove,
+      playerEnteredHouse: hookPlayerEnteredHouse,
+      isHouseOpen: hookIsHouseOpen,
+    }));
+  }, [hookPlayerPosition, hookPlayerDirection, hookPlayerCanMove, hookPlayerEnteredHouse, hookIsHouseOpen]);
 
   // use a bomb item - now using useBombMechanics hook
   const useBomb = useCallback(() => {
