@@ -120,35 +120,31 @@ const HeaderInventory: React.FC<HeaderInventoryProps> = ({
         const hasItem = count > 0;
         const isBombCooldown = itemType === "bomb" && isBombOnCooldown;
         const isCloakCooldown = itemType === "cloak" && isCloakOnCooldown;
+        // bomb is disabled when level is completed or game is over
+        const isBombDisabled = itemType === "bomb" && (gameOver || playerEnteredHouse || isStuck);
         // cloak is disabled when level is completed or game is over
         const isCloakDisabled = itemType === "cloak" && (gameOver || playerEnteredHouse || isStuck);
         const isCooldown = isBombCooldown || isCloakCooldown;
+        const isDisabled = isBombDisabled || isCloakDisabled;
         // cloak doesn't show count badge (it's a special reusable item)
         const showCount = itemType !== "cloak";
 
         return (
           <button
             key={itemType}
-            className={`header-inventory-slot ${hasItem ? `has-item ${itemType}-item` : "empty"} ${isCooldown || isCloakDisabled ? "on-cooldown" : ""}`}
-            onClick={() => hasItem && !isCooldown && !isCloakDisabled && handleItemClick(itemType)}
-            disabled={isCooldown || isCloakDisabled}
-            title={hasItem ? `${itemType}${showCount ? ` (${count})` : ""}${isCooldown ? " - On cooldown" : ""}` : "Empty slot"}
+            className={`header-inventory-slot ${hasItem ? `has-item ${itemType}-item` : "empty"} ${isCooldown || isDisabled ? "on-cooldown" : ""}`}
+            onClick={() => hasItem && !isCooldown && !isDisabled && handleItemClick(itemType)}
+            disabled={isCooldown || isDisabled}
           >
             {hasItem && (
               <>
                 <span className="header-inventory-icon">{getItemIcon(itemType)}</span>
                 {showCount && <span className="header-inventory-count">{count}</span>}
-                {isBombCooldown && (
-                  <div
-                    ref={cooldownRef}
-                    className="header-inventory-cooldown"
-                  />
+                {itemType === "bomb" && isBombCooldown && (
+                  <div ref={cooldownRef} className="header-inventory-cooldown" />
                 )}
-                {isCloakCooldown && (
-                  <div
-                    ref={cloakCooldownRef}
-                    className="header-inventory-cooldown"
-                  />
+                {itemType === "cloak" && isCloakCooldown && (
+                  <div ref={cloakCooldownRef} className="header-inventory-cooldown" />
                 )}
               </>
             )}

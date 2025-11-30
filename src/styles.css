@@ -652,10 +652,6 @@ body {
   animation: none !important;
 }
 
-.tile.player.granny-house.tooltip {
-  transform: scale(2.5) translate(2px, 3px) !important;
-}
-
 /* drop shadows for all sprites */
 .player,
 .wolf,
@@ -1949,8 +1945,6 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.3);
 }
 
 .pause-menu-scrollable::-webkit-scrollbar {
@@ -1995,7 +1989,6 @@ body {
   animation: gameOverMessageFadeIn 0.5s var(--ease-in-out) forwards;
   will-change: transform, opacity;
   backface-visibility: hidden;
-  margin: 0 0 var(--spacing-md) 0;
 }
 
 .pause-menu-info {
