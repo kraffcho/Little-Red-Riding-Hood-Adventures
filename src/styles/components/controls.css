@@ -1,0 +1,72 @@
+/* GAME CONTROLS */
+
+.game-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  color: var(--color-text-primary);
+}
+
+.game-controls > * {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.game-controls .game-sound {
+  gap: var(--spacing-lg);
+}
+
+.game-controls .game-sound-volume {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.game-controls .game-sound-volume label {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-700);
+}
+
+.game-controls input[type="range"] {
+  width: 100%;
+  cursor: pointer;
+}
+
+.game-controls .game-reset {
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-width-thin) solid var(--color-gray-200);
+}
+
+.game-controls .game-reset p {
+  margin: 0;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  font-style: italic;
+}
+
+.game-controls button {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-green-button);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: background-color var(--transition-base) var(--ease-in-out);
+  width: 100%;
+}
+
+.game-controls button:hover {
+  background-color: var(--color-green-button-hover);
+}
+
+.game-controls button:focus-visible {
+  outline: var(--border-width-medium) solid var(--color-green-primary);
+  outline-offset: var(--spacing-xs);
+}
+

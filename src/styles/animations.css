@@ -1,0 +1,445 @@
+/* ANIMATIONS */
+
+@keyframes countdownGoPop {
+  0% {
+    transform: translate3d(0, 0, 0) scale3d(0.3, 0.3, 1);
+    opacity: 0;
+  }
+  40% {
+    transform: translate3d(0, 0, 0) scale3d(1.3, 1.3, 1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(0.9, 0.9, 1);
+    opacity: 0;
+  }
+}
+
+@keyframes countdownMessagePulse {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(0, 0, 0) scale3d(1.05, 1.05, 1);
+    opacity: 0.9;
+  }
+}
+
+@keyframes countdownNumberPop {
+  0% {
+    transform: translate3d(0, 0, 0) scale3d(0.5, 0.5, 1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate3d(0, 0, 0) scale3d(1.2, 1.2, 1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+@keyframes downMovePlayer {
+  from {
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes downMoveWolf {
+  from {
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes explosionBlast {
+  0% {
+    transform: scale3d(0.3, 0.3, 1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale3d(1.2, 1.2, 1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale3d(1.5, 1.5, 1);
+    opacity: 0;
+  }
+}
+
+@keyframes explosionMarkFadeOut {
+  0% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -5px, 0);
+  }
+  20% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -5px, 0);
+  }
+}
+
+@keyframes gameOverButtonsFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes gameOverMessageFadeIn {
+  from {
+    transform: translate3d(0, 0, 0) scale3d(0.8, 0.8, 1);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+@keyframes invisibilityShimmer {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes itemPulse {
+  0%,
+  100% {
+    transform: translate3d(-50%, -50%, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(-50%, -50%, 0) scale3d(1.1, 1.1, 1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes leftMovePlayer {
+  0% {
+    transform: translate3d(100%, 0, 0);
+  }
+  50% {
+    transform: translate3d(50%, -4px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes leftMoveWolf {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes levelCompleteMessageFadeIn {
+  0% {
+    transform: translate3d(0, -30px, 0) scale3d(0.8, 0.8, 1);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+@keyframes levelCompleteNumberPop {
+  0% {
+    transform: translate3d(0, 0, 0) scale3d(0.3, 0.3, 1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate3d(0, 0, 0) scale3d(1.2, 1.2, 1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+@keyframes pauseMenuFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pauseMenuFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes progressPulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: var(--shadow-glow-green);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+  }
+}
+
+@keyframes rightMovePlayer {
+  0% {
+    transform: scale3d(-1, 1, 1) translate3d(100%, 0, 0);
+  }
+  50% {
+    transform: scale3d(-1, 1, 1) translate3d(50%, -4px, 0);
+  }
+  100% {
+    transform: scale3d(-1, 1, 1) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes rightMoveWolf {
+  from {
+    transform: scale3d(-1, 1, 1) translate3d(100%, 0, 0);
+  }
+  to {
+    transform: scale3d(-1, 1, 1) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes scaleBoard {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale3d(0.5, 0.5, 1) perspective(1200px)
+      rotateX(45deg);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+}
+
+@keyframes screenShake {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  10% {
+    transform: translate3d(-4px, -3px, 0);
+  }
+  20% {
+    transform: translate3d(4px, 3px, 0);
+  }
+  30% {
+    transform: translate3d(-5px, -4px, 0);
+  }
+  40% {
+    transform: translate3d(5px, 4px, 0);
+  }
+  50% {
+    transform: translate3d(-4px, -3px, 0);
+  }
+  60% {
+    transform: translate3d(4px, 3px, 0);
+  }
+  70% {
+    transform: translate3d(-3px, -2px, 0);
+  }
+  80% {
+    transform: translate3d(3px, 2px, 0);
+  }
+  90% {
+    transform: translate3d(-2px, -1px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes stunTimerPulse {
+  0%,
+  100% {
+    transform: scale3d(1, 1, 1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale3d(1.1, 1.1, 1);
+    opacity: 0.9;
+  }
+}
+
+@keyframes temporaryMessageFadeOut {
+  0% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, -20px, 0) scale3d(0.9, 0.9, 1);
+    opacity: 0;
+  }
+}
+
+@keyframes temporaryMessagePop {
+  0% {
+    transform: translate3d(0, 0, 0) scale3d(0.3, 0.3, 1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate3d(0, 0, 0) scale3d(1.1, 1.1, 1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+@keyframes tooltipFade {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -5px, 0);
+  }
+  10% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -5px, 0);
+  }
+}
+
+@keyframes tooltipFadeArrow {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translate3d(0, -5px, 0);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50%) translate3d(0, 0, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(-50%) translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translate3d(0, -5px, 0);
+  }
+}
+
+@keyframes tooltipFadeArrowMobile {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -5px, 0);
+  }
+  10% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -5px, 0);
+  }
+}
+
+@keyframes tooltipFadeArrowPlayerInHouse {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translate3d(0, -5px, 0);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-50%) translate3d(0, 0, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(-50%) translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translate3d(0, -5px, 0);
+  }
+}
+
+@keyframes upMovePlayer {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes upMoveWolf {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}

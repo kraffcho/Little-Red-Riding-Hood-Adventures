@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import "./styles.css";
+import "./styles/index.css";
 import ForestGrid from "./components/game/ForestGrid";
 import GameOver from "./components/GameOver";
 import Countdown from "./components/Countdown";

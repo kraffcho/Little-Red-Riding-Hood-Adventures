@@ -1,0 +1,398 @@
+/* GAME GRID & TILES */
+
+/* game board container */
+.ForestGrid {
+  display: flex;
+  flex-direction: column;
+  width: min(
+    calc(100vw - var(--spacing-3xl)),
+    calc(100vh - 44px - var(--spacing-3xl))
+  );
+  height: min(
+    calc(100vw - var(--spacing-3xl)),
+    calc(100vh - 44px - var(--spacing-3xl))
+  ); /* fallback for older browsers, accounting for header */
+  aspect-ratio: 1 / 1;
+  padding: 1rem;
+  margin-block: var(--spacing-md);
+  background: url("../../assets/images/grass.png") center center / 30%;
+  border: var(--border-width-extra-thick) solid var(--color-green-light);
+  border-radius: var(--radius-3xl);
+  outline: var(--border-width-thin) solid var(--color-green-dark);
+  box-shadow: var(--shadow-inset), 0 0 var(--spacing-sm) var(--color-black);
+  overflow: hidden;
+  animation: scaleBoard var(--transition-extreme) var(--ease-in-out) forwards;
+  box-sizing: border-box;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+
+/* mobile-specific grid adjustments */
+.Mobile {
+  width: min(
+    calc(100vw - var(--spacing-xl)),
+    calc(100vh - 54px - var(--spacing-2xl))
+  );
+  height: min(
+    calc(100vw - var(--spacing-xl)),
+    calc(100vh - 54px - var(--spacing-2xl))
+  ); /* fallback for older browsers, accounting for header */
+  aspect-ratio: 1 / 1; /* ensure square board */
+  box-shadow: var(--shadow-inset);
+  border-radius: var(--radius-xl);
+  box-sizing: border-box;
+}
+
+/* grid rows and tiles */
+.row {
+  display: flex;
+}
+
+.tile {
+  flex: 1;
+  aspect-ratio: 1 / 1; /* flex handles sizing in older browsers */
+  position: relative; /* create stacking context for z-index to work */
+}
+
+/* GAME ENTITIES (SPRITES) */
+
+/* tree variations */
+.tree {
+  background: url("../../assets/images/tree.png") no-repeat center center / contain;
+}
+
+.tree.scale1 {
+  transform: scale(1.7);
+}
+.tree.scale2 {
+  -webkit-transform: translateX(3px) scale(1.9) scaleX(-1);
+  transform: translateX(3px) scale(1.9) scaleX(-1);
+  background-image: url("../../assets/images/tree-2.png");
+}
+.tree.scale3 {
+  transform: scale(2) scaleX(-1);
+  background-image: url("../../assets/images/tree-2.png");
+}
+.tree.scale4 {
+  -webkit-transform: translateX(5px) scale(2.05) scaleX(-1);
+  transform: translateX(5px) scale(2.05);
+  background-image: url("../../assets/images/tree-3.png");
+}
+.tree.scale5 {
+  -webkit-transform: translateX(5px) scale(1.95);
+  transform: translateX(5px) scale(1.95);
+  background-image: url("../../assets/images/tree-3.png");
+}
+.tree.scale6 {
+  transform: scale(2.1);
+  background-image: url("../../assets/images/tree-4.png");
+}
+.tree.scale7 {
+  transform: scale(2.1) scaleX(-1);
+  background-image: url("../../assets/images/tree-4.png");
+}
+.tree.scale8 {
+  -webkit-transform: translateX(-3px) scale(1.9) scaleX(-1);
+  transform: translateX(-3px) scale(1.9) scaleX(-1);
+  background-image: url("../../assets/images/tree-2.png");
+}
+.tree.scale9 {
+  -webkit-transform: translateX(-3px) scale(1.9) scaleX(-1);
+  transform: translateX(-3px) scale(1.9) scaleX(-1);
+  background-image: url("../../assets/images/tree-5.png");
+}
+.tree.scale10 {
+  -webkit-transform: translateX(2px) scale(2.2);
+  transform: translateX(-1px) scale(2.2);
+  background-image: url("../../assets/images/tree-5.png");
+}
+
+/* flower */
+.flower {
+  background: url("../../assets/images/flower.png") no-repeat center center / cover;
+}
+
+/* player sprite */
+.player {
+  background: url("../../assets/images/player.png") no-repeat bottom center /
+    contain;
+}
+
+/* wolf sprite */
+.wolf {
+  background: url("../../assets/images/wolf.png") no-repeat center center / contain;
+  z-index: var(--z-index-base);
+}
+
+.wolf-overlap {
+  transform: scale(1.5);
+  transition: transform var(--transition-slow) var(--ease-in-out);
+  will-change: transform;
+}
+
+/* ensure wolf sprite is always visible when present, even if player class is also present */
+.tile.wolf {
+  z-index: var(--z-index-elevated);
+}
+
+/* ensure stun timer is always readable even when wolf is flipped */
+/* when wolf faces right (flipped with scaleX(-1)), counter-flip the timer */
+.tile.wolf-right.wolf-stunned .stun-timer {
+  transform: translate3d(-50%, 0, 0) scale3d(-1, 1, 1);
+}
+
+.tile.wolf-right.wolf-stunned .stun-timer-text {
+  transform: scale3d(-1, 1, 1);
+}
+
+/* granny's house */
+.granny-house {
+  position: relative;
+  background: url("../../assets/images/house.png") no-repeat center center / contain;
+  transform: scale(2.5) translate(2px, 3px);
+  z-index: var(--z-index-elevated);
+}
+
+/* when player enters the house, hide the player sprite completely and show only the house */
+/* ensure house background is always visible when player is in house - override all player backgrounds */
+.tile.player-in-house.player.granny-house,
+.tile.player-in-house.player.granny-house.player-up,
+.tile.player-in-house.player.granny-house.player-down,
+.tile.player-in-house.player.granny-house.player-left,
+.tile.player-in-house.player.granny-house.player-right {
+  /* explicitly override all background properties to show house - must have all classes in selector */
+  background: url("../../assets/images/house.png") no-repeat center center / contain !important;
+  background-image: url("../../assets/images/house.png") !important;
+  transform: scale(2.5) translate(2px, 3px) !important;
+  animation: none !important;
+}
+
+/* drop shadows for all sprites */
+.player,
+.wolf,
+.tree,
+.granny-house,
+.flower {
+  -webkit-filter: drop-shadow(var(--shadow-drop-shadow));
+  filter: drop-shadow(var(--shadow-drop-shadow));
+}
+
+/* PLAYER ANIMATIONS */
+
+.player-left {
+  animation: leftMovePlayer var(--transition-fast) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+
+.player-right {
+  -webkit-transform: scale3d(-1, 1, 1) translateZ(0);
+  transform: scale3d(-1, 1, 1) translateZ(0);
+  animation: rightMovePlayer var(--transition-fast) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+
+.player-up {
+  background-image: url("../../assets/images/player-up.png");
+  animation: upMovePlayer var(--transition-fast) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+
+.player-down {
+  background-image: url("../../assets/images/player-down.png");
+  animation: downMovePlayer var(--transition-fast) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+
+/* WOLF ANIMATIONS */
+
+.wolf-left {
+  animation: leftMoveWolf var(--transition-slow) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+
+.wolf-right {
+  -webkit-transform: scale3d(-1, 1, 1) translateZ(0);
+  transform: scale3d(-1, 1, 1) translateZ(0);
+  animation: rightMoveWolf var(--transition-slow) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+
+.wolf-up {
+  animation: upMoveWolf var(--transition-slow) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+
+.wolf-down {
+  animation: downMoveWolf var(--transition-slow) var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* SPECIAL ITEMS ON TILES */
+
+.tile.special-item {
+  position: relative;
+}
+
+.special-item-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  font-size: var(--font-size-lg);
+  z-index: 10;
+  animation: itemPulse 2s var(--ease-in-out) infinite;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.special-item-icon.bomb {
+  animation: itemPulse 2s var(--ease-in-out) infinite;
+}
+
+
+/* EXPLOSION EFFECT */
+
+.tile.explosion {
+  position: relative;
+  z-index: 5;
+}
+
+.explosion-effect {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle,
+    rgba(255, 100, 0, 0.9) 0%,
+    rgba(255, 150, 0, 0.7) 30%,
+    rgba(255, 200, 0, 0.5) 60%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  animation: explosionBlast 1s var(--ease-out) forwards;
+  z-index: 11;
+  pointer-events: none;
+}
+
+
+/* explosion mark - persistent dark spot where bomb exploded */
+.tile.explosion-mark {
+  position: relative;
+}
+
+.explosion-mark-effect {
+  position: absolute;
+  inset: 0;
+  background-image: url("../../assets/images/explosion-mark.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.8;
+  transition: opacity 0.5s var(--ease-out);
+}
+
+.explosion-mark-effect.fading {
+  opacity: 0;
+  animation: explosionMarkFadeOut 0.5s var(--ease-out) forwards;
+}
+
+
+/* screen shake effect when bomb explodes */
+.game-board-wrapper.screen-shake {
+  animation: screenShake 0.5s var(--ease-in-out) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+
+/* WOLF STUN TIMER */
+
+.tile.wolf-stunned {
+  position: relative;
+}
+
+.stun-timer {
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  z-index: 20;
+  pointer-events: none;
+  /* create new stacking context to isolate from parent transforms */
+  isolation: isolate;
+  /* center horizontally */
+  transform: translate3d(-50%, 0, 0);
+  /* ensure timer positioning doesn't get affected by parent transforms */
+  will-change: transform;
+}
+
+.stun-timer-text {
+  color: var(--color-white);
+  font-family: var(--font-family-message);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(255, 69, 0, 0.8);
+  animation: stunTimerPulse 1s var(--ease-in-out) infinite;
+  white-space: nowrap;
+  /* ensure text is always readable */
+  direction: ltr;
+  unicode-bidi: normal;
+  display: inline-block;
+}
+
+
+/* player invisibility effect - use pseudo-element for shimmer to preserve movement animations */
+.tile.player-invisible.player {
+  opacity: 0.4;
+  filter: blur(1px);
+  position: relative;
+}
+
+/* shimmer effect overlay that doesn't interfere with movement animations */
+.tile.player-invisible.player::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  animation: invisibilityShimmer 1.5s var(--ease-in-out) infinite;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+/* movement animations work normally - they're not overridden */
+
+/* wolf confusion - alternating direction when player is invisible */
+/* direction changes are handled by state updates every 5 seconds, no CSS animation needed */
+
+/* special item icon for cloak */
+.special-item-icon.cloak {
+  font-size: var(--font-size-2xl);
+}
+

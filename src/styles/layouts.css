@@ -1,0 +1,25 @@
+/* LAYOUT COMPONENTS */
+
+/* main app container */
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+  padding-top: 44px; /* account for fixed header (34px) with breathing room */
+}
+
+/* wrapper for game board and overlays (game over, level complete) */
+.game-board-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+

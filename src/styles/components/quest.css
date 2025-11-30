@@ -1,0 +1,160 @@
+/* QUEST HEADER (TWO-COLUMN LAYOUT) */
+
+.quest-panel {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-lg);
+  width: 100%;
+  max-width: 100%;
+  margin: var(--spacing-md) 0 var(--spacing-lg) 0;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+/* quest progress wrapper - two columns layout */
+.quest-progress-wrapper {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-lg);
+  align-items: stretch;
+}
+
+/* quest progress column */
+.quest-progress {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.quest-progress-content {
+  background: linear-gradient(
+    135deg,
+    var(--color-backdrop-light) 0%,
+    rgba(245, 245, 245, 0.67) 100%
+  );
+  border: var(--border-width-thick) solid var(--color-green-primary);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  box-shadow: var(--shadow-sm), var(--shadow-lg);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  backdrop-filter: var(--backdrop-blur);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.quest-progress-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.quest-progress-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.quest-progress-count {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-green-primary);
+}
+
+.quest-progress-bar-container {
+  width: 100%;
+  height: var(--font-size-2xl);
+  background-color: var(--color-gray-200);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  border: var(--border-width-medium) solid var(--color-green-primary);
+  box-shadow: var(--shadow-inset-sm);
+}
+
+.quest-progress-bar {
+  height: 100%;
+  width: var(--quest-progress, 0%);
+  background: linear-gradient(
+    90deg,
+    var(--color-green-progress) 0%,
+    var(--color-green-progress-light) 50%,
+    var(--color-green-progress-lighter) 100%
+  );
+  border-radius: var(--radius-xl);
+  transition: width var(--transition-slow) var(--ease-in-out);
+  box-shadow: var(--shadow-glow-green);
+  position: relative;
+  overflow: hidden;
+}
+
+.quest-progress-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.quest-progress-bar.complete {
+  background: linear-gradient(
+    90deg,
+    var(--color-gold) 0%,
+    var(--color-gold-light) 50%,
+    var(--color-gold-lighter) 100%
+  );
+  box-shadow: var(--shadow-glow-gold);
+}
+
+
+/* quest info column */
+.quest-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.quest-info-content {
+  background: linear-gradient(
+    135deg,
+    var(--color-backdrop-light) 0%,
+    rgba(245, 245, 245, 0.67) 100%
+  );
+  border: var(--border-width-thick) solid var(--color-green-primary);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  box-shadow: var(--shadow-sm), var(--shadow-lg);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  backdrop-filter: var(--backdrop-blur);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+}
+
+.quest-info-message {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
