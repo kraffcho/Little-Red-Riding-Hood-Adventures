@@ -1655,11 +1655,11 @@ body {
 /* responsive adjustments for level complete */
 @media (max-width: 768px) {
   .level-complete-message {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-lg);
   }
 
   .level-complete-number {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl);
   }
 }
 
@@ -1737,7 +1737,8 @@ body {
 /* responsive adjustments for temporary message */
 @media (max-width: 768px) {
   .temporary-message-text {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-lg);
+    letter-spacing: 2px;
   }
 }
 
@@ -2254,11 +2255,13 @@ body {
   }
 
   .countdown-message {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-lg);
+    letter-spacing: 2px;
   }
 
   .countdown-number {
-    font-size: var(--font-size-4xl);
+    font-size: var(--font-size-2xl);
+    letter-spacing: 2px;
   }
 }
 

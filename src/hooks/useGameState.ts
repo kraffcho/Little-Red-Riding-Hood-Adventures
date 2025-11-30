@@ -316,6 +316,10 @@ export const useGameState = () => {
           positionsEqual(newPosition, prev.grannyHousePosition) &&
           isHouseOpen;
 
+        // if player enters house while invisible, immediately clear invisibility
+        // this prevents the house and tooltip from becoming invisible
+        const shouldClearInvisibility = playerEnteredHouse && prev.playerInvisible;
+
         // check if the wolf got us (only if player is not invisible)
         const collision = positionsEqual(newPosition, prev.wolfPosition) && !prev.playerInvisible;
         const wolfWon = collision;
@@ -355,6 +359,9 @@ export const useGameState = () => {
           inventory: newInventory,
           isHouseOpen,
           playerEnteredHouse,
+          // clear invisibility if player entered house
+          playerInvisible: shouldClearInvisibility ? false : prev.playerInvisible,
+          cloakInvisibilityEndTime: shouldClearInvisibility ? null : prev.cloakInvisibilityEndTime,
           wolfMoving: playerEnteredHouse || stuckCheck.stuck || prev.wolfStunned ? false : prev.wolfMoving,
           playerCanMove: !wolfWon && !stuckCheck.stuck && !playerEnteredHouse,
           wolfWon,
