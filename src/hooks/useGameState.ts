@@ -104,7 +104,7 @@ export const useGameState = () => {
       const gridSize = getGridSize();
       const wolfStartPosition = getWolfStartPosition(gridSize);
       const grannyHousePosition = getGrannyHousePosition(gridSize);
-      
+
       console.error(`❌ Failed to generate playable level. Reason: Level generation failed`);
       // still set up the game state so the board shows something
       setGameState((prev) => ({
@@ -135,7 +135,7 @@ export const useGameState = () => {
       }));
       return;
     }
-    
+
     // level generation succeeded - calculate stuck checks for game state
     const initialStuckCheck = isPlayerStuck(
       PLAYER_START_POSITION,
@@ -205,7 +205,7 @@ export const useGameState = () => {
       clearInterval(wolfConfusionIntervalRef.current);
       wolfConfusionIntervalRef.current = null;
     }
-    
+
     // Note: We're using generateLevel from useLevelState for level generation logic,
     // but keeping all state in gameState for now to maintain backward compatibility
   }, [generateLevel]);
