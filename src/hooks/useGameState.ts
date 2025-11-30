@@ -39,6 +39,7 @@ import {
 } from "../utils";
 import { useLevelState } from "./useLevelState";
 import { useInventoryState } from "./useInventoryState";
+import { useGameLifecycle } from "./useGameLifecycle";
 
 /**
  * hook that handles all the game state and logic
@@ -51,6 +52,12 @@ export const useGameState = () => {
   // use inventory state hook for timer refs and helper functions
   // Note: State remains in gameState for now, we use the hook for refs and future migration
   const { itemSpawnTimerRef, cloakSpawnTimerRef } = useInventoryState();
+  
+  // use game lifecycle hook for gameStartTimeRef and helper functions
+  // Note: Lifecycle state (gameOver, paused, isStuck, temporaryMessage) remains in gameState for backward compatibility
+  // We use the hook for gameStartTimeRef and helper functions (setGameStartTime, clearGameStartTime)
+  const { gameStartTimeRef, setGameStartTime, clearGameStartTime } = useGameLifecycle();
+  
   const [gameState, setGameState] = useState<GameState>({
     playerPosition: { x: -1, y: -1 },
     wolfPosition: { x: -1, y: -1 },
@@ -94,7 +101,7 @@ export const useGameState = () => {
     paused: false,
   });
 
-  const gameStartTimeRef = useRef<number | null>(null);
+  // Note: gameStartTimeRef is now provided by useGameLifecycle hook
   // Note: itemSpawnTimerRef and cloakSpawnTimerRef are now provided by useInventoryState hook
   const wolfConfusionIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -196,7 +203,7 @@ export const useGameState = () => {
     }));
 
     // clear game start time and timer - will be set when gameplay actually starts (after countdown)
-    gameStartTimeRef.current = null;
+    clearGameStartTime();
     if (itemSpawnTimerRef.current) {
       clearTimeout(itemSpawnTimerRef.current);
       itemSpawnTimerRef.current = null;
@@ -563,7 +570,7 @@ export const useGameState = () => {
     }
 
     // set game start time
-    gameStartTimeRef.current = Date.now();
+    setGameStartTime(Date.now());
 
     // start the spawning timer - this will spawn the first item after ITEM_SPAWN_DELAY
     itemSpawnTimerRef.current = setTimeout(() => {
@@ -852,7 +859,7 @@ export const useGameState = () => {
       clearInterval(wolfConfusionIntervalRef.current);
       wolfConfusionIntervalRef.current = null;
     }
-    gameStartTimeRef.current = null;
+    clearGameStartTime();
 
     setGameState({
       playerPosition: { x: -1, y: -1 },
