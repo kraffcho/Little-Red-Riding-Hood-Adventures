@@ -37,11 +37,15 @@ import {
   isWithinRadius,
   generateItemId,
 } from "../utils";
+import { useLevelState } from "./useLevelState";
 
 /**
  * hook that handles all the game state and logic
  */
 export const useGameState = () => {
+  // use level state hook for level generation logic
+  // Note: For now, we only use generateLevel. Level state remains in gameState for backward compatibility
+  const { generateLevel } = useLevelState();
   const [gameState, setGameState] = useState<GameState>({
     playerPosition: { x: -1, y: -1 },
     wolfPosition: { x: -1, y: -1 },
@@ -92,78 +96,24 @@ export const useGameState = () => {
 
   // set up a new game
   const initializeGame = useCallback(() => {
-    // get responsive grid size and number of trees based on viewport width
-    const gridSize = getGridSize();
-    const numTrees = getNumTrees();
-    const wolfStartPosition = getWolfStartPosition(gridSize);
-    const grannyHousePosition = getGrannyHousePosition(gridSize);
+    // use level state hook to generate the level
+    const levelData = generateLevel();
 
-    // create a level that can actually be completed - keep trying until we get one that's not stuck
-    let levelData: { treePositions: Position[]; flowerPositions: Position[] } | null = null;
-    let initialStuckCheck: { stuck: boolean; reason?: string } = { stuck: true, reason: "Failed to generate valid level" };
-
-    // try to generate a valid, non-stuck level (up to 20 attempts to account for wolf stuck cases)
-    let attempts = 0;
-    let wolfStuckCheck: { stuck: boolean; reason?: string } = { stuck: false };
-
-    while (attempts < 20) {
-      attempts++;
-      levelData = generateValidLevel(wolfStartPosition, grannyHousePosition, gridSize, numTrees);
-      if (levelData) {
-        initialStuckCheck = isPlayerStuck(
-          PLAYER_START_POSITION,
-          levelData.flowerPositions,
-          levelData.treePositions,
-          grannyHousePosition,
-          false,
-          gridSize
-        );
-
-        // check if wolf can reach the player - if not, wolf is stuck
-        const wolfCanReachPlayer = pathExists(
-          wolfStartPosition,
-          PLAYER_START_POSITION,
-          levelData.treePositions,
-          gridSize
-        );
-
-        wolfStuckCheck = {
-          stuck: !wolfCanReachPlayer,
-          reason: wolfCanReachPlayer ? undefined : `Wolf at (${wolfStartPosition.x}, ${wolfStartPosition.y}) cannot reach player at (${PLAYER_START_POSITION.x}, ${PLAYER_START_POSITION.y}) - no path exists`
-        };
-
-        // only accept level if player is not stuck AND wolf can reach player
-        if (!initialStuckCheck.stuck && !wolfStuckCheck.stuck) {
-          console.log(`✅ Game loaded successfully after ${attempts} attempt(s) - player can move, wolf can chase`);
-          break; // found a good level!
-        } else {
-          if (initialStuckCheck.stuck) {
-            console.log(`⚠️ Attempt ${attempts}: Player stuck - ${initialStuckCheck.reason || "Unknown reason"}`);
-          }
-          if (wolfStuckCheck.stuck) {
-            console.log(`⚠️ Attempt ${attempts}: ${wolfStuckCheck.reason || "Wolf cannot reach player"}`);
-          }
-        }
-      } else {
-        console.log(`⚠️ Attempt ${attempts}: Failed to generate valid level (level generation exhausted 50 internal attempts - will retry)`);
-      }
-    }
-
-    if (!levelData || initialStuckCheck.stuck || wolfStuckCheck.stuck) {
-      const failureReason = !levelData
-        ? "Failed to generate valid level"
-        : initialStuckCheck.stuck
-          ? initialStuckCheck.reason || "Player stuck"
-          : wolfStuckCheck.reason || "Wolf stuck";
-      console.error(`❌ Failed to generate playable level after ${attempts} attempt(s). Reason: ${failureReason}`);
+    if (!levelData) {
+      // level generation failed - set up failed state
+      const gridSize = getGridSize();
+      const wolfStartPosition = getWolfStartPosition(gridSize);
+      const grannyHousePosition = getGrannyHousePosition(gridSize);
+      
+      console.error(`❌ Failed to generate playable level. Reason: Level generation failed`);
       // still set up the game state so the board shows something
       setGameState((prev) => ({
         ...prev,
         playerPosition: PLAYER_START_POSITION,
         wolfPosition: wolfStartPosition,
         grannyHousePosition,
-        treePositions: levelData?.treePositions || [],
-        flowers: levelData?.flowerPositions || [],
+        treePositions: [],
+        flowers: [],
         collectedFlowers: 0,
         isHouseOpen: false,
         playerEnteredHouse: false,
@@ -174,8 +124,8 @@ export const useGameState = () => {
         playerDirection: "down",
         wolfDirection: "down",
         isStuck: true,
-        stuckReason: initialStuckCheck.reason || "Level generation failed",
-        gridSize: gridSize, // store the responsive grid size
+        stuckReason: "Level generation failed",
+        gridSize: gridSize,
         // reset special items
         inventory: [],
         specialItems: [],
@@ -185,16 +135,25 @@ export const useGameState = () => {
       }));
       return;
     }
+    
+    // level generation succeeded - calculate stuck checks for game state
+    const initialStuckCheck = isPlayerStuck(
+      PLAYER_START_POSITION,
+      levelData.flowerPositions,
+      levelData.treePositions,
+      levelData.grannyHousePosition,
+      false,
+      levelData.gridSize
+    );
 
-    // levelData is guaranteed to be non-null here (TypeScript assertion)
-    const finalLevelData = levelData!;
+    // level generation succeeded - set up game state
     setGameState((prev) => ({
       ...prev,
       playerPosition: PLAYER_START_POSITION,
-      wolfPosition: wolfStartPosition,
-      grannyHousePosition,
-      treePositions: finalLevelData.treePositions,
-      flowers: finalLevelData.flowerPositions,
+      wolfPosition: levelData.wolfStartPosition,
+      grannyHousePosition: levelData.grannyHousePosition,
+      treePositions: levelData.treePositions,
+      flowers: levelData.flowerPositions,
       collectedFlowers: 0,
       isHouseOpen: false,
       playerEnteredHouse: false,
@@ -206,7 +165,7 @@ export const useGameState = () => {
       wolfDirection: "down",
       isStuck: initialStuckCheck.stuck,
       stuckReason: initialStuckCheck.reason,
-      gridSize: gridSize, // store the responsive grid size
+      gridSize: levelData.gridSize, // store the responsive grid size
       // reset special items
       inventory: [],
       specialItems: [],
@@ -246,7 +205,10 @@ export const useGameState = () => {
       clearInterval(wolfConfusionIntervalRef.current);
       wolfConfusionIntervalRef.current = null;
     }
-  }, []);
+    
+    // Note: We're using generateLevel from useLevelState for level generation logic,
+    // but keeping all state in gameState for now to maintain backward compatibility
+  }, [generateLevel]);
 
   // start the game when component loads
   useEffect(() => {
