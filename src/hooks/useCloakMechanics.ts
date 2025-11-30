@@ -14,7 +14,7 @@ export const useCloakMechanics = () => {
   const [cloakInvisibilityEndTime, setCloakInvisibilityEndTime] = useState<number | null>(null);
   const [cloakCooldownEndTime, setCloakCooldownEndTime] = useState<number | null>(null);
   const [cloakSpawned, setCloakSpawned] = useState<boolean>(false);
-  
+
   const wolfConfusionIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   /**
@@ -164,7 +164,7 @@ export const useCloakMechanics = () => {
     cloakCooldownEndTime,
     cloakSpawned,
     wolfConfusionIntervalRef,
-    
+
     // Actions
     activateInvisibility,
     clearInvisibility,
@@ -176,7 +176,7 @@ export const useCloakMechanics = () => {
     stopWolfConfusion,
     useCloak,
     resetCloakMechanics,
-    
+
     // Setters (for direct state updates when needed)
     setPlayerInvisible,
     setCloakInvisibilityEndTime,

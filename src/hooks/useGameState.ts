@@ -1,40 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Position, Direction, GameState, ItemType, SpecialItem, ExplosionEffect, ExplosionMark } from "../types";
+import { Position, Direction, GameState, SpecialItem } from "../types";
 import {
-  GRID_SIZE,
   NUM_FLOWERS,
   PLAYER_START_POSITION,
   getWolfStartPosition,
   getGrannyHousePosition,
   getGridSize,
-  getNumTrees,
   ITEM_SPAWN_DELAY,
   MAX_BOMBS_ON_MAP,
-  BOMB_STUN_DURATION,
-  BOMB_EXPLOSION_RADIUS,
-  BOMB_EXPLOSION_DURATION,
-  BOMB_COOLDOWN_DURATION,
-  EXPLOSION_MARK_DURATION,
   ENEMY_DELAY,
-  WOLF_SPEED_INCREASE_PERCENTAGE,
-  MAX_WOLF_SPEED_INCREASES,
   CLOAK_SPAWN_DELAY_MIN,
   CLOAK_SPAWN_DELAY_MAX,
-  CLOAK_INVISIBILITY_DURATION,
-  CLOAK_COOLDOWN_DURATION,
-  CLOAK_WOLF_CONFUSION_INTERVAL,
 } from "../constants/gameConfig";
 import {
-  isValidPosition,
-  moveInDirection,
   positionsEqual,
-  getDirectionFromMovement,
-  findPath,
-  pathExists,
-  generateValidLevel,
   isPlayerStuck,
   generateRandomItemPosition,
-  isWithinRadius,
   generateItemId,
 } from "../utils";
 import { useLevelState } from "./useLevelState";
@@ -294,7 +275,7 @@ export const useGameState = () => {
     initializeGame();
   }, [initializeGame]);
 
-  // move the player in the given direction - now using usePlayerState hook
+  // move the player in the given direction
   const movePlayer = useCallback(
     (direction: Direction) => {
       setGameState((prev) => {
@@ -357,7 +338,7 @@ export const useGameState = () => {
         // handle house entry
         if (moveResult.enteredHouse) {
           setPlayerEnteredHouseState(true);
-          
+
           // if player enters house while invisible, immediately clear invisibility
           if (hookPlayerInvisible) {
             clearInvisibility();
@@ -406,7 +387,7 @@ export const useGameState = () => {
     [hookMovePlayer, hookWolfPosition, hookPlayerInvisible, hookIsHouseOpen, hookWolfStunned, setPlayerPositionState, setPlayerDirectionState, setPlayerEnteredHouseState, setWolfMovingState, openHouse, clearInvisibility]
   );
 
-  // move the wolf toward the player using pathfinding - now using useWolfState hook
+  // move the wolf toward the player using pathfinding
   const moveWolf = useCallback(() => {
     setGameState((prev) => {
       // use hook's moveWolf function
@@ -756,7 +737,7 @@ export const useGameState = () => {
     }));
   }, [hookPlayerPosition, hookPlayerDirection, hookPlayerCanMove, hookPlayerEnteredHouse, hookIsHouseOpen]);
 
-  // use a bomb item - now using useBombMechanics hook
+  // use a bomb item
   const useBomb = useCallback(() => {
     setGameState((prev) => {
       const bombIndex = prev.inventory.indexOf("bomb");
@@ -813,7 +794,7 @@ export const useGameState = () => {
     });
   }, [hookUseBomb, hookBombCooldownEndTime, createExplosion, addExplosionMark, startBombCooldown, stunWolf]);
 
-  // use hunter's cloak to become invisible - now using useCloakMechanics hook
+  // use hunter's cloak to become invisible
   const useCloak = useCallback(() => {
     setGameState((prev) => {
       // check if player has cloak and is not on cooldown
