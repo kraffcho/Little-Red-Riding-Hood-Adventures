@@ -52,12 +52,12 @@ export const useGameState = () => {
   // use inventory state hook for timer refs and helper functions
   // Note: State remains in gameState for now, we use the hook for refs and future migration
   const { itemSpawnTimerRef, cloakSpawnTimerRef } = useInventoryState();
-  
+
   // use game lifecycle hook for gameStartTimeRef and helper functions
   // Note: Lifecycle state (gameOver, paused, isStuck, temporaryMessage) remains in gameState for backward compatibility
   // We use the hook for gameStartTimeRef and helper functions (setGameStartTime, clearGameStartTime)
   const { gameStartTimeRef, setGameStartTime, clearGameStartTime } = useGameLifecycle();
-  
+
   const [gameState, setGameState] = useState<GameState>({
     playerPosition: { x: -1, y: -1 },
     wolfPosition: { x: -1, y: -1 },
