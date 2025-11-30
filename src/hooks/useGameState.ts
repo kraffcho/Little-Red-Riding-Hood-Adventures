@@ -42,6 +42,7 @@ import { useInventoryState } from "./useInventoryState";
 import { useGameLifecycle } from "./useGameLifecycle";
 import { useBombMechanics } from "./useBombMechanics";
 import { useCloakMechanics } from "./useCloakMechanics";
+import { useWolfState } from "./useWolfState";
 
 /**
  * hook that handles all the game state and logic
@@ -89,6 +90,27 @@ export const useGameState = () => {
     markCloakSpawned,
     resetCloakMechanics,
   } = useCloakMechanics();
+
+  // use wolf state hook for wolf-related logic
+  // Note: Wolf state is synced with gameState for compatibility
+  const {
+    wolfPosition: hookWolfPosition,
+    wolfDirection: hookWolfDirection,
+    wolfMoving: hookWolfMoving,
+    wolfStunned: hookWolfStunned,
+    wolfStunEndTime: hookWolfStunEndTime,
+    currentWolfDelay: hookCurrentWolfDelay,
+    wolfStunCount: hookWolfStunCount,
+    wolfWon: hookWolfWon,
+    setWolfPositionState,
+    setWolfDirectionState,
+    setWolfMovingState,
+    stunWolf,
+    wakeWolf,
+    moveWolf: hookMoveWolf,
+    resetWolfSpeed,
+    resetWolfState,
+  } = useWolfState();
 
   const [gameState, setGameState] = useState<GameState>({
     playerPosition: { x: -1, y: -1 },
@@ -149,11 +171,15 @@ export const useGameState = () => {
       const grannyHousePosition = getGrannyHousePosition(gridSize);
 
       console.error(`❌ Failed to generate playable level. Reason: Level generation failed`);
+      
+      // reset wolf state using hook
+      resetWolfState();
+      setWolfPositionState(wolfStartPosition);
+      
       // still set up the game state so the board shows something
       setGameState((prev) => ({
         ...prev,
         playerPosition: PLAYER_START_POSITION,
-        wolfPosition: wolfStartPosition,
         grannyHousePosition,
         treePositions: [],
         flowers: [],
@@ -161,20 +187,17 @@ export const useGameState = () => {
         isHouseOpen: false,
         playerEnteredHouse: false,
         playerCanMove: false,
-        wolfMoving: false,
         wolfWon: false,
         gameOver: true,
         playerDirection: "down",
-        wolfDirection: "down",
         isStuck: true,
         stuckReason: "Level generation failed",
         gridSize: gridSize,
         // reset special items
         inventory: [],
         specialItems: [],
-        wolfStunned: false,
-        wolfStunEndTime: null,
         explosionEffect: null,
+        // Note: wolf state will be synced from hook via useEffect
       }));
       return;
     }
@@ -189,11 +212,16 @@ export const useGameState = () => {
       levelData.gridSize
     );
 
+    // reset wolf state using hook
+    resetWolfSpeed();
+    setWolfPositionState(levelData.wolfStartPosition);
+    setWolfDirectionState("down");
+    setWolfMovingState(!initialStuckCheck.stuck);
+
     // level generation succeeded - set up game state
     setGameState((prev) => ({
       ...prev,
       playerPosition: PLAYER_START_POSITION,
-      wolfPosition: levelData.wolfStartPosition,
       grannyHousePosition: levelData.grannyHousePosition,
       treePositions: levelData.treePositions,
       flowers: levelData.flowerPositions,
@@ -201,19 +229,14 @@ export const useGameState = () => {
       isHouseOpen: false,
       playerEnteredHouse: false,
       playerCanMove: !initialStuckCheck.stuck,
-      wolfMoving: !initialStuckCheck.stuck,
-      wolfWon: false,
       gameOver: initialStuckCheck.stuck,
       playerDirection: "down",
-      wolfDirection: "down",
       isStuck: initialStuckCheck.stuck,
       stuckReason: initialStuckCheck.reason,
       gridSize: levelData.gridSize, // store the responsive grid size
       // reset special items
       inventory: [],
       specialItems: [],
-      wolfStunned: false,
-      wolfStunEndTime: null,
       explosionEffect: null,
       // level tracking - start at level 1
       currentLevel: 1,
@@ -221,10 +244,7 @@ export const useGameState = () => {
       temporaryMessage: null,
       // explosion marks
       explosionMarks: [],
-      // reset wolf speed to base delay
-      currentWolfDelay: ENEMY_DELAY,
-      // reset stun count
-      wolfStunCount: 0,
+      // Note: wolf state (position, direction, moving, stunned, etc.) will be synced from hook via useEffect
       // reset hunter's cloak system
       playerInvisible: false,
       cloakInvisibilityEndTime: null,
@@ -248,7 +268,7 @@ export const useGameState = () => {
 
     // Note: We're using generateLevel from useLevelState for level generation logic,
     // but keeping all state in gameState for now to maintain backward compatibility
-  }, [generateLevel]);
+  }, [generateLevel, resetWolfSpeed, resetWolfState, setWolfPositionState, setWolfDirectionState, setWolfMovingState]);
 
   // start the game when component loads
   useEffect(() => {
@@ -376,32 +396,33 @@ export const useGameState = () => {
     []
   );
 
-  // move the wolf toward the player using pathfinding
+  // move the wolf toward the player using pathfinding - now using useWolfState hook
   const moveWolf = useCallback(() => {
     setGameState((prev) => {
-      if (!prev.wolfMoving || prev.gameOver || prev.isStuck || prev.wolfStunned || prev.playerInvisible) return prev;
+      // use hook's moveWolf function
+      const result = hookMoveWolf({
+        playerPosition: prev.playerPosition,
+        treePositions: prev.treePositions,
+        gridSize: prev.gridSize,
+        gameOver: prev.gameOver,
+        isStuck: prev.isStuck ?? false,
+        playerInvisible: hookPlayerInvisible,
+        isHouseOpen: prev.isHouseOpen,
+        playerInHouse: positionsEqual(prev.playerPosition, prev.grannyHousePosition) && prev.isHouseOpen,
+      });
 
-      // don't chase if player is safe in the house
-      if (
-        prev.isHouseOpen &&
-        positionsEqual(prev.playerPosition, prev.grannyHousePosition)
-      ) {
-        return prev;
-      }
-
-      const nextPosition = findPath(
-        prev.wolfPosition,
-        prev.playerPosition,
-        prev.treePositions,
-        prev.gridSize
-      );
-
-      if (!nextPosition) {
-        // check if we're already at the same position (collision) - only if player is visible
-        const collision = positionsEqual(prev.wolfPosition, prev.playerPosition) && !prev.playerInvisible;
-
-        if (collision) {
-          // wolf caught the player
+      if (!result.newPosition) {
+        // wolf didn't move - handle stuck or collision cases
+        if (result.stuck) {
+          const wolfStuckReason = `Wolf at (${hookWolfPosition.x}, ${hookWolfPosition.y}) cannot reach player at (${prev.playerPosition.x}, ${prev.playerPosition.y}) - no path exists`;
+          console.log(`🐺 WOLF STUCK: ${wolfStuckReason}`);
+          setWolfMovingState(false);
+          return prev;
+        }
+        
+        if (result.collision) {
+          // wolf caught the player (already at same position)
+          setWolfMovingState(false);
           return {
             ...prev,
             playerCanMove: false,
@@ -409,36 +430,28 @@ export const useGameState = () => {
             gameOver: true,
           };
         }
+        
+        return prev;
+      }
 
-        // wolf can't find a path to the player - wolf is stuck
-        const wolfStuckReason = `Wolf at (${prev.wolfPosition.x}, ${prev.wolfPosition.y}) cannot reach player at (${prev.playerPosition.x}, ${prev.playerPosition.y}) - no path exists`;
-        console.log(`🐺 WOLF STUCK: ${wolfStuckReason}`);
+      // wolf moved - update hook state (will sync to gameState via useEffect)
+      setWolfPositionState(result.newPosition);
+      setWolfDirectionState(result.direction);
 
-        // stop the wolf from moving since it's stuck
+      // check collision with new position
+      if (result.collision) {
+        setWolfMovingState(false);
         return {
           ...prev,
-          wolfMoving: false,
+          playerCanMove: false,
+          wolfWon: true,
+          gameOver: true,
         };
       }
 
-      const wolfDirection = getDirectionFromMovement(
-        prev.wolfPosition,
-        nextPosition
-      );
-
-      // see if we caught the player
-      const collision = positionsEqual(nextPosition, prev.playerPosition);
-
-      return {
-        ...prev,
-        wolfPosition: nextPosition,
-        wolfDirection,
-        playerCanMove: !collision,
-        wolfWon: collision,
-        gameOver: collision,
-      };
+      return prev;
     });
-  }, []);
+  }, [hookMoveWolf, hookPlayerInvisible, hookWolfPosition, setWolfPositionState, setWolfDirectionState, setWolfMovingState]);
 
   // spawn a special item on the board
   const spawnSpecialItem = useCallback(() => {
@@ -633,38 +646,27 @@ export const useGameState = () => {
     }
   }, [gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck]);
 
-  // update wolf stun timer - when wolf wakes up, reduce delay (make it faster) by 10%, max 5 times
+  // update wolf stun timer - when wolf wakes up, use hook's wakeWolf function
   useEffect(() => {
-    if (gameState.wolfStunned && gameState.wolfStunEndTime) {
+    if (hookWolfStunned && hookWolfStunEndTime) {
       const checkStun = setInterval(() => {
-        setGameState((prev) => {
-          if (prev.wolfStunEndTime && Date.now() >= prev.wolfStunEndTime) {
-            // wolf just woke up
-            // only reduce delay if we haven't reached the maximum speed increases yet (max 5 times)
-            const shouldIncreaseSpeed = prev.wolfStunCount < MAX_WOLF_SPEED_INCREASES;
-            const newDelay = shouldIncreaseSpeed
-              ? prev.currentWolfDelay * (1 - WOLF_SPEED_INCREASE_PERCENTAGE)
-              : prev.currentWolfDelay;
-            const newStunCount = shouldIncreaseSpeed
-              ? prev.wolfStunCount + 1
-              : prev.wolfStunCount;
-
-            return {
-              ...prev,
-              wolfStunned: false,
-              wolfStunEndTime: null,
-              wolfMoving: !prev.gameOver && !prev.isStuck,
-              currentWolfDelay: newDelay,
-              wolfStunCount: newStunCount,
-            };
-          }
-          return prev;
-        });
+        if (hookWolfStunEndTime && Date.now() >= hookWolfStunEndTime) {
+          // wolf just woke up - use hook's wakeWolf (it handles speed increase automatically)
+          wakeWolf();
+          
+          // resume wolf movement if game is still active
+          setGameState((prev) => {
+            if (!prev.gameOver && !prev.isStuck) {
+              setWolfMovingState(true);
+            }
+            return prev;
+          });
+        }
       }, 100); // check every 100ms
 
       return () => clearInterval(checkStun);
     }
-  }, [gameState.wolfStunned, gameState.wolfStunEndTime]);
+  }, [hookWolfStunned, hookWolfStunEndTime, wakeWolf, setWolfMovingState]);
 
   // coordinate wolf confusion animation when player becomes invisible (hook handles the interval)
   useEffect(() => {
@@ -717,6 +719,21 @@ export const useGameState = () => {
     }));
   }, [hookPlayerInvisible, hookCloakInvisibilityEndTime, hookCloakCooldownEndTime, hookCloakSpawned]);
 
+  // sync wolf state from hook to gameState
+  useEffect(() => {
+    setGameState((prev) => ({
+      ...prev,
+      wolfPosition: hookWolfPosition,
+      wolfDirection: hookWolfDirection,
+      wolfMoving: hookWolfMoving,
+      wolfStunned: hookWolfStunned,
+      wolfStunEndTime: hookWolfStunEndTime,
+      currentWolfDelay: hookCurrentWolfDelay,
+      wolfStunCount: hookWolfStunCount,
+      wolfWon: hookWolfWon,
+    }));
+  }, [hookWolfPosition, hookWolfDirection, hookWolfMoving, hookWolfStunned, hookWolfStunEndTime, hookCurrentWolfDelay, hookWolfStunCount, hookWolfWon]);
+
   // use a bomb item - now using useBombMechanics hook
   const useBomb = useCallback(() => {
     setGameState((prev) => {
@@ -753,15 +770,10 @@ export const useGameState = () => {
       // start cooldown using hook
       startBombCooldown();
 
-      let newWolfStunned = prev.wolfStunned;
-      let newWolfStunEndTime = prev.wolfStunEndTime;
-      let newWolfMoving = prev.wolfMoving;
-
       if (bombResult.wolfStunned && bombResult.stunEndTime) {
-        // stun the wolf
-        newWolfStunned = true;
-        newWolfStunEndTime = bombResult.stunEndTime;
-        newWolfMoving = false;
+        // stun the wolf using hook function
+        const stunDuration = bombResult.stunEndTime - Date.now();
+        stunWolf(stunDuration);
       }
 
       // set temporary message based on whether wolf was stunned
@@ -769,17 +781,15 @@ export const useGameState = () => {
         ? { text: "WOLF STUNNED!", type: 'success' as const }
         : { text: "MISSED!", type: 'error' as const };
 
+      // Note: wolf state (wolfStunned, wolfStunEndTime, wolfMoving) will be synced from hook via useEffect
       // Note: explosionEffect, explosionMarks, and bombCooldownEndTime will be synced from hook via useEffect
       return {
         ...prev,
         inventory: newInventory,
-        wolfStunned: newWolfStunned,
-        wolfStunEndTime: newWolfStunEndTime,
-        wolfMoving: newWolfMoving,
         temporaryMessage,
       };
     });
-  }, [hookUseBomb, hookBombCooldownEndTime, createExplosion, addExplosionMark, startBombCooldown]);
+  }, [hookUseBomb, hookBombCooldownEndTime, createExplosion, addExplosionMark, startBombCooldown, stunWolf]);
 
   // use hunter's cloak to become invisible - now using useCloakMechanics hook
   const useCloak = useCallback(() => {
@@ -832,6 +842,7 @@ export const useGameState = () => {
     clearGameStartTime();
     resetBombMechanics();
     resetCloakMechanics(); // this will also clear wolfConfusionIntervalRef
+    resetWolfState(); // reset all wolf state
 
     setGameState({
       playerPosition: { x: -1, y: -1 },
@@ -845,8 +856,8 @@ export const useGameState = () => {
       isHouseOpen: false,
       playerEnteredHouse: false,
       playerCanMove: false,
-      wolfMoving: false,
-      wolfWon: false,
+      wolfMoving: false, // will be synced from hook
+      wolfWon: false, // will be synced from hook
       gameOver: false,
       isStuck: false,
       stuckReason: undefined,
@@ -854,8 +865,8 @@ export const useGameState = () => {
       // reset special items
       inventory: [],
       specialItems: [],
-      wolfStunned: false,
-      wolfStunEndTime: null,
+      wolfStunned: false, // will be synced from hook
+      wolfStunEndTime: null, // will be synced from hook
       explosionEffect: null,
       // level tracking - start at level 1
       currentLevel: 1,
@@ -865,10 +876,10 @@ export const useGameState = () => {
       temporaryMessage: null,
       // explosion marks
       explosionMarks: [],
-      // reset wolf speed to base delay
+      // wolf speed - will be synced from hook
       currentWolfDelay: ENEMY_DELAY,
-      // reset stun count
       wolfStunCount: 0,
+      // Note: wolf state will be synced from hook via useEffect after resetWolfState() is called
       // reset hunter's cloak system
       playerInvisible: false,
       cloakInvisibilityEndTime: null,
