@@ -397,6 +397,30 @@ const App: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [countdownComplete, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, gameState.paused, handleUseItem]);
 
+  // listen for C key to use hunter's cloak
+  useEffect(() => {
+    if (!countdownComplete || gameState.gameOver || gameState.playerEnteredHouse || gameState.isStuck || gameState.paused) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if (key === "c" || event.code === "KeyC") {
+        event.preventDefault();
+        // check if player has cloak and is not on cooldown
+        const hasCloak = gameState.inventory.includes("cloak");
+        const isOnCooldown = gameState.cloakCooldownEndTime !== null && Date.now() < gameState.cloakCooldownEndTime;
+
+        if (hasCloak && !isOnCooldown) {
+          handleUseItem("cloak");
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [countdownComplete, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, gameState.paused, gameState.inventory, gameState.cloakCooldownEndTime, handleUseItem]);
+
   // don't render the board until the game is initialized (positions are valid)
   const isGameInitialized = gameState.playerPosition.x >= 0 && gameState.playerPosition.y >= 0;
 

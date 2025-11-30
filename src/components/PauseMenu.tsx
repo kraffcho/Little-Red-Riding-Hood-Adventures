@@ -29,6 +29,7 @@ const PauseMenu: React.FC<PauseMenuProps> = ({ onResume, isVisible }) => {
               <ul className="pause-menu-list">
                 <li><strong>Arrow Keys</strong> or <strong>WASD</strong> to move</li>
                 <li><strong>Space</strong> to use bomb</li>
+                <li><strong>C</strong> to use Hunter's Cloak</li>
                 <li><strong>ESC</strong> to pause/unpause</li>
                 <li><strong>Swipe</strong> on mobile/tablet</li>
               </ul>
