@@ -3,7 +3,7 @@ import HeaderInventory from "./HeaderInventory";
 import SettingsIcon from "./SettingsIcon";
 import PauseIcon from "./PauseIcon";
 import PlayIcon from "./PlayIcon";
-import { ItemType } from "../../types/game";
+import { ItemType } from "../../types";
 import { NUM_FLOWERS } from "../../constants/gameConfig";
 
 interface HeaderProps {

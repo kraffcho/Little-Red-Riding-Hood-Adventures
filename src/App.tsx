@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./styles.css";
-import ForestGrid from "./ForestGrid";
+import ForestGrid from "./components/game/ForestGrid";
 import GameOver from "./components/GameOver";
 import Countdown from "./components/Countdown";
 import LevelComplete from "./components/LevelComplete";
@@ -9,13 +9,10 @@ import PauseMenu from "./components/PauseMenu";
 import Header from "./components/ui/Header";
 import SettingsMenu from "./components/ui/SettingsMenu";
 
-import { useGameState } from "./hooks/useGameState";
-import { useAudio } from "./hooks/useAudio";
-import { useKeyboardInput, useSwipeInput } from "./hooks/useInput";
-import { Direction, ItemType } from "./types/game";
+import { useGameState, useAudio, useKeyboardInput, useSwipeInput } from "./hooks";
+import { Direction, ItemType } from "./types";
 import { AUDIO_PATHS, NUM_FLOWERS } from "./constants/gameConfig";
-import { moveInDirection, positionsEqual } from "./utils/gridUtils";
-import { getGrannyQuestMessage, QuestMilestone } from "./utils/questMessages";
+import { moveInDirection, positionsEqual, getGrannyQuestMessage, QuestMilestone } from "./utils";
 
 const App: React.FC = () => {
   const {

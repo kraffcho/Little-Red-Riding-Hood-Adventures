@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Position, Direction, GameState, ItemType, SpecialItem, ExplosionEffect, ExplosionMark } from "../types/game";
+import { Position, Direction, GameState, ItemType, SpecialItem, ExplosionEffect, ExplosionMark } from "../types";
 import {
   GRID_SIZE,
   NUM_FLOWERS,
@@ -29,15 +29,14 @@ import {
   moveInDirection,
   positionsEqual,
   getDirectionFromMovement,
-} from "../utils/gridUtils";
-import { findPath, pathExists } from "../utils/pathfinding";
-import { generateValidLevel } from "../utils/gameGeneration";
-import { isPlayerStuck } from "../utils/levelValidation";
-import {
+  findPath,
+  pathExists,
+  generateValidLevel,
+  isPlayerStuck,
   generateRandomItemPosition,
   isWithinRadius,
   generateItemId,
-} from "../utils/itemUtils";
+} from "../utils";
 
 /**
  * hook that handles all the game state and logic

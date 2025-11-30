@@ -1,4 +1,4 @@
-import { Position } from "../types/game";
+import { Position } from "../types";
 import { pathExists, findAllReachablePositions } from "./pathfinding";
 import { PLAYER_START_POSITION, getGrannyHousePosition } from "../constants/gameConfig";
 import { positionsEqual } from "./gridUtils";

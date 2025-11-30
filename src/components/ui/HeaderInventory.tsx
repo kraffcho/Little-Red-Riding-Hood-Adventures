@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ItemType } from "../../types/game";
+import { ItemType } from "../../types";
 import { BOMB_COOLDOWN_DURATION, CLOAK_COOLDOWN_DURATION } from "../../constants/gameConfig";
 
 interface HeaderInventoryProps {

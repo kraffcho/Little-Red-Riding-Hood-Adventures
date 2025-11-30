@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Tile from "./Tile";
-import { SpecialItem, ExplosionEffect, Position, ExplosionMark } from "./types/game";
-import { getPositionsInRadius } from "./utils/itemUtils";
+import { SpecialItem, ExplosionEffect, Position, ExplosionMark } from "../../types";
+import { getPositionsInRadius } from "../../utils";
 
 interface Props {
   playerPosition: { x: number; y: number };

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
-import { Direction } from "../types/game";
+import { Direction } from "../types";
 import { useDebounce } from "./useDebounce";
 import { PLAYER_DELAY } from "../constants/gameConfig";
 

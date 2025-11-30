@@ -1,4 +1,4 @@
-import { Position, AStarNode } from "../types/game";
+import { Position, AStarNode } from "../types";
 import { isValidPosition, getAdjacentPositions, manhattanDistance } from "./gridUtils";
 import { GRID_SIZE } from "../constants/gameConfig";
 

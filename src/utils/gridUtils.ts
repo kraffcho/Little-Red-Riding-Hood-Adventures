@@ -1,4 +1,4 @@
-import { Position, Direction } from "../types/game";
+import { Position, Direction } from "../types";
 import { GRID_SIZE } from "../constants/gameConfig";
 
 /**

@@ -1,6 +1,6 @@
 // utilities for special items system
 
-import { Position, ItemType } from "../types/game";
+import { Position, ItemType } from "../types";
 import { GRID_SIZE } from "../constants/gameConfig";
 import { isValidPosition } from "./gridUtils";
 

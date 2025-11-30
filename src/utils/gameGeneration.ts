@@ -1,4 +1,4 @@
-import { Position } from "../types/game";
+import { Position } from "../types";
 import { GRID_SIZE, NUM_TREES, NUM_FLOWERS, PLAYER_START_POSITION, getWolfStartPosition, getGrannyHousePosition } from "../constants/gameConfig";
 import { isAdjacentToTree, isValidPosition } from "./gridUtils";
 import { positionsEqual } from "./gridUtils";

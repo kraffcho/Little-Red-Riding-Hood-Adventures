@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { SpecialItem, ExplosionMark } from "./types/game";
-import { EXPLOSION_MARK_DURATION } from "./constants/gameConfig";
-import { classNames, getDirectionClass } from "./utils/classNames";
+import { SpecialItem, ExplosionMark } from "../../types";
+import { EXPLOSION_MARK_DURATION } from "../../constants/gameConfig";
+import { classNames, getDirectionClass } from "../../utils";
 
 interface Props {
   isPlayer: boolean;
