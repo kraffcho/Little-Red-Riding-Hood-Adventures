@@ -15,7 +15,7 @@ const PlayIcon: React.FC<PlayIconProps> = ({ className }) => {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      {/* Play icon - triangle pointing right */}
+      {/* play icon - triangle pointing right */}
       <path
         d="M7 5L15 10L7 15V5Z"
         fill="currentColor"

@@ -61,7 +61,7 @@ The optimized build will be in the `build` folder.
 - **TypeScript** - Type-safe JavaScript
 - **Create React App** - Build tooling
 - **CSS3** - Modular styling and animations with custom properties
-  - **12 organized CSS modules** for better maintainability
+  - **11 organized CSS modules** for better maintainability
   - CSS custom properties (variables) for design tokens
   - GPU-accelerated animations for optimal performance
 - **Titillium Web** - Primary typography font
@@ -78,15 +78,15 @@ src/
 │   ├── ui/
 │   │   ├── Header.tsx              # Main header component (inventory, quest progress, settings)
 │   │   ├── HeaderInventory.tsx     # Compact inventory display in header
-│   │   ├── SettingsIcon.tsx        # SVG gear icon component
 │   │   ├── SettingsMenu.tsx        # Settings dropdown menu
-│   │   ├── PauseIcon.tsx           # SVG pause icon component
-│   │   ├── PlayIcon.tsx            # SVG play icon component
-│   │   ├── VolumeIcon.tsx          # SVG volume icon component
-│   │   ├── RestartIcon.tsx         # SVG restart icon component
-│   │   ├── CloseIcon.tsx           # SVG close icon component
 │   │   ├── QuestProgress.tsx       # Quest progress bar component
-│   │   └── QuestInfo.tsx           # Quest info component
+│   │   └── icons/                  # All SVG icon components
+│   │       ├── SettingsIcon.tsx    # Settings gear icon
+│   │       ├── PauseIcon.tsx       # Pause icon
+│   │       ├── PlayIcon.tsx        # Play icon
+│   │       ├── VolumeIcon.tsx      # Volume icon
+│   │       ├── RestartIcon.tsx     # Restart icon
+│   │       └── CloseIcon.tsx       # Close icon
 │   ├── Countdown.tsx               # Countdown start screen (GET READY!)
 │   ├── GameOver.tsx                # Game over modal
 │   ├── LevelComplete.tsx           # Level complete overlay
@@ -123,7 +123,6 @@ src/
 │       ├── game.css                # Game grid, tiles, sprites, animations
 │       ├── tooltip.css             # Granny house tooltip styles
 │       ├── quest.css               # Quest panel styles
-│       ├── controls.css            # Game controls styles
 │       ├── settings.css            # Settings menu styles
 │       └── overlays.css            # Overlay styles (countdown, game over, pause, etc.)
 ├── assets/
@@ -172,7 +171,7 @@ The codebase follows modern React best practices with a modular, well-organized 
 - **Type Safety** - Full TypeScript support with centralized type definitions
   - Centralized exports via `types/index.ts`
 - **Constants Management** - All game configuration in one place
-- **Modular CSS Architecture** - 12 organized CSS modules for better maintainability
+- **Modular CSS Architecture** - 11 organized CSS modules for better maintainability
   - Design tokens in `variables.css`
   - Component-specific styles in `components/`
   - Responsive styles separated for clarity
@@ -188,7 +187,7 @@ The project follows a clean, modular structure that promotes maintainability and
 
 ### CSS Modularization
 
-The CSS has been reorganized from a single 2,500+ line file into **12 organized modules**:
+The CSS has been reorganized from a single 2,500+ line file into **11 organized modules**:
 
 - **`variables.css`** - All CSS custom properties (design tokens: colors, spacing, typography, z-index)
 - **`base.css`** - Reset styles, font imports, base body styles
@@ -199,7 +198,6 @@ The CSS has been reorganized from a single 2,500+ line file into **12 organized 
 - **`components/game.css`** - Game grid, tiles, sprites, game entities
 - **`components/tooltip.css`** - Granny house tooltip styles
 - **`components/quest.css`** - Quest panel styles
-- **`components/controls.css`** - Game controls styles
 - **`components/settings.css`** - Settings menu styles
 - **`components/overlays.css`** - Overlay styles (countdown, game over, pause menu, etc.)
 
@@ -215,7 +213,9 @@ The CSS has been reorganized from a single 2,500+ line file into **12 organized 
 - **Game Components** (`components/game/`) - Core game logic components
   - `ForestGrid.tsx` - Main game grid rendering
   - `Tile.tsx` - Individual tile component with all game entities
-- **UI Components** (`components/ui/`) - Header, inventory, settings, icons
+- **UI Components** (`components/ui/`) - Header, inventory, settings
+  - All icon components organized in `components/ui/icons/` folder for consistency
+  - 6 icon components: SettingsIcon, PauseIcon, PlayIcon, VolumeIcon, RestartIcon, CloseIcon
 - **Overlay Components** (root of `components/`) - Game state overlays (countdown, game over, pause, etc.)
 
 ### Centralized Exports
@@ -243,6 +243,8 @@ All imports use centralized index files for cleaner import paths:
 - ✅ **Scalability**: Structure supports growth without becoming unwieldy
 - ✅ **Modular CSS**: Easier to maintain and update styles
 - ✅ **Type safety**: Centralized type definitions prevent inconsistencies
+- ✅ **Consistent icon organization**: All icons grouped in `components/ui/icons/` folder
+- ✅ **Clean component structure**: Removed unused legacy components
 
 ## 📝 Available Scripts
 
@@ -337,11 +339,15 @@ The game features an adaptive grid system that adjusts the game board size based
 
 ### Settings Menu
 
+- **Toggle Behavior** - Settings icon in header serves as both open and close button
+  - Click to open menu when closed
+  - Click again to close menu when open
+  - Dynamic aria-label provides accessibility feedback
 - **Dropdown Menu** - Opens below the header when settings icon is clicked
 - **Volume Control** - Slider with percentage display
 - **Sound Toggle** - Mute/unmute background music
 - **Restart Game** - Resets the game and closes the menu
-- **Click Outside** - Menu closes when clicking outside
+- **Click Outside** - Menu closes when clicking outside (but not when clicking the settings button)
 
 ### Quest System
 

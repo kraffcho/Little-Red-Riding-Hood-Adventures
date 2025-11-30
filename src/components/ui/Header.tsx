@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import HeaderInventory from "./HeaderInventory";
-import SettingsIcon from "./SettingsIcon";
-import PauseIcon from "./PauseIcon";
-import PlayIcon from "./PlayIcon";
+import SettingsIcon from "./icons/SettingsIcon";
+import PauseIcon from "./icons/PauseIcon";
+import PlayIcon from "./icons/PlayIcon";
 import { ItemType } from "../../types";
 import { NUM_FLOWERS } from "../../constants/gameConfig";
 
