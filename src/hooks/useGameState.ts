@@ -40,6 +40,7 @@ import {
 import { useLevelState } from "./useLevelState";
 import { useInventoryState } from "./useInventoryState";
 import { useGameLifecycle } from "./useGameLifecycle";
+import { useBombMechanics } from "./useBombMechanics";
 
 /**
  * hook that handles all the game state and logic
@@ -57,7 +58,20 @@ export const useGameState = () => {
   // Note: Lifecycle state (gameOver, paused, isStuck, temporaryMessage) remains in gameState for backward compatibility
   // We use the hook for gameStartTimeRef and helper functions (setGameStartTime, clearGameStartTime)
   const { gameStartTimeRef, setGameStartTime, clearGameStartTime } = useGameLifecycle();
-
+  
+  // use bomb mechanics hook for bomb-related logic
+  // Note: Bomb state (explosionEffect, explosionMarks, bombCooldownEndTime) is synced with gameState for compatibility
+  const {
+    explosionEffect: hookExplosionEffect,
+    explosionMarks: hookExplosionMarks,
+    bombCooldownEndTime: hookBombCooldownEndTime,
+    createExplosion,
+    addExplosionMark,
+    useBomb: hookUseBomb,
+    startBombCooldown,
+    resetBombMechanics,
+  } = useBombMechanics();
+  
   const [gameState, setGameState] = useState<GameState>({
     playerPosition: { x: -1, y: -1 },
     wolfPosition: { x: -1, y: -1 },
@@ -689,134 +703,79 @@ export const useGameState = () => {
     }
   }, [gameState.playerInvisible]);
 
-  // clear explosion effect after duration
+  // sync bomb mechanics state from hook to gameState
   useEffect(() => {
-    if (gameState.explosionEffect) {
-      const timer = setTimeout(() => {
-        setGameState((prev) => ({
-          ...prev,
-          explosionEffect: null,
-        }));
-      }, BOMB_EXPLOSION_DURATION);
+    setGameState((prev) => ({
+      ...prev,
+      explosionEffect: hookExplosionEffect,
+      explosionMarks: hookExplosionMarks,
+      bombCooldownEndTime: hookBombCooldownEndTime,
+    }));
+  }, [hookExplosionEffect, hookExplosionMarks, hookBombCooldownEndTime]);
 
-      return () => clearTimeout(timer);
-    }
-  }, [gameState.explosionEffect]);
-
-  // remove explosion marks after they expire (3 seconds)
-  useEffect(() => {
-    if (gameState.explosionMarks.length === 0) {
-      return;
-    }
-
-    const checkMarks = setInterval(() => {
-      setGameState((prev) => {
-        const now = Date.now();
-        const validMarks = prev.explosionMarks.filter(
-          (mark) => now - mark.createdAt < EXPLOSION_MARK_DURATION
-        );
-
-        if (validMarks.length !== prev.explosionMarks.length) {
-          return {
-            ...prev,
-            explosionMarks: validMarks,
-          };
-        }
-        return prev;
-      });
-    }, 100); // check every 100ms
-
-    return () => clearInterval(checkMarks);
-  }, [gameState.explosionMarks]);
-
-  // update bomb cooldown timer
-  useEffect(() => {
-    if (gameState.bombCooldownEndTime) {
-      const checkCooldown = setInterval(() => {
-        setGameState((prev) => {
-          if (prev.bombCooldownEndTime && Date.now() >= prev.bombCooldownEndTime) {
-            return {
-              ...prev,
-              bombCooldownEndTime: null,
-            };
-          }
-          return prev;
-        });
-      }, 100); // check every 100ms
-
-      return () => clearInterval(checkCooldown);
-    }
-  }, [gameState.bombCooldownEndTime]);
-
-  // use a bomb item
+  // use a bomb item - now using useBombMechanics hook
   const useBomb = useCallback(() => {
     setGameState((prev) => {
       const bombIndex = prev.inventory.indexOf("bomb");
-      const isOnCooldown = prev.bombCooldownEndTime !== null && Date.now() < prev.bombCooldownEndTime;
+      const isOnCooldown = hookBombCooldownEndTime !== null && Date.now() < hookBombCooldownEndTime;
 
       if (bombIndex === -1 || prev.gameOver || prev.playerEnteredHouse || isOnCooldown) {
+        return prev;
+      }
+
+      // use hook's useBomb function to calculate bomb logic
+      const bombResult = hookUseBomb({
+        playerPosition: prev.playerPosition,
+        wolfPosition: prev.wolfPosition,
+        hasBomb: true,
+        gameOver: prev.gameOver,
+        playerEnteredHouse: prev.playerEnteredHouse,
+        isOnCooldown,
+      });
+
+      if (!bombResult.success) {
         return prev;
       }
 
       // remove bomb from inventory
       const newInventory = prev.inventory.filter((_, index) => index !== bombIndex);
 
-      // create explosion effect
-      const explosionEffect: ExplosionEffect = {
-        position: prev.playerPosition,
-        radius: BOMB_EXPLOSION_RADIUS,
-        startTime: Date.now(),
-        duration: BOMB_EXPLOSION_DURATION,
-      };
+      // create explosion effect using hook
+      createExplosion(prev.playerPosition);
 
-      // check if wolf is within explosion radius
-      const wolfInRadius = isWithinRadius(
-        prev.wolfPosition,
-        prev.playerPosition,
-        BOMB_EXPLOSION_RADIUS
-      );
+      // add explosion mark using hook
+      addExplosionMark(prev.playerPosition);
+
+      // start cooldown using hook
+      startBombCooldown();
 
       let newWolfStunned = prev.wolfStunned;
       let newWolfStunEndTime = prev.wolfStunEndTime;
       let newWolfMoving = prev.wolfMoving;
 
-      if (wolfInRadius) {
+      if (bombResult.wolfStunned && bombResult.stunEndTime) {
         // stun the wolf
-        const stunEndTime = Date.now() + BOMB_STUN_DURATION;
         newWolfStunned = true;
-        newWolfStunEndTime = stunEndTime;
+        newWolfStunEndTime = bombResult.stunEndTime;
         newWolfMoving = false;
       }
 
-      // set cooldown after using bomb
-      const cooldownEndTime = Date.now() + BOMB_COOLDOWN_DURATION;
-
       // set temporary message based on whether wolf was stunned
-      const temporaryMessage = wolfInRadius
+      const temporaryMessage = bombResult.wolfStunned
         ? { text: "WOLF STUNNED!", type: 'success' as const }
         : { text: "MISSED!", type: 'error' as const };
 
-      // add explosion mark at the bomb position (only if not already marked)
-      const hasMark = prev.explosionMarks.some(
-        (mark) => mark.position.x === prev.playerPosition.x && mark.position.y === prev.playerPosition.y
-      );
-      const newExplosionMarks = hasMark
-        ? prev.explosionMarks
-        : [...prev.explosionMarks, { position: prev.playerPosition, createdAt: Date.now() }];
-
+      // Note: explosionEffect, explosionMarks, and bombCooldownEndTime will be synced from hook via useEffect
       return {
         ...prev,
         inventory: newInventory,
-        explosionEffect,
         wolfStunned: newWolfStunned,
         wolfStunEndTime: newWolfStunEndTime,
         wolfMoving: newWolfMoving,
-        bombCooldownEndTime: cooldownEndTime,
         temporaryMessage,
-        explosionMarks: newExplosionMarks,
       };
     });
-  }, []);
+  }, [hookUseBomb, hookBombCooldownEndTime, createExplosion, addExplosionMark, startBombCooldown]);
 
   // use hunter's cloak to become invisible
   const useCloak = useCallback(() => {
@@ -860,6 +819,7 @@ export const useGameState = () => {
       wolfConfusionIntervalRef.current = null;
     }
     clearGameStartTime();
+    resetBombMechanics();
 
     setGameState({
       playerPosition: { x: -1, y: -1 },
