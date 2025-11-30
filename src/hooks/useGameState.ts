@@ -41,6 +41,7 @@ import { useLevelState } from "./useLevelState";
 import { useInventoryState } from "./useInventoryState";
 import { useGameLifecycle } from "./useGameLifecycle";
 import { useBombMechanics } from "./useBombMechanics";
+import { useCloakMechanics } from "./useCloakMechanics";
 
 /**
  * hook that handles all the game state and logic
@@ -58,7 +59,7 @@ export const useGameState = () => {
   // Note: Lifecycle state (gameOver, paused, isStuck, temporaryMessage) remains in gameState for backward compatibility
   // We use the hook for gameStartTimeRef and helper functions (setGameStartTime, clearGameStartTime)
   const { gameStartTimeRef, setGameStartTime, clearGameStartTime } = useGameLifecycle();
-  
+
   // use bomb mechanics hook for bomb-related logic
   // Note: Bomb state (explosionEffect, explosionMarks, bombCooldownEndTime) is synced with gameState for compatibility
   const {
@@ -71,7 +72,23 @@ export const useGameState = () => {
     startBombCooldown,
     resetBombMechanics,
   } = useBombMechanics();
-  
+
+  // use cloak mechanics hook for cloak-related logic
+  // Note: Cloak state (playerInvisible, cloakInvisibilityEndTime, cloakCooldownEndTime, cloakSpawned) is synced with gameState for compatibility
+  const {
+    playerInvisible: hookPlayerInvisible,
+    cloakInvisibilityEndTime: hookCloakInvisibilityEndTime,
+    cloakCooldownEndTime: hookCloakCooldownEndTime,
+    cloakSpawned: hookCloakSpawned,
+    wolfConfusionIntervalRef,
+    activateInvisibility,
+    clearInvisibility,
+    useCloak: hookUseCloak,
+    startWolfConfusion,
+    stopWolfConfusion,
+    resetCloakMechanics,
+  } = useCloakMechanics();
+
   const [gameState, setGameState] = useState<GameState>({
     playerPosition: { x: -1, y: -1 },
     wolfPosition: { x: -1, y: -1 },
@@ -117,7 +134,7 @@ export const useGameState = () => {
 
   // Note: gameStartTimeRef is now provided by useGameLifecycle hook
   // Note: itemSpawnTimerRef and cloakSpawnTimerRef are now provided by useInventoryState hook
-  const wolfConfusionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  // Note: wolfConfusionIntervalRef is now provided by useCloakMechanics hook
 
   // set up a new game
   const initializeGame = useCallback(() => {
@@ -712,6 +729,17 @@ export const useGameState = () => {
       bombCooldownEndTime: hookBombCooldownEndTime,
     }));
   }, [hookExplosionEffect, hookExplosionMarks, hookBombCooldownEndTime]);
+
+  // sync cloak mechanics state from hook to gameState
+  useEffect(() => {
+    setGameState((prev) => ({
+      ...prev,
+      playerInvisible: hookPlayerInvisible,
+      cloakInvisibilityEndTime: hookCloakInvisibilityEndTime,
+      cloakCooldownEndTime: hookCloakCooldownEndTime,
+      cloakSpawned: hookCloakSpawned,
+    }));
+  }, [hookPlayerInvisible, hookCloakInvisibilityEndTime, hookCloakCooldownEndTime, hookCloakSpawned]);
 
   // use a bomb item - now using useBombMechanics hook
   const useBomb = useCallback(() => {
