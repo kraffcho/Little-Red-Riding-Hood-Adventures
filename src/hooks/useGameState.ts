@@ -86,6 +86,7 @@ export const useGameState = () => {
     useCloak: hookUseCloak,
     startWolfConfusion,
     stopWolfConfusion,
+    markCloakSpawned,
     resetCloakMechanics,
   } = useCloakMechanics();
 
@@ -243,10 +244,7 @@ export const useGameState = () => {
       clearTimeout(cloakSpawnTimerRef.current);
       cloakSpawnTimerRef.current = null;
     }
-    if (wolfConfusionIntervalRef.current) {
-      clearInterval(wolfConfusionIntervalRef.current);
-      wolfConfusionIntervalRef.current = null;
-    }
+    // Note: wolfConfusionIntervalRef is now managed by useCloakMechanics hook
 
     // Note: We're using generateLevel from useLevelState for level generation logic,
     // but keeping all state in gameState for now to maintain backward compatibility
@@ -321,10 +319,12 @@ export const useGameState = () => {
 
         // if player enters house while invisible, immediately clear invisibility
         // this prevents the house and tooltip from becoming invisible
-        const shouldClearInvisibility = playerEnteredHouse && prev.playerInvisible;
+        if (playerEnteredHouse && hookPlayerInvisible) {
+          clearInvisibility();
+        }
 
         // check if the wolf got us (only if player is not invisible)
-        const collision = positionsEqual(newPosition, prev.wolfPosition) && !prev.playerInvisible;
+        const collision = positionsEqual(newPosition, prev.wolfPosition) && !hookPlayerInvisible;
         const wolfWon = collision;
 
         // make sure we didn't trap ourselves
@@ -352,6 +352,7 @@ export const useGameState = () => {
           }
         }
 
+        // Note: playerInvisible and cloakInvisibilityEndTime will be synced from hook via useEffect
         return {
           ...prev,
           playerPosition: newPosition,
@@ -362,9 +363,6 @@ export const useGameState = () => {
           inventory: newInventory,
           isHouseOpen,
           playerEnteredHouse,
-          // clear invisibility if player entered house
-          playerInvisible: shouldClearInvisibility ? false : prev.playerInvisible,
-          cloakInvisibilityEndTime: shouldClearInvisibility ? null : prev.cloakInvisibilityEndTime,
           wolfMoving: playerEnteredHouse || stuckCheck.stuck || prev.wolfStunned ? false : prev.wolfMoving,
           playerCanMove: !wolfWon && !stuckCheck.stuck && !playerEnteredHouse,
           wolfWon,
@@ -574,10 +572,13 @@ export const useGameState = () => {
         position: itemPosition,
       };
 
+      // mark cloak as spawned using hook function (state will sync via useEffect)
+      markCloakSpawned();
+
       return {
         ...prev,
         specialItems: [...prev.specialItems, newItem],
-        cloakSpawned: true,
+        // Note: cloakSpawned will be synced from hook via useEffect
         temporaryMessage: { text: "🧥 HUNTER'S CLOAK APPEARED!", type: 'success' as const },
       };
     });
@@ -665,60 +666,35 @@ export const useGameState = () => {
     }
   }, [gameState.wolfStunned, gameState.wolfStunEndTime]);
 
-  // update invisibility timer - when invisibility ends, make player visible again
+  // coordinate wolf confusion animation when player becomes invisible (hook handles the interval)
   useEffect(() => {
-    if (gameState.playerInvisible && gameState.cloakInvisibilityEndTime) {
-      const checkInvisibility = setInterval(() => {
-        setGameState((prev) => {
-          if (prev.cloakInvisibilityEndTime && Date.now() >= prev.cloakInvisibilityEndTime) {
-            // invisibility ended
-            return {
-              ...prev,
-              playerInvisible: false,
-              cloakInvisibilityEndTime: null,
-              wolfMoving: !prev.gameOver && !prev.isStuck && !prev.wolfStunned,
-            };
-          }
-          return prev;
-        });
-      }, 100); // check every 100ms
-
-      return () => clearInterval(checkInvisibility);
-    }
-  }, [gameState.playerInvisible, gameState.cloakInvisibilityEndTime]);
-
-  // make wolf look confused (alternate left/right) when player is invisible
-  useEffect(() => {
-    if (gameState.playerInvisible) {
-      // start confusion animation
-      wolfConfusionIntervalRef.current = setInterval(() => {
-        setGameState((prev) => {
-          if (!prev.playerInvisible) {
-            return prev; // stop if invisibility ended
-          }
-          // alternate between left and right
-          const newDirection = prev.wolfDirection === "left" ? "right" : "left";
-          return {
-            ...prev,
-            wolfDirection: newDirection,
-          };
-        });
-      }, CLOAK_WOLF_CONFUSION_INTERVAL);
-
-      return () => {
-        if (wolfConfusionIntervalRef.current) {
-          clearInterval(wolfConfusionIntervalRef.current);
-          wolfConfusionIntervalRef.current = null;
-        }
-      };
+    if (hookPlayerInvisible) {
+      // start confusion animation using hook function
+      startWolfConfusion((newDirection: Direction) => {
+        setGameState((prev) => ({
+          ...prev,
+          wolfDirection: newDirection,
+        }));
+      });
     } else {
       // stop confusion animation when player becomes visible
-      if (wolfConfusionIntervalRef.current) {
-        clearInterval(wolfConfusionIntervalRef.current);
-        wolfConfusionIntervalRef.current = null;
-      }
+      stopWolfConfusion();
     }
-  }, [gameState.playerInvisible]);
+
+    return () => {
+      stopWolfConfusion();
+    };
+  }, [hookPlayerInvisible, startWolfConfusion, stopWolfConfusion]);
+
+  // resume wolf movement when invisibility ends
+  useEffect(() => {
+    if (!hookPlayerInvisible && gameState.wolfMoving === false && !gameState.gameOver && !gameState.isStuck && !gameState.wolfStunned) {
+      setGameState((prev) => ({
+        ...prev,
+        wolfMoving: true,
+      }));
+    }
+  }, [hookPlayerInvisible, gameState.wolfMoving, gameState.gameOver, gameState.isStuck, gameState.wolfStunned]);
 
   // sync bomb mechanics state from hook to gameState
   useEffect(() => {
@@ -805,31 +781,41 @@ export const useGameState = () => {
     });
   }, [hookUseBomb, hookBombCooldownEndTime, createExplosion, addExplosionMark, startBombCooldown]);
 
-  // use hunter's cloak to become invisible
+  // use hunter's cloak to become invisible - now using useCloakMechanics hook
   const useCloak = useCallback(() => {
     setGameState((prev) => {
       // check if player has cloak and is not on cooldown
       const hasCloak = prev.inventory.includes("cloak");
-      const isOnCooldown = prev.cloakCooldownEndTime !== null && Date.now() < prev.cloakCooldownEndTime;
+      const isOnCooldown = hookCloakCooldownEndTime !== null && Date.now() < hookCloakCooldownEndTime;
 
-      if (!hasCloak || prev.gameOver || prev.playerEnteredHouse || isOnCooldown || prev.playerInvisible) {
+      if (!hasCloak || prev.gameOver || prev.playerEnteredHouse || isOnCooldown || hookPlayerInvisible) {
         return prev;
       }
 
-      // activate invisibility
-      const invisibilityEndTime = Date.now() + CLOAK_INVISIBILITY_DURATION;
-      const cooldownEndTime = Date.now() + CLOAK_COOLDOWN_DURATION;
+      // use hook's useCloak function to validate and get times
+      const cloakResult = hookUseCloak({
+        hasCloak,
+        gameOver: prev.gameOver,
+        playerEnteredHouse: prev.playerEnteredHouse,
+        isOnCooldown,
+        alreadyInvisible: hookPlayerInvisible,
+      });
 
+      if (!cloakResult.success) {
+        return prev;
+      }
+
+      // activate invisibility using hook function (it sets the state in the hook)
+      activateInvisibility();
+
+      // Note: cloak state (playerInvisible, cloakInvisibilityEndTime, cloakCooldownEndTime) will be synced from hook via useEffect
       return {
         ...prev,
-        playerInvisible: true,
-        cloakInvisibilityEndTime: invisibilityEndTime,
-        cloakCooldownEndTime: cooldownEndTime,
         wolfMoving: false, // stop wolf when player becomes invisible
         temporaryMessage: { text: "🧥 INVISIBLE!", type: 'success' as const },
       };
     });
-  }, []);
+  }, [hookUseCloak, hookCloakCooldownEndTime, hookPlayerInvisible, activateInvisibility]);
 
   // start over from the beginning
   const resetGame = useCallback(() => {
@@ -842,12 +828,10 @@ export const useGameState = () => {
       clearTimeout(cloakSpawnTimerRef.current);
       cloakSpawnTimerRef.current = null;
     }
-    if (wolfConfusionIntervalRef.current) {
-      clearInterval(wolfConfusionIntervalRef.current);
-      wolfConfusionIntervalRef.current = null;
-    }
+    // Note: wolfConfusionIntervalRef is now managed by useCloakMechanics hook
     clearGameStartTime();
     resetBombMechanics();
+    resetCloakMechanics(); // this will also clear wolfConfusionIntervalRef
 
     setGameState({
       playerPosition: { x: -1, y: -1 },
