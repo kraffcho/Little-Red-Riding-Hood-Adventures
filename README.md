@@ -302,10 +302,12 @@ Bombs are powerful items that can stun the wolf, giving you precious time to col
 Temporary messages appear in the center of the screen for various events:
 
 **Bomb Usage:**
+
 - **"WOLF STUNNED!"** (white text with glow) - Shown when the wolf is successfully stunned
 - **"MISSED!"** (gold text with glow) - Shown when the wolf is outside the explosion radius
 
 **Hunter's Cloak:**
+
 - **"🧥 HUNTER'S CLOAK APPEARED!"** - Shown when the cloak spawns on the map
 - **"🧥 HUNTER'S CLOAK!"** - Shown when you collect the cloak
 - **"🧥 INVISIBLE!"** - Shown when you activate the cloak
@@ -329,16 +331,19 @@ All special item settings can be adjusted in `src/constants/gameConfig.ts`:
 The Hunter's Cloak is a unique special item that allows you to become invisible to the wolf, providing strategic opportunities to collect flowers or escape danger.
 
 **Spawning:**
+
 - **Single Spawn**: The cloak spawns **once per level**
 - **Random Timing**: Appears randomly between **20-40 seconds** after gameplay starts
 - **Random Placement**: Placed on a valid tile (avoiding obstacles and entities)
 - **Collection Message**: Shows "🧥 HUNTER'S CLOAK APPEARED!" when it spawns
 
 **How to Use:**
+
 - **Click/Tap**: Click or tap the cloak icon (🧥) in the header inventory
 - The cloak is a reusable item (doesn't get consumed) but has a cooldown
 
 **Cloak Effects:**
+
 - **Invisibility Duration**: Become invisible for **10 seconds**
 - **Wolf Behavior**: When you activate the cloak:
   - The wolf **stops moving** completely
@@ -350,18 +355,21 @@ The Hunter's Cloak is a unique special item that allows you to become invisible 
 - **Collection Message**: Shows "🧥 HUNTER'S CLOAK COLLECTED!" when picked up
 
 **Cooldown System:**
+
 - After using the cloak, there's a **30-second cooldown** before you can use it again
 - A progress bar under the cloak icon in the inventory shows the cooldown progress
 - The cloak button is disabled during cooldown
 - The cloak button is also disabled when the level is completed or game is over (no sound feedback)
 
 **Strategic Gameplay:**
+
 - Use the cloak to safely collect flowers near the wolf
 - Escape dangerous situations when cornered
 - Plan your route before activating invisibility (wolf acts as a physical obstacle)
 - The wolf's confusion makes it clear you're invisible
 
 **Configuration:**
+
 - `CLOAK_SPAWN_DELAY_MIN` - Minimum spawn delay (default: 20000ms / 20 seconds)
 - `CLOAK_SPAWN_DELAY_MAX` - Maximum spawn delay (default: 40000ms / 40 seconds)
 - `CLOAK_INVISIBILITY_DURATION` - How long invisibility lasts (default: 10000ms / 10 seconds)

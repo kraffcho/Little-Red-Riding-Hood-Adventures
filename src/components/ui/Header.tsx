@@ -53,7 +53,10 @@ const Header: React.FC<HeaderProps> = ({
       </div>
       <div className="game-header-center">
         <div className="header-quest-progress">
-          <span className="header-quest-label">💐 {collectedFlowers}/{NUM_FLOWERS}</span>
+          <div className="header-quest-progress-text">
+            <span className="header-quest-label">💐 Collected Flowers:</span>
+            <span className="header-quest-count">{collectedFlowers}/{NUM_FLOWERS}</span>
+          </div>
           <div className="header-quest-progress-bar-container">
             <div
               ref={progressBarRef}
