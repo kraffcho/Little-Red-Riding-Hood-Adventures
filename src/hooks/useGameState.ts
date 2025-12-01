@@ -176,6 +176,11 @@ export const useGameState = () => {
       resetWolfState();
       setWolfPositionState(wolfStartPosition);
 
+      // reset player state using hook
+      resetPlayerState();
+      setPlayerPositionState(PLAYER_START_POSITION);
+      setPlayerCanMoveState(false);
+
       // still set up the game state so the board shows something
       setGameState((prev) => ({
         ...prev,
@@ -268,7 +273,7 @@ export const useGameState = () => {
 
     // Note: We're using generateLevel from useLevelState for level generation logic,
     // but keeping all state in gameState for now to maintain backward compatibility
-  }, [generateLevel, resetWolfSpeed, resetWolfState, resetPlayerState, setWolfPositionState, setWolfDirectionState, setWolfMovingState, initializePlayer, setPlayerCanMoveState]);
+  }, [generateLevel, resetWolfSpeed, resetWolfState, resetPlayerState, setWolfPositionState, setWolfDirectionState, setWolfMovingState, initializePlayer, setPlayerCanMoveState, setPlayerPositionState]);
 
   // start the game when component loads
   useEffect(() => {
@@ -846,6 +851,7 @@ export const useGameState = () => {
     resetBombMechanics();
     resetCloakMechanics(); // this will also clear wolfConfusionIntervalRef
     resetWolfState(); // reset all wolf state
+    resetPlayerState(); // reset all player state
 
     setGameState({
       playerPosition: { x: -1, y: -1 },
@@ -896,7 +902,7 @@ export const useGameState = () => {
     setTimeout(() => {
       initializeGame();
     }, 100);
-  }, [initializeGame]);
+  }, [initializeGame, resetWolfState, resetPlayerState, clearGameStartTime, resetBombMechanics, resetCloakMechanics]);
 
   // clear temporary message
   const clearTemporaryMessage = useCallback(() => {
