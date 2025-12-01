@@ -22,7 +22,8 @@ import SettingsMenu from "./components/ui/SettingsMenu";
 
 import { useGameState, useAudio, useKeyboardInput, useSwipeInput } from "./hooks";
 import { Direction, ItemType } from "./types";
-import { AUDIO_PATHS, NUM_FLOWERS } from "./constants/gameConfig";
+import { AUDIO_PATHS } from "./constants/gameConfig";
+import { getLevelConfig } from "./constants/levelConfig";
 import { moveInDirection, positionsEqual, getGrannyQuestMessage, QuestMilestone } from "./utils";
 
 const App: React.FC = () => {
@@ -31,6 +32,8 @@ const App: React.FC = () => {
     movePlayer,
     moveWolf,
     resetGame,
+    nextLevel,
+    replayLevel,
     useBomb,
     useCloak,
     clearTemporaryMessage,
@@ -76,7 +79,9 @@ const App: React.FC = () => {
     // only check milestones when countdown is complete and game is initialized
     if (!countdownComplete || gameState.playerPosition.x === -1) return;
 
-    const halfwayPoint = Math.ceil(NUM_FLOWERS / 2);
+    const levelConfig = getLevelConfig(gameState.currentLevel);
+    const numFlowers = levelConfig.numFlowers;
+    const halfwayPoint = Math.ceil(numFlowers / 2);
     let milestone: QuestMilestone | null = null;
 
     // start milestone is handled in handleCountdownComplete, skip it here
@@ -88,7 +93,7 @@ const App: React.FC = () => {
     }
     // check for all collected milestone (higher priority than halfway - show immediately when all collected)
     else if (
-      gameState.collectedFlowers === NUM_FLOWERS &&
+      gameState.collectedFlowers === numFlowers &&
       !shownMilestonesRef.current.has("all_collected")
     ) {
       milestone = "all_collected";
@@ -97,7 +102,7 @@ const App: React.FC = () => {
     // check for halfway milestone (lowest priority)
     else if (
       gameState.collectedFlowers >= halfwayPoint &&
-      gameState.collectedFlowers < NUM_FLOWERS &&
+      gameState.collectedFlowers < numFlowers &&
       !shownMilestonesRef.current.has("halfway")
     ) {
       milestone = "halfway";
@@ -111,7 +116,8 @@ const App: React.FC = () => {
         gameState.collectedFlowers,
         gameState.isHouseOpen,
         gameState.playerEnteredHouse,
-        milestone
+        milestone,
+        gameState.currentLevel
       );
 
       // only set tooltip if we have a valid message
@@ -130,15 +136,17 @@ const App: React.FC = () => {
         }, 3000);
       }
     }
-  }, [gameState.collectedFlowers, gameState.playerEnteredHouse, gameState.isHouseOpen, countdownComplete]);
+  }, [gameState.collectedFlowers, gameState.playerEnteredHouse, gameState.isHouseOpen, gameState.currentLevel, countdownComplete]);
 
   // play a sound when all flowers are collected
   useEffect(() => {
-    if (gameState.collectedFlowers === NUM_FLOWERS && !questCompletedSoundPlayed.current) {
+    const levelConfig = getLevelConfig(gameState.currentLevel);
+    const numFlowers = levelConfig.numFlowers;
+    if (gameState.collectedFlowers === numFlowers && !questCompletedSoundPlayed.current) {
       questCompletedSoundPlayed.current = true;
       playSound(AUDIO_PATHS.QUEST_COMPLETED);
     }
-  }, [gameState.collectedFlowers, playSound]);
+  }, [gameState.collectedFlowers, gameState.currentLevel, playSound]);
 
   // play a sound effect when we pick up a flower
   useEffect(() => {
@@ -340,6 +348,42 @@ const App: React.FC = () => {
     setIsSettingsOpen(false); // close settings menu on restart
   }, [resetMusic, resetGame]);
 
+  const handleNextLevel = useCallback(() => {
+    // reset countdown state for new level
+    setCountdownComplete(false);
+    gameResetKey.current += 1; // increment to force countdown remount
+    // reset tooltip milestones for new level
+    shownMilestonesRef.current.clear();
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current);
+      tooltipTimeoutRef.current = null;
+    }
+    // reset quest completed sound flag
+    questCompletedSoundPlayed.current = false;
+    // reset previous flower count for new level
+    previousFlowerCount.current = 0;
+    // call nextLevel to advance to next level
+    nextLevel();
+  }, [nextLevel]);
+
+  const handleReplayLevel = useCallback(() => {
+    // reset countdown state for replay
+    setCountdownComplete(false);
+    gameResetKey.current += 1; // increment to force countdown remount
+    // reset tooltip milestones for replay
+    shownMilestonesRef.current.clear();
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current);
+      tooltipTimeoutRef.current = null;
+    }
+    // reset quest completed sound flag
+    questCompletedSoundPlayed.current = false;
+    // reset previous flower count for replay
+    previousFlowerCount.current = 0;
+    // call replayLevel to regenerate the same level
+    replayLevel();
+  }, [replayLevel]);
+
   const handleCountdownComplete = useCallback(() => {
     setCountdownComplete(true);
     // start item spawning timer when countdown completes
@@ -351,7 +395,8 @@ const App: React.FC = () => {
           gameState.collectedFlowers,
           gameState.isHouseOpen,
           gameState.playerEnteredHouse,
-          "start"
+          "start",
+          gameState.currentLevel
         );
         setCurrentTooltipMilestone("start");
         setCurrentTooltipMessage(questMsg.message);
@@ -438,6 +483,7 @@ const App: React.FC = () => {
           bombCooldownEndTime={gameState.bombCooldownEndTime}
           cloakCooldownEndTime={gameState.cloakCooldownEndTime}
           collectedFlowers={gameState.collectedFlowers}
+          currentLevel={gameState.currentLevel}
           gameOver={gameState.gameOver}
           playerEnteredHouse={gameState.playerEnteredHouse}
           isStuck={gameState.isStuck}
@@ -480,11 +526,14 @@ const App: React.FC = () => {
                 // level complete message has been shown, now showing restart message
               }}
               onRestart={handleResetGame}
+              onNextLevel={handleNextLevel}
+              onReplayLevel={handleReplayLevel}
             />
             {showPauseMenu && countdownComplete && (
               <PauseMenu
                 onResume={unpauseGame}
                 isVisible={gameState.paused}
+                currentLevel={gameState.currentLevel}
               />
             )}
             {gameState.temporaryMessage && (

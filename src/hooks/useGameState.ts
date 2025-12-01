@@ -12,6 +12,7 @@ import {
   CLOAK_SPAWN_DELAY_MIN,
   CLOAK_SPAWN_DELAY_MAX,
 } from "../constants/gameConfig";
+import { getLevelConfig } from "../constants/levelConfig";
 import {
   positionsEqual,
   isPlayerStuck,
@@ -92,6 +93,7 @@ export const useGameState = () => {
     moveWolf: hookMoveWolf,
     resetWolfSpeed,
     resetWolfState,
+    setCurrentWolfDelay,
   } = useWolfState();
 
   // use player state hook for player-related logic
@@ -160,9 +162,9 @@ export const useGameState = () => {
   // Note: wolfConfusionIntervalRef is now provided by useCloakMechanics hook
 
   // set up a new game
-  const initializeGame = useCallback(() => {
-    // use level state hook to generate the level
-    const levelData = generateLevel();
+  const initializeGame = useCallback((level: number = 1) => {
+    // use level state hook to generate the level with level-specific config
+    const levelData = generateLevel(level);
 
     if (!levelData) {
       // level generation failed - set up failed state
@@ -208,17 +210,22 @@ export const useGameState = () => {
     }
 
     // level generation succeeded - calculate stuck checks for game state
+    const levelConfig = getLevelConfig(level);
     const initialStuckCheck = isPlayerStuck(
       PLAYER_START_POSITION,
       levelData.flowerPositions,
       levelData.treePositions,
       levelData.grannyHousePosition,
       false,
-      levelData.gridSize
+      levelData.gridSize,
+      0, // collectedFlowers at start
+      levelConfig.numFlowers // totalFlowers for this level
     );
 
-    // reset wolf state using hook
+    // reset wolf state using hook with level-specific speed
     resetWolfSpeed();
+    // set wolf delay based on level config (override the base delay)
+    setCurrentWolfDelay(levelConfig.enemyDelay);
     setWolfPositionState(levelData.wolfStartPosition);
     setWolfDirectionState("down");
     setWolfMovingState(!initialStuckCheck.stuck);
@@ -242,8 +249,8 @@ export const useGameState = () => {
       inventory: [],
       specialItems: [],
       explosionEffect: null,
-      // level tracking - start at level 1
-      currentLevel: 1,
+      // level tracking - use provided level
+      currentLevel: level,
       // temporary message
       temporaryMessage: null,
       // explosion marks
@@ -273,11 +280,11 @@ export const useGameState = () => {
 
     // Note: We're using generateLevel from useLevelState for level generation logic,
     // but keeping all state in gameState for now to maintain backward compatibility
-  }, [generateLevel, resetWolfSpeed, resetWolfState, resetPlayerState, setWolfPositionState, setWolfDirectionState, setWolfMovingState, initializePlayer, setPlayerCanMoveState, setPlayerPositionState]);
+  }, [generateLevel, resetWolfSpeed, resetWolfState, resetPlayerState, setWolfPositionState, setWolfDirectionState, setWolfMovingState, initializePlayer, setPlayerCanMoveState, setPlayerPositionState, setCurrentWolfDelay]);
 
   // start the game when component loads
   useEffect(() => {
-    initializeGame();
+    initializeGame(1);
   }, [initializeGame]);
 
   // move the player in the given direction
@@ -297,6 +304,7 @@ export const useGameState = () => {
           isHouseOpen: hookIsHouseOpen,
           gameOver: prev.gameOver,
           paused: prev.paused,
+          currentLevel: prev.currentLevel,
         });
 
         if (!moveResult.success || !moveResult.newPosition) {
@@ -321,8 +329,9 @@ export const useGameState = () => {
           ? prev.collectedFlowers + 1
           : prev.collectedFlowers;
 
-        // check if all flowers collected - open house via hook
-        const allFlowersCollected = newCollectedFlowers === NUM_FLOWERS;
+        // check if all flowers collected - open house via hook (use level-specific count)
+        const levelConfig = getLevelConfig(prev.currentLevel);
+        const allFlowersCollected = newCollectedFlowers === levelConfig.numFlowers;
         if (allFlowersCollected && !hookIsHouseOpen) {
           openHouse();
         }
@@ -470,6 +479,13 @@ export const useGameState = () => {
         return prev;
       }
 
+      // check if bombs are unlocked for this level
+      const levelConfig = getLevelConfig(prev.currentLevel);
+      if (!levelConfig.bombUnlocked) {
+        // bombs not unlocked for this level, don't spawn
+        return prev;
+      }
+
       // count current bombs on the map
       const currentBombCount = prev.specialItems.filter((item) => item.type === "bomb").length;
 
@@ -531,6 +547,13 @@ export const useGameState = () => {
   // spawn the hunter's cloak once per level (random 20-40 seconds)
   const spawnCloak = useCallback(() => {
     setGameState((prev) => {
+      // check if cloak is unlocked for this level
+      const levelConfig = getLevelConfig(prev.currentLevel);
+      if (!levelConfig.cloakUnlocked) {
+        // cloak not unlocked for this level, don't spawn
+        return prev;
+      }
+
       if (prev.gameOver || prev.playerEnteredHouse || prev.cloakSpawned || prev.paused) {
         // clear timer if game is over or cloak already spawned
         if (prev.gameOver || prev.playerEnteredHouse || prev.cloakSpawned) {
@@ -613,18 +636,25 @@ export const useGameState = () => {
     // set game start time
     setGameStartTime(Date.now());
 
-    // start the spawning timer - this will spawn the first item after ITEM_SPAWN_DELAY
-    itemSpawnTimerRef.current = setTimeout(() => {
-      spawnSpecialItem();
-    }, ITEM_SPAWN_DELAY);
+    // check level config to see what items are unlocked
+    const levelConfig = getLevelConfig(gameState.currentLevel);
 
-    // spawn cloak at random interval between 20-40 seconds (once per level)
-    const cloakSpawnDelay = Math.floor(
-      Math.random() * (CLOAK_SPAWN_DELAY_MAX - CLOAK_SPAWN_DELAY_MIN + 1) + CLOAK_SPAWN_DELAY_MIN
-    );
-    cloakSpawnTimerRef.current = setTimeout(() => {
-      spawnCloak();
-    }, cloakSpawnDelay);
+    // start bomb spawning timer only if bombs are unlocked
+    if (levelConfig.bombUnlocked) {
+      itemSpawnTimerRef.current = setTimeout(() => {
+        spawnSpecialItem();
+      }, ITEM_SPAWN_DELAY);
+    }
+
+    // spawn cloak at random interval between 20-40 seconds (once per level) only if unlocked
+    if (levelConfig.cloakUnlocked) {
+      const cloakSpawnDelay = Math.floor(
+        Math.random() * (CLOAK_SPAWN_DELAY_MAX - CLOAK_SPAWN_DELAY_MIN + 1) + CLOAK_SPAWN_DELAY_MIN
+      );
+      cloakSpawnTimerRef.current = setTimeout(() => {
+        spawnCloak();
+      }, cloakSpawnDelay);
+    }
   }, [gameState.playerPosition, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, spawnSpecialItem, spawnCloak]);
 
   // stop item spawning when game ends or conditions change
@@ -805,6 +835,13 @@ export const useGameState = () => {
   // use a bomb item
   const useBomb = useCallback(() => {
     setGameState((prev) => {
+      // check if bombs are unlocked for this level
+      const levelConfig = getLevelConfig(prev.currentLevel);
+      if (!levelConfig.bombUnlocked) {
+        // bombs not unlocked for this level
+        return prev;
+      }
+
       const bombIndex = prev.inventory.indexOf("bomb");
       const isOnCooldown = hookBombCooldownEndTime !== null && Date.now() < hookBombCooldownEndTime;
 
@@ -862,6 +899,13 @@ export const useGameState = () => {
   // use hunter's cloak to become invisible
   const useCloak = useCallback(() => {
     setGameState((prev) => {
+      // check if cloak is unlocked for this level
+      const levelConfig = getLevelConfig(prev.currentLevel);
+      if (!levelConfig.cloakUnlocked) {
+        // cloak not unlocked for this level
+        return prev;
+      }
+
       // check if player has cloak and is not on cooldown
       const hasCloak = prev.inventory.includes("cloak");
       const isOnCooldown = hookCloakCooldownEndTime !== null && Date.now() < hookCloakCooldownEndTime;
@@ -958,11 +1002,121 @@ export const useGameState = () => {
       paused: false,
     });
 
-    // set up a new game after a tiny delay
+    // set up a new game after a tiny delay (always start at level 1)
     setTimeout(() => {
-      initializeGame();
+      initializeGame(1);
     }, 100);
   }, [initializeGame, resetWolfState, resetPlayerState, clearGameStartTime, resetBombMechanics, resetCloakMechanics]);
+
+  // advance to next level
+  const nextLevel = useCallback(() => {
+    // clear timers
+    if (itemSpawnTimerRef.current) {
+      clearTimeout(itemSpawnTimerRef.current);
+      itemSpawnTimerRef.current = null;
+    }
+    if (cloakSpawnTimerRef.current) {
+      clearTimeout(cloakSpawnTimerRef.current);
+      cloakSpawnTimerRef.current = null;
+    }
+
+    // reset state
+    clearGameStartTime();
+    resetBombMechanics();
+    resetCloakMechanics();
+    resetWolfState();
+    resetPlayerState();
+
+    // update level and reset game state, then initialize new level
+    setGameState((prev) => {
+      const newLevel = prev.currentLevel + 1;
+
+      // initialize the new level after state is updated (this will also set wolf delay based on level config)
+      setTimeout(() => {
+        initializeGame(newLevel);
+      }, 100);
+
+      return {
+        ...prev,
+        playerPosition: { x: -1, y: -1 },
+        wolfPosition: { x: -1, y: -1 },
+        playerEnteredHouse: false,
+        gameOver: false,
+        isStuck: false,
+        paused: false,
+        collectedFlowers: 0,
+        isHouseOpen: false,
+        inventory: [],
+        specialItems: [],
+        explosionEffect: null,
+        temporaryMessage: null,
+        explosionMarks: [],
+        currentLevel: newLevel,
+        wolfStunned: false,
+        wolfStunEndTime: null,
+        playerInvisible: false,
+        cloakInvisibilityEndTime: null,
+        cloakCooldownEndTime: null,
+        cloakSpawned: false,
+        bombCooldownEndTime: null,
+      };
+    });
+  }, [initializeGame, clearGameStartTime, resetBombMechanics, resetCloakMechanics, resetWolfState, resetPlayerState, setCurrentWolfDelay]);
+
+  // replay the same level (regenerate the level)
+  const replayLevel = useCallback(() => {
+    // clear timers
+    if (itemSpawnTimerRef.current) {
+      clearTimeout(itemSpawnTimerRef.current);
+      itemSpawnTimerRef.current = null;
+    }
+    if (cloakSpawnTimerRef.current) {
+      clearTimeout(cloakSpawnTimerRef.current);
+      cloakSpawnTimerRef.current = null;
+    }
+
+    // reset state
+    clearGameStartTime();
+    resetBombMechanics();
+    resetCloakMechanics();
+    resetWolfState();
+    resetPlayerState();
+
+    // keep the same level and reset game state, then initialize the same level again
+    setGameState((prev) => {
+      const sameLevel = prev.currentLevel;
+
+      // initialize the same level after state is updated (this will regenerate the level)
+      setTimeout(() => {
+        initializeGame(sameLevel);
+      }, 100);
+
+      return {
+        ...prev,
+        playerPosition: { x: -1, y: -1 },
+        wolfPosition: { x: -1, y: -1 },
+        playerEnteredHouse: false,
+        gameOver: false,
+        isStuck: false,
+        paused: false,
+        collectedFlowers: 0,
+        isHouseOpen: false,
+        inventory: [],
+        specialItems: [],
+        explosionEffect: null,
+        temporaryMessage: null,
+        explosionMarks: [],
+        currentLevel: sameLevel,
+        wolfStunned: false,
+        wolfStunEndTime: null,
+        playerInvisible: false,
+        cloakInvisibilityEndTime: null,
+        cloakCooldownEndTime: null,
+        cloakSpawned: false,
+        bombCooldownEndTime: null,
+      };
+    });
+  }, [initializeGame, clearGameStartTime, resetBombMechanics, resetCloakMechanics, resetWolfState, resetPlayerState, setCurrentWolfDelay]);
 
   // clear temporary message
   const clearTemporaryMessage = useCallback(() => {
@@ -1035,6 +1189,8 @@ export const useGameState = () => {
     moveWolf,
     resetGame,
     initializeGame,
+    nextLevel,
+    replayLevel,
     useBomb,
     useCloak,
     clearTemporaryMessage,

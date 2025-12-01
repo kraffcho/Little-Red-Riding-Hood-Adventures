@@ -98,3 +98,6 @@ export const CLOAK_INVISIBILITY_DURATION = 10000; // 10 seconds invisibility dur
 export const CLOAK_COOLDOWN_DURATION = 30000; // 30 seconds cooldown before can use again
 export const CLOAK_WOLF_CONFUSION_INTERVAL = 2000; // how often wolf changes direction when confused (milliseconds)
 
+// level configuration is now in levelConfig.ts - import getLevelConfig from there
+export { getLevelConfig, getUnlockedItem, getUnlockMessage } from "./levelConfig";
+

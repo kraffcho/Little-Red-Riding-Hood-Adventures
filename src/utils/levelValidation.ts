@@ -82,7 +82,9 @@ export const isPlayerStuck = (
   treePositions: Position[],
   grannyHousePosition: Position,
   isHouseOpen: boolean,
-  gridSize: number
+  gridSize: number,
+  collectedFlowers?: number,
+  totalFlowers?: number
 ): { stuck: boolean; reason?: string } => {
 
   // if the house is open and we can reach it, we're good
@@ -99,6 +101,14 @@ export const isPlayerStuck = (
 
   // if the house is still closed, check if we can reach any remaining flowers
   if (remainingFlowers.length === 0) {
+    // if we have totalFlowers info, check if all required flowers have been collected
+    // if so, the house should be open, so this isn't a stuck situation
+    if (totalFlowers !== undefined && collectedFlowers !== undefined) {
+      if (collectedFlowers >= totalFlowers) {
+        // all required flowers collected - house should open, not stuck
+        return { stuck: false };
+      }
+    }
     return {
       stuck: true,
       reason: "No flowers remaining but house is not open",

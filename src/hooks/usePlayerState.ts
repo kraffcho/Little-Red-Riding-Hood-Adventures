@@ -2,8 +2,8 @@ import { useState, useCallback } from "react";
 import { Position, Direction } from "../types";
 import {
   PLAYER_START_POSITION,
-  NUM_FLOWERS,
 } from "../constants/gameConfig";
+import { getLevelConfig } from "../constants/levelConfig";
 import {
   moveInDirection,
   isValidPosition,
@@ -74,6 +74,7 @@ export const usePlayerState = () => {
     isHouseOpen: boolean;
     gameOver: boolean;
     paused: boolean;
+    currentLevel: number;
   }): {
     success: boolean;
     newPosition?: Position;
@@ -113,8 +114,11 @@ export const usePlayerState = () => {
     );
     const collectedFlower = flowerIndex !== -1;
 
-    // check if all flowers collected (house should open)
-    const allFlowersCollected = (context.collectedFlowers + (collectedFlower ? 1 : 0)) === NUM_FLOWERS;
+    // check if all flowers collected (house should open) - use level-specific count
+    const levelConfig = getLevelConfig(context.currentLevel);
+    const totalFlowers = levelConfig.numFlowers;
+    const newCollectedFlowers = context.collectedFlowers + (collectedFlower ? 1 : 0);
+    const allFlowersCollected = newCollectedFlowers === totalFlowers;
     const houseShouldBeOpen = allFlowersCollected || context.isHouseOpen;
 
     // check if player entered house
@@ -136,7 +140,9 @@ export const usePlayerState = () => {
       context.treePositions,
       context.grannyHousePosition,
       houseShouldBeOpen,
-      context.gridSize
+      context.gridSize,
+      newCollectedFlowers,
+      totalFlowers
     );
 
     return {
@@ -179,7 +185,7 @@ export const usePlayerState = () => {
     playerCanMove,
     playerEnteredHouse,
     isHouseOpen,
-    
+
     // Actions
     setPlayerPositionState,
     setPlayerDirectionState,
@@ -189,7 +195,7 @@ export const usePlayerState = () => {
     movePlayer,
     resetPlayerState,
     initializePlayer,
-    
+
     // Setters (for direct state updates)
     setPlayerPosition,
     setPlayerDirection,

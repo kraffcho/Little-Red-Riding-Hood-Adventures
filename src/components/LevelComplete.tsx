@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { getUnlockMessage } from '../constants/levelConfig';
 
 interface LevelCompleteProps {
   level: number;
   onComplete: () => void;
   onRestart: () => void;
+  onNextLevel?: () => void;
+  onReplayLevel?: () => void;
   show: boolean;
 }
 
-const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRestart, show }) => {
+const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRestart, onNextLevel, onReplayLevel, show }) => {
   const [visible, setVisible] = useState(false);
   const [showRestartMessage, setShowRestartMessage] = useState(false);
   const completedLevelRef = useRef<number | null>(null);
@@ -83,18 +86,81 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
     onRestart();
   };
 
+  const handleNextLevel = () => {
+    // clear any pending timers
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    setVisible(false);
+    setShowRestartMessage(false);
+    restartMessageShownRef.current = false;
+    completedLevelRef.current = null;
+    hasShownRef.current = null;
+    if (onNextLevel) {
+      onNextLevel();
+    }
+  };
+
+  const handleReplayLevel = () => {
+    // clear any pending timers
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    setVisible(false);
+    setShowRestartMessage(false);
+    restartMessageShownRef.current = false;
+    completedLevelRef.current = null;
+    hasShownRef.current = null;
+    if (onReplayLevel) {
+      onReplayLevel();
+    }
+  };
+
   // show restart message after completion animation - this takes priority
   if (showRestartMessage) {
     const displayLevel = completedLevelRef.current ?? level;
+    const unlockMessage = getUnlockMessage(displayLevel);
     return (
       <div className="pause-menu fade-in">
         <div className="pause-menu-content">
-          <h2 className="pause-menu-title">Level {displayLevel} Completed!</h2>
-          <div className="pause-menu-footer">
-            <p className="pause-menu-instruction">New levels will be added soon!<br />Would you like to restart the game?</p>
-            <button className="pause-menu-resume" onClick={handleRestart}>
-              Restart
-            </button>
+          <h1 className="level-complete-title">LEVEL {displayLevel} COMPLETED!</h1>
+          {unlockMessage && (
+            <div className="level-complete-unlock-container">
+              <p className="level-complete-unlock-text">
+                {unlockMessage}
+              </p>
+            </div>
+          )}
+          <div className="level-complete-actions">
+            {displayLevel < 3 && onNextLevel ? (
+              <>
+                <p className="level-complete-prompt">Ready for the next challenge?</p>
+                <div className="level-complete-buttons">
+                  <button className="level-complete-button level-complete-button-primary" onClick={handleNextLevel}>
+                    Continue to Level {displayLevel + 1}
+                  </button>
+                  <button className="level-complete-button level-complete-button-secondary" onClick={handleRestart}>
+                    Restart Game
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="level-complete-prompt">New levels will be added soon!</p>
+                <div className="level-complete-buttons">
+                  {onReplayLevel && (
+                    <button className="level-complete-button level-complete-button-primary" onClick={handleReplayLevel}>
+                      Play Again
+                    </button>
+                  )}
+                  <button className={`level-complete-button ${onReplayLevel ? 'level-complete-button-secondary' : 'level-complete-button-primary'}`} onClick={handleRestart}>
+                    Restart Game
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

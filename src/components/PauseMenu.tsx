@@ -1,11 +1,22 @@
 import React from "react";
+import { getLevelConfig } from "../constants/levelConfig";
 
 interface PauseMenuProps {
   onResume: () => void;
   isVisible: boolean;
+  currentLevel: number;
 }
 
-const PauseMenu: React.FC<PauseMenuProps> = ({ onResume, isVisible }) => {
+const PauseMenu: React.FC<PauseMenuProps> = ({ onResume, isVisible, currentLevel }) => {
+  const levelConfig = getLevelConfig(currentLevel);
+  
+  // format milliseconds to seconds for display (round to avoid decimals)
+  const formatSeconds = (ms: number) => Math.round(ms / 1000);
+  
+  const bombStunSeconds = formatSeconds(levelConfig.bombStunDuration);
+  const bombCooldownSeconds = formatSeconds(levelConfig.bombCooldown);
+  const cloakInvisibilitySeconds = formatSeconds(levelConfig.cloakInvisibilityDuration);
+  const cloakCooldownSeconds = formatSeconds(levelConfig.cloakCooldown);
   const handleResume = () => {
     onResume();
   };
@@ -28,8 +39,12 @@ const PauseMenu: React.FC<PauseMenuProps> = ({ onResume, isVisible }) => {
               <h3 className="pause-menu-section-title">Controls</h3>
               <ul className="pause-menu-list">
                 <li><strong>Arrow Keys</strong> or <strong>WASD</strong> to move</li>
-                <li><strong>Space</strong> to use bomb</li>
-                <li><strong>C</strong> to use Hunter's Cloak</li>
+                {levelConfig.bombUnlocked && (
+                  <li><strong>Space</strong> to use bomb</li>
+                )}
+                {levelConfig.cloakUnlocked && (
+                  <li><strong>C</strong> to use Hunter's Cloak</li>
+                )}
                 <li><strong>ESC</strong> to pause/unpause</li>
                 <li><strong>Swipe</strong> on mobile/tablet</li>
               </ul>
@@ -38,23 +53,32 @@ const PauseMenu: React.FC<PauseMenuProps> = ({ onResume, isVisible }) => {
             <div className="pause-menu-section">
               <h3 className="pause-menu-section-title">Special Items</h3>
               <ul className="pause-menu-list">
-                <li>
-                  <strong>💣 Bomb:</strong> Stuns wolf for 5s (3-tile radius)
-                  <br />
-                  <span className="pause-menu-note">5s cooldown • Wolf gets faster after each stun</span>
-                </li>
-                <li>
-                  <strong>🧥 Hunter's Cloak:</strong> Invisible for 10s
-                  <br />
-                  <span className="pause-menu-note">30s cooldown • Wolf stops and gets confused</span>
-                </li>
+                {levelConfig.bombUnlocked && (
+                  <li>
+                    <strong>💣 Bomb:</strong> Stuns wolf for {bombStunSeconds}s (3-tile radius)
+                    <br />
+                    <span className="pause-menu-note">{bombCooldownSeconds}s cooldown • Wolf gets faster after each stun</span>
+                  </li>
+                )}
+                {levelConfig.cloakUnlocked && (
+                  <li>
+                    <strong>🧥 Hunter's Cloak:</strong> Invisible for {cloakInvisibilitySeconds}s
+                    <br />
+                    <span className="pause-menu-note">{cloakCooldownSeconds}s cooldown • Wolf stops and gets confused</span>
+                  </li>
+                )}
+                {!levelConfig.bombUnlocked && !levelConfig.cloakUnlocked && (
+                  <li>
+                    <span className="pause-menu-note">No special items available in this level</span>
+                  </li>
+                )}
               </ul>
             </div>
 
             <div className="pause-menu-section">
               <h3 className="pause-menu-section-title">Objective</h3>
               <ul className="pause-menu-list">
-                <li>💐 Collect all flowers</li>
+                <li>💐 Collect all {levelConfig.numFlowers} flowers</li>
                 <li>🏠 Reach Granny's house</li>
                 <li>🐺 Avoid the wolf!</li>
               </ul>

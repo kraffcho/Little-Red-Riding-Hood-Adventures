@@ -10,14 +10,17 @@ const Countdown: React.FC<CountdownProps> = ({ onComplete, isGameInitialized }) 
   const hasStartedRef = useRef(false);
 
   useEffect(() => {
-    // reset and start countdown when game is initialized
+    // reset when game is not initialized (game restart or level change)
+    if (!isGameInitialized) {
+      hasStartedRef.current = false;
+      setCountdown(null);
+      return;
+    }
+
+    // start countdown when game is initialized
     if (isGameInitialized && !hasStartedRef.current) {
       hasStartedRef.current = true;
       setCountdown(3);
-    } else if (!isGameInitialized) {
-      // reset when game is not initialized (game restart)
-      hasStartedRef.current = false;
-      setCountdown(null);
     }
   }, [isGameInitialized]);
 

@@ -62,7 +62,8 @@ export const generateTreePositions = (
 export const generateFlowerPositions = (
   treePositions: Position[],
   gridSize: number = GRID_SIZE,
-  grannyHousePosition: Position
+  grannyHousePosition: Position,
+  numFlowers: number = NUM_FLOWERS
 ): Position[] => {
   const availablePositions: Position[] = [];
 
@@ -84,10 +85,10 @@ export const generateFlowerPositions = (
 
   // pick some random spots for the flowers
   const flowerPositions: Position[] = [];
-  const numFlowers = Math.min(NUM_FLOWERS, availablePositions.length);
+  const flowersToPlace = Math.min(numFlowers, availablePositions.length);
   const shuffled = [...availablePositions].sort(() => Math.random() - 0.5);
 
-  for (let i = 0; i < numFlowers; i++) {
+  for (let i = 0; i < flowersToPlace; i++) {
     flowerPositions.push(shuffled[i]);
   }
 
@@ -103,6 +104,7 @@ export const generateValidLevel = (
   grannyHousePosition: Position,
   gridSize: number = GRID_SIZE,
   numTrees: number = NUM_TREES,
+  numFlowers: number = NUM_FLOWERS,
   maxAttempts: number = 50
 ): { treePositions: Position[]; flowerPositions: Position[] } | null => {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -110,7 +112,7 @@ export const generateValidLevel = (
     const treePositions = generateTreePositions(wolfPosition, grannyHousePosition, gridSize, numTrees);
 
     // place flowers randomly
-    const flowerPositions = generateFlowerPositions(treePositions, gridSize, grannyHousePosition);
+    const flowerPositions = generateFlowerPositions(treePositions, gridSize, grannyHousePosition, numFlowers);
 
     // make sure this level is actually playable
     const validation = validateLevel(treePositions, flowerPositions, grannyHousePosition, gridSize);

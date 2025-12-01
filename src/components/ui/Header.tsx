@@ -4,7 +4,7 @@ import SettingsIcon from "./icons/SettingsIcon";
 import PauseIcon from "./icons/PauseIcon";
 import PlayIcon from "./icons/PlayIcon";
 import { ItemType } from "../../types";
-import { NUM_FLOWERS } from "../../constants/gameConfig";
+import { getLevelConfig } from "../../constants/levelConfig";
 
 interface HeaderProps {
   inventory: ItemType[];
@@ -12,6 +12,7 @@ interface HeaderProps {
   bombCooldownEndTime: number | null;
   cloakCooldownEndTime: number | null;
   collectedFlowers: number;
+  currentLevel: number;
   onSettingsClick: () => void;
   onPauseClick: () => void;
   gameOver?: boolean;
@@ -28,6 +29,7 @@ const Header: React.FC<HeaderProps> = ({
   bombCooldownEndTime,
   cloakCooldownEndTime,
   collectedFlowers,
+  currentLevel,
   onSettingsClick,
   onPauseClick,
   gameOver = false,
@@ -37,8 +39,10 @@ const Header: React.FC<HeaderProps> = ({
   countdownComplete = false,
   isSettingsOpen = false,
 }) => {
-  const progress = Math.min(100, Math.max(0, (collectedFlowers / NUM_FLOWERS) * 100));
-  const allFlowersCollected = collectedFlowers === NUM_FLOWERS;
+  const levelConfig = getLevelConfig(currentLevel);
+  const numFlowers = levelConfig.numFlowers;
+  const progress = Math.min(100, Math.max(0, (collectedFlowers / numFlowers) * 100));
+  const allFlowersCollected = collectedFlowers === numFlowers;
   const progressBarRef = useRef<HTMLDivElement>(null);
 
   // update CSS custom property for progress bar width
@@ -46,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({
     if (progressBarRef.current) {
       progressBarRef.current.style.setProperty('--quest-progress', `${progress}%`);
     }
-  }, [collectedFlowers]);
+  }, [collectedFlowers, numFlowers, progress]);
 
   return (
     <header className="game-header">
@@ -65,7 +69,7 @@ const Header: React.FC<HeaderProps> = ({
         <div className="header-quest-progress">
           <div className="header-quest-progress-text">
             <span className="header-quest-label">💐 Collect Flowers</span>
-            <span className="header-quest-count">{collectedFlowers}/{NUM_FLOWERS}</span>
+            <span className="header-quest-count">{collectedFlowers}/{numFlowers}</span>
           </div>
           <div className="header-quest-progress-bar-container">
             <div

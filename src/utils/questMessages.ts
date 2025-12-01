@@ -1,4 +1,4 @@
-import { NUM_FLOWERS } from "../constants/gameConfig";
+import { getLevelConfig } from "../constants/levelConfig";
 
 export interface QuestMessage {
   message: string;
@@ -15,10 +15,13 @@ export function getGrannyQuestMessage(
   collectedFlowers: number,
   isHouseOpen: boolean,
   playerEnteredHouse: boolean,
-  currentMilestone: QuestMilestone | null
+  currentMilestone: QuestMilestone | null,
+  currentLevel: number = 1
 ): QuestMessage {
-  const allFlowersCollected = collectedFlowers === NUM_FLOWERS;
-  const halfwayPoint = Math.ceil(NUM_FLOWERS / 2);
+  const levelConfig = getLevelConfig(currentLevel);
+  const numFlowers = levelConfig.numFlowers;
+  const allFlowersCollected = collectedFlowers === numFlowers;
+  const halfwayPoint = Math.ceil(numFlowers / 2);
 
   // when player enters the house, always show welcome message
   // this takes priority over other milestones
@@ -39,7 +42,7 @@ export function getGrannyQuestMessage(
   }
 
   // halfway milestone
-  if (collectedFlowers >= halfwayPoint && collectedFlowers < NUM_FLOWERS && currentMilestone === "halfway") {
+  if (collectedFlowers >= halfwayPoint && collectedFlowers < numFlowers && currentMilestone === "halfway") {
     return {
       message: `Halfway there! 🌺`,
       showTooltip: true,
@@ -49,7 +52,7 @@ export function getGrannyQuestMessage(
   // start of game - instruction message
   if (collectedFlowers === 0 && currentMilestone === "start") {
     return {
-      message: `My sweet RedHood! 💐 Gather ${NUM_FLOWERS} flowers for me.`,
+      message: `My sweet RedHood! 💐 Gather ${numFlowers} flowers for me.`,
       showTooltip: true,
     };
   }

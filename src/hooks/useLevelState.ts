@@ -8,6 +8,7 @@ import {
   getNumTrees,
   NUM_FLOWERS,
 } from "../constants/gameConfig";
+import { getLevelConfig } from "../constants/levelConfig";
 import {
   generateValidLevel,
   isPlayerStuck,
@@ -40,7 +41,7 @@ export const useLevelState = () => {
    * Generate a new level with valid tree and flower positions
    * Returns level data if successful, null if failed
    */
-  const generateLevel = useCallback((): {
+  const generateLevel = useCallback((level: number = 1): {
     treePositions: Position[];
     flowerPositions: Position[];
     wolfStartPosition: Position;
@@ -48,7 +49,11 @@ export const useLevelState = () => {
     gridSize: number;
   } | null => {
     const gridSize = getGridSize();
-    const numTrees = getNumTrees();
+    const levelConfig = getLevelConfig(level, typeof window !== "undefined" ? window.innerWidth : undefined);
+    const numTrees = typeof levelConfig.numTrees === 'number'
+      ? levelConfig.numTrees
+      : levelConfig.numTrees();
+    const numFlowers = levelConfig.numFlowers;
     const wolfStartPosition = getWolfStartPosition(gridSize);
     const grannyHousePosition = getGrannyHousePosition(gridSize);
 
@@ -62,7 +67,7 @@ export const useLevelState = () => {
 
     while (attempts < 20) {
       attempts++;
-      levelData = generateValidLevel(wolfStartPosition, grannyHousePosition, gridSize, numTrees);
+      levelData = generateValidLevel(wolfStartPosition, grannyHousePosition, gridSize, numTrees, numFlowers);
       if (levelData) {
         initialStuckCheck = isPlayerStuck(
           PLAYER_START_POSITION,
@@ -70,7 +75,9 @@ export const useLevelState = () => {
           levelData.treePositions,
           grannyHousePosition,
           false,
-          gridSize
+          gridSize,
+          0, // collectedFlowers at start
+          numFlowers // totalFlowers for this level
         );
 
         // check if wolf can reach the player - if not, wolf is stuck
@@ -150,7 +157,7 @@ export const useLevelState = () => {
       const flowerIndex = prev.flowers.findIndex(
         (flower) => flower.x === position.x && flower.y === position.y
       );
-      
+
       if (flowerIndex === -1) {
         return prev; // flower not found at this position
       }
@@ -158,7 +165,7 @@ export const useLevelState = () => {
       const newFlowers = prev.flowers.filter((_, index) => index !== flowerIndex);
       const newCollectedFlowers = prev.collectedFlowers + 1;
       const allFlowersCollected = newCollectedFlowers === NUM_FLOWERS;
-      
+
       return {
         ...prev,
         flowers: newFlowers,
