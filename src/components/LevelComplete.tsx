@@ -91,7 +91,7 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
         <div className="pause-menu-content">
           <h2 className="pause-menu-title">Level {displayLevel} Completed!</h2>
           <div className="pause-menu-footer">
-            <p className="pause-menu-instruction">New levels will be added soon! Would you like to restart the game?</p>
+            <p className="pause-menu-instruction">New levels will be added soon!<br />Would you like to restart the game?</p>
             <button className="pause-menu-resume" onClick={handleRestart}>
               Restart
             </button>
