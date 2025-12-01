@@ -642,17 +642,25 @@ export const useGameState = () => {
     }
   }, [gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck]);
 
-  // update wolf stun timer - when wolf wakes up, use hook's wakeWolf function
+  // check when the wolf's stun expires and wake it up, then resume movement if the game is still active
   useEffect(() => {
     if (hookWolfStunned && hookWolfStunEndTime) {
+      const stunEndTime = hookWolfStunEndTime; // store the stun end time when the effect starts
       const checkStun = setInterval(() => {
-        if (hookWolfStunEndTime && Date.now() >= hookWolfStunEndTime) {
-          // wolf just woke up - use hook's wakeWolf (it handles speed increase automatically)
+        // check if the stun duration has passed
+        if (Date.now() >= stunEndTime) {
+          // wolf is awake now, use the hook's wakeWolf function (it handles speed increase automatically)
           wakeWolf();
 
-          // resume wolf movement if game is still active
+          // resume wolf movement if the game is still going and player isn't invisible or in the house
           setGameState((prev) => {
-            if (!prev.gameOver && !prev.isStuck) {
+            const playerInHouse = positionsEqual(prev.playerPosition, prev.grannyHousePosition) && prev.isHouseOpen;
+            if (
+              !prev.gameOver &&
+              !prev.isStuck &&
+              !prev.playerInvisible &&
+              !playerInHouse
+            ) {
               setWolfMovingState(true);
             }
             return prev;
