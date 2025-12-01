@@ -643,32 +643,63 @@ export const useGameState = () => {
   }, [gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck]);
 
   // check when the wolf's stun expires and wake it up, then resume movement if the game is still active
+  const stunTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
+    // clear any existing timer when stun state changes
+    if (stunTimerRef.current) {
+      clearTimeout(stunTimerRef.current);
+      stunTimerRef.current = null;
+    }
+
     if (hookWolfStunned && hookWolfStunEndTime) {
-      const stunEndTime = hookWolfStunEndTime; // store the stun end time when the effect starts
-      const checkStun = setInterval(() => {
-        // check if the stun duration has passed
-        if (Date.now() >= stunEndTime) {
+      const stunEndTime = hookWolfStunEndTime;
+      const stunDuration = stunEndTime - Date.now();
+
+      // only set timer if stun hasn't already expired
+      if (stunDuration > 0) {
+        stunTimerRef.current = setTimeout(() => {
           // wolf is awake now, use the hook's wakeWolf function (it handles speed increase automatically)
           wakeWolf();
 
-          // resume wolf movement if the game is still going and player isn't invisible or in the house
-          setGameState((prev) => {
-            const playerInHouse = positionsEqual(prev.playerPosition, prev.grannyHousePosition) && prev.isHouseOpen;
-            if (
-              !prev.gameOver &&
-              !prev.isStuck &&
-              !prev.playerInvisible &&
-              !playerInHouse
-            ) {
-              setWolfMovingState(true);
-            }
-            return prev;
-          });
-        }
-      }, 100); // check every 100ms
+          // immediately try to resume movement - use current gameState at timeout execution
+          // check conditions synchronously at timeout execution time
+          const resumeMovement = () => {
+            setGameState((prev) => {
+              const playerInHouse = positionsEqual(prev.playerPosition, prev.grannyHousePosition) && prev.isHouseOpen;
+              if (!prev.gameOver && !prev.isStuck && !prev.playerInvisible && !playerInHouse) {
+                setWolfMovingState(true);
+              }
+              return prev;
+            });
+          };
 
-      return () => clearInterval(checkStun);
+          // try immediately
+          resumeMovement();
+          // also try after a small delay as fallback in case state hasn't synced yet
+          setTimeout(resumeMovement, 50);
+
+          stunTimerRef.current = null;
+        }, stunDuration);
+      } else {
+        // stun already expired, wake immediately
+        wakeWolf();
+        // resume movement immediately for already-expired stuns
+        setGameState((prev) => {
+          const playerInHouse = positionsEqual(prev.playerPosition, prev.grannyHousePosition) && prev.isHouseOpen;
+          if (!prev.gameOver && !prev.isStuck && !prev.playerInvisible && !playerInHouse) {
+            setWolfMovingState(true);
+          }
+          return prev;
+        });
+      }
+
+      return () => {
+        if (stunTimerRef.current) {
+          clearTimeout(stunTimerRef.current);
+          stunTimerRef.current = null;
+        }
+      };
     }
   }, [hookWolfStunned, hookWolfStunEndTime, wakeWolf, setWolfMovingState]);
 
@@ -701,6 +732,27 @@ export const useGameState = () => {
       }));
     }
   }, [hookPlayerInvisible, gameState.wolfMoving, gameState.gameOver, gameState.isStuck, gameState.wolfStunned]);
+
+  // fallback: resume wolf movement after stun expires if it's not moving but should be
+  useEffect(() => {
+    // only check if stun has expired (not stunned in hook and gameState, and no stun end time)
+    const stunExpired = !hookWolfStunned && hookWolfStunEndTime === null && !gameState.wolfStunned;
+    const notMoving = !hookWolfMoving && !gameState.wolfMoving;
+
+    if (stunExpired && notMoving) {
+      const playerInHouse = positionsEqual(gameState.playerPosition, gameState.grannyHousePosition) && gameState.isHouseOpen;
+      const shouldBeMoving =
+        !gameState.gameOver &&
+        !gameState.isStuck &&
+        !hookPlayerInvisible &&
+        !playerInHouse;
+
+      if (shouldBeMoving) {
+        // wolf should be moving but isn't - resume movement
+        setWolfMovingState(true);
+      }
+    }
+  }, [gameState.gameOver, gameState.isStuck, gameState.playerPosition, gameState.grannyHousePosition, gameState.isHouseOpen, gameState.wolfStunned, gameState.wolfMoving, hookPlayerInvisible, hookWolfStunned, hookWolfStunEndTime, hookWolfMoving, setWolfMovingState]);
 
   // sync bomb mechanics state from hook to gameState
   useEffect(() => {
