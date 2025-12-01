@@ -76,25 +76,17 @@ const App: React.FC = () => {
     // only check milestones when countdown is complete and game is initialized
     if (!countdownComplete || gameState.playerPosition.x === -1) return;
 
-    // don't interfere if a tooltip is already showing (timeout is active)
-    if (tooltipTimeoutRef.current) {
-      return;
-    }
-
     const halfwayPoint = Math.ceil(NUM_FLOWERS / 2);
     let milestone: QuestMilestone | null = null;
 
     // start milestone is handled in handleCountdownComplete, skip it here
-    // check for halfway milestone
-    if (
-      gameState.collectedFlowers >= halfwayPoint &&
-      gameState.collectedFlowers < NUM_FLOWERS &&
-      !shownMilestonesRef.current.has("halfway")
-    ) {
-      milestone = "halfway";
-      shownMilestonesRef.current.add("halfway");
+
+    // check for entered house milestone (highest priority - if player enters house, show that message first)
+    if (gameState.playerEnteredHouse && !shownMilestonesRef.current.has("entered_house")) {
+      milestone = "entered_house";
+      shownMilestonesRef.current.add("entered_house");
     }
-    // check for all collected milestone
+    // check for all collected milestone (higher priority than halfway - show immediately when all collected)
     else if (
       gameState.collectedFlowers === NUM_FLOWERS &&
       !shownMilestonesRef.current.has("all_collected")
@@ -102,10 +94,14 @@ const App: React.FC = () => {
       milestone = "all_collected";
       shownMilestonesRef.current.add("all_collected");
     }
-    // check for entered house milestone
-    else if (gameState.playerEnteredHouse && !shownMilestonesRef.current.has("entered_house")) {
-      milestone = "entered_house";
-      shownMilestonesRef.current.add("entered_house");
+    // check for halfway milestone (lowest priority)
+    else if (
+      gameState.collectedFlowers >= halfwayPoint &&
+      gameState.collectedFlowers < NUM_FLOWERS &&
+      !shownMilestonesRef.current.has("halfway")
+    ) {
+      milestone = "halfway";
+      shownMilestonesRef.current.add("halfway");
     }
 
     // show tooltip if we have a new milestone
@@ -117,14 +113,22 @@ const App: React.FC = () => {
         gameState.playerEnteredHouse,
         milestone
       );
-      setCurrentTooltipMilestone(milestone);
-      setCurrentTooltipMessage(questMsg.message);
-      // hide tooltip after 3 seconds
-      tooltipTimeoutRef.current = setTimeout(() => {
-        setCurrentTooltipMilestone(null);
-        setCurrentTooltipMessage("");
-        tooltipTimeoutRef.current = null;
-      }, 3000);
+
+      // only set tooltip if we have a valid message
+      if (questMsg.message && questMsg.message.trim() !== "") {
+        setCurrentTooltipMilestone(milestone);
+        setCurrentTooltipMessage(questMsg.message);
+        // clear any existing timeout
+        if (tooltipTimeoutRef.current) {
+          clearTimeout(tooltipTimeoutRef.current);
+        }
+        // hide tooltip after 3 seconds
+        tooltipTimeoutRef.current = setTimeout(() => {
+          setCurrentTooltipMilestone(null);
+          setCurrentTooltipMessage("");
+          tooltipTimeoutRef.current = null;
+        }, 3000);
+      }
     }
   }, [gameState.collectedFlowers, gameState.playerEnteredHouse, gameState.isHouseOpen, countdownComplete]);
 
