@@ -477,9 +477,9 @@ const App: React.FC = () => {
               level={gameState.currentLevel}
               show={gameState.playerEnteredHouse}
               onComplete={() => {
-                // level complete message has been shown
-                // could trigger next level or keep showing
+                // level complete message has been shown, now showing restart message
               }}
+              onRestart={handleResetGame}
             />
             {showPauseMenu && countdownComplete && (
               <PauseMenu
