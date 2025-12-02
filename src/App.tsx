@@ -64,18 +64,18 @@ const App: React.FC = () => {
   const questCompletedSoundPlayed = useRef(false);
   const wolfVictorySoundPlayed = useRef(false);
   const previousWolfStunned = useRef(false);
-  
+
   // countdown and game initialization
   const [countdownComplete, setCountdownComplete] = useState(false);
   const gameResetKey = useRef(0);
   const previousExplosionEffect = useRef<string | null>(null);
-  
+
   // granny's tooltip system
   const [currentTooltipMilestone, setCurrentTooltipMilestone] = useState<QuestMilestone | null>(null);
   const [currentTooltipMessage, setCurrentTooltipMessage] = useState<string>("");
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const shownMilestonesRef = useRef<Set<QuestMilestone>>(new Set());
-  
+
   // menu states
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showPauseMenu, setShowPauseMenu] = useState(false);
@@ -123,11 +123,11 @@ const App: React.FC = () => {
       if (questMsg.message && questMsg.message.trim() !== "") {
         setCurrentTooltipMilestone(milestone);
         setCurrentTooltipMessage(questMsg.message);
-        
+
         if (tooltipTimeoutRef.current) {
           clearTimeout(tooltipTimeoutRef.current);
         }
-        
+
         tooltipTimeoutRef.current = setTimeout(() => {
           setCurrentTooltipMilestone(null);
           setCurrentTooltipMessage("");

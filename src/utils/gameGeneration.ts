@@ -4,9 +4,7 @@ import { isAdjacentToTree, isValidPosition } from "./gridUtils";
 import { positionsEqual } from "./gridUtils";
 import { validateLevel } from "./levelValidation";
 
-/**
- * places trees randomly around the grid
- */
+// generates random tree positions avoiding key game locations
 export const generateTreePositions = (
   wolfPosition: Position,
   grannyHousePosition: Position,
@@ -16,11 +14,10 @@ export const generateTreePositions = (
   const treePositions: Position[] = [];
   const excludedPositions = new Set<string>();
 
-  // keep track of spots we can't use
   excludedPositions.add(`${PLAYER_START_POSITION.x},${PLAYER_START_POSITION.y}`);
   excludedPositions.add(`${wolfPosition.x},${wolfPosition.y}`);
 
-  // don't put trees next to granny's house
+  // keep area around granny's house clear
   for (let dx = -1; dx <= 1; dx++) {
     for (let dy = -1; dy <= 1; dy++) {
       const x = grannyHousePosition.x + dx;

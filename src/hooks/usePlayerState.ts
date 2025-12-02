@@ -11,9 +11,7 @@ import {
   isPlayerStuck,
 } from "../utils";
 
-/**
- * Hook that manages player state: position, movement, house entry, and movement permissions
- */
+// manages player position, movement, and house entry logic
 export const usePlayerState = () => {
   const [playerPosition, setPlayerPosition] = useState<Position>({ x: -1, y: -1 });
   const [playerDirection, setPlayerDirection] = useState<Direction>("down");
@@ -21,9 +19,6 @@ export const usePlayerState = () => {
   const [playerEnteredHouse, setPlayerEnteredHouse] = useState<boolean>(false);
   const [isHouseOpen, setIsHouseOpen] = useState<boolean>(false);
 
-  /**
-   * Set player position
-   */
   const setPlayerPositionState = useCallback((position: Position) => {
     setPlayerPosition(position);
   }, []);

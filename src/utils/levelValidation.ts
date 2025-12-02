@@ -3,13 +3,7 @@ import { pathExists, findAllReachablePositions } from "./pathfinding";
 import { PLAYER_START_POSITION, getGrannyHousePosition } from "../constants/gameConfig";
 import { positionsEqual } from "./gridUtils";
 
-/**
- * makes sure a level can actually be completed
- * checks that:
- * 1. all flowers can be reached from the start
- * 2. the house can be reached from the start
- * 3. the house can be reached from any flower position
- */
+// ensures level is completable by verifying all objectives are reachable
 export const validateLevel = (
   treePositions: Position[],
   flowerPositions: Position[],
@@ -17,7 +11,6 @@ export const validateLevel = (
   gridSize: number
 ): { isValid: boolean; reason?: string } => {
 
-  // first, make sure we can reach the house from the start
   if (!pathExists(PLAYER_START_POSITION, grannyHousePosition, treePositions, gridSize)) {
     return {
       isValid: false,
@@ -25,7 +18,6 @@ export const validateLevel = (
     };
   }
 
-  // next, make sure we can reach all flowers from the start
   for (const flower of flowerPositions) {
     if (!pathExists(PLAYER_START_POSITION, flower, treePositions, gridSize)) {
       return {
@@ -35,8 +27,6 @@ export const validateLevel = (
     }
   }
 
-  // also check that we can get to the house from each flower
-  // this makes sure the player can actually finish the quest
   for (const flower of flowerPositions) {
     if (!pathExists(flower, grannyHousePosition, treePositions, gridSize)) {
       return {
@@ -46,8 +36,7 @@ export const validateLevel = (
     }
   }
 
-  // finally, make sure everything is connected using flood fill
-  // this checks if all important spots are in one connected area
+  // verify all objectives are in one connected area using flood fill
   const reachableFromStart = findAllReachablePositions(PLAYER_START_POSITION, treePositions, gridSize);
 
   const posKey = (pos: Position) => `${pos.x},${pos.y}`;

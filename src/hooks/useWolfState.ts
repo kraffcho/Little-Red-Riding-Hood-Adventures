@@ -7,9 +7,7 @@ import {
 } from "../constants/gameConfig";
 import { findPath, getDirectionFromMovement, positionsEqual } from "../utils";
 
-/**
- * Hook that manages wolf state: position, movement, pathfinding, stun mechanics, and speed
- */
+// manages wolf AI, pathfinding, stun mechanics, and progressive speed increases
 export const useWolfState = () => {
   const [wolfPosition, setWolfPosition] = useState<Position>({ x: -1, y: -1 });
   const [wolfDirection, setWolfDirection] = useState<Direction>("down");
@@ -20,9 +18,6 @@ export const useWolfState = () => {
   const [wolfStunCount, setWolfStunCount] = useState<number>(0);
   const [wolfWon, setWolfWon] = useState<boolean>(false);
 
-  /**
-   * Set wolf position
-   */
   const setWolfPositionState = useCallback((position: Position) => {
     setWolfPosition(position);
   }, []);

@@ -1,8 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 
-/**
- * Hook that manages game lifecycle state: game over, stuck, pause, temporary messages
- */
+// manages game lifecycle states: game over, stuck detection, pause, and temporary messages
 export const useGameLifecycle = () => {
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [isStuck, setIsStuck] = useState<boolean>(false);
@@ -12,16 +10,10 @@ export const useGameLifecycle = () => {
 
   const gameStartTimeRef = useRef<number | null>(null);
 
-  /**
-   * Set game over state
-   */
   const setGameOverState = useCallback((over: boolean) => {
     setGameOver(over);
   }, []);
 
-  /**
-   * Set stuck state
-   */
   const setStuckState = useCallback((stuck: boolean, reason?: string) => {
     setIsStuck(stuck);
     setStuckReason(reason);

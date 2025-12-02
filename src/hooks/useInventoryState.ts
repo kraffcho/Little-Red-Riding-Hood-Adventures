@@ -12,9 +12,7 @@ import {
   generateItemId,
 } from "../utils";
 
-/**
- * Hook that manages inventory and special items spawning on the map
- */
+// manages player inventory and special item spawning on the map
 export const useInventoryState = () => {
   const [inventory, setInventory] = useState<ItemType[]>([]);
   const [specialItems, setSpecialItems] = useState<SpecialItem[]>([]);
@@ -22,9 +20,6 @@ export const useInventoryState = () => {
   const itemSpawnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const cloakSpawnTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  /**
-   * Add an item to inventory
-   */
   const addToInventory = useCallback((itemType: ItemType) => {
     setInventory((prev) => [...prev, itemType]);
   }, []);

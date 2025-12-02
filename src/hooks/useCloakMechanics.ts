@@ -6,9 +6,7 @@ import {
   CLOAK_WOLF_CONFUSION_INTERVAL,
 } from "../constants/gameConfig";
 
-/**
- * Hook that manages Hunter's Cloak mechanics: invisibility, cooldowns, and wolf confusion
- */
+// handles Hunter's Cloak invisibility, cooldowns, and wolf confusion effects
 export const useCloakMechanics = () => {
   const [playerInvisible, setPlayerInvisible] = useState<boolean>(false);
   const [cloakInvisibilityEndTime, setCloakInvisibilityEndTime] = useState<number | null>(null);
@@ -17,9 +15,6 @@ export const useCloakMechanics = () => {
 
   const wolfConfusionIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  /**
-   * Activate cloak invisibility
-   */
   const activateInvisibility = useCallback(() => {
     const endTime = Date.now() + CLOAK_INVISIBILITY_DURATION;
     setPlayerInvisible(true);

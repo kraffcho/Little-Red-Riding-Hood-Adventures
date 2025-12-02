@@ -27,25 +27,12 @@ import { useCloakMechanics } from "./useCloakMechanics";
 import { useWolfState } from "./useWolfState";
 import { usePlayerState } from "./usePlayerState";
 
-/**
- * hook that handles all the game state and logic
- */
+// main game state orchestrator - coordinates all game logic and state updates
 export const useGameState = () => {
-  // use level state hook for level generation logic
-  // Note: For now, we only use generateLevel. Level state remains in gameState for backward compatibility
   const { generateLevel } = useLevelState();
-
-  // use inventory state hook for timer refs and helper functions
-  // Note: State remains in gameState for now, we use the hook for refs and future migration
   const { itemSpawnTimerRef, cloakSpawnTimerRef } = useInventoryState();
-
-  // use game lifecycle hook for gameStartTimeRef and helper functions
-  // Note: Lifecycle state (gameOver, paused, isStuck, temporaryMessage) remains in gameState for backward compatibility
-  // We use the hook for gameStartTimeRef and helper functions (setGameStartTime, clearGameStartTime)
   const { gameStartTimeRef, setGameStartTime, clearGameStartTime } = useGameLifecycle();
 
-  // use bomb mechanics hook for bomb-related logic
-  // Note: Bomb state (explosionEffect, explosionMarks, bombCooldownEndTime) is synced with gameState for compatibility
   const {
     explosionEffect: hookExplosionEffect,
     explosionMarks: hookExplosionMarks,
@@ -57,8 +44,6 @@ export const useGameState = () => {
     resetBombMechanics,
   } = useBombMechanics();
 
-  // use cloak mechanics hook for cloak-related logic
-  // Note: Cloak state (playerInvisible, cloakInvisibilityEndTime, cloakCooldownEndTime, cloakSpawned) is synced with gameState for compatibility
   const {
     playerInvisible: hookPlayerInvisible,
     cloakInvisibilityEndTime: hookCloakInvisibilityEndTime,
@@ -74,8 +59,6 @@ export const useGameState = () => {
     resetCloakMechanics,
   } = useCloakMechanics();
 
-  // use wolf state hook for wolf-related logic
-  // Note: Wolf state is synced with gameState for compatibility
   const {
     wolfPosition: hookWolfPosition,
     wolfDirection: hookWolfDirection,

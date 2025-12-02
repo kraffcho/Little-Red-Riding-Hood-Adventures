@@ -1,9 +1,6 @@
 import { Position, Direction } from "../types";
 import { GRID_SIZE } from "../constants/gameConfig";
 
-/**
- * checks if a position is within the grid boundaries
- */
 export const isWithinBounds = (position: Position, gridSize: number = GRID_SIZE): boolean => {
   return (
     position.x >= 0 &&
@@ -13,9 +10,6 @@ export const isWithinBounds = (position: Position, gridSize: number = GRID_SIZE)
   );
 };
 
-/**
- * checks if a position is valid (within bounds and not blocked by trees)
- */
 export const isValidPosition = (
   position: Position,
   treePositions: Position[],
@@ -30,23 +24,15 @@ export const isValidPosition = (
   );
 };
 
-/**
- * checks if two positions are the same
- */
 export const positionsEqual = (pos1: Position, pos2: Position): boolean => {
   return pos1.x === pos2.x && pos1.y === pos2.y;
 };
 
-/**
- * calculates manhattan distance between two positions (for A* pathfinding)
- */
+// calculates manhattan distance for A* pathfinding heuristic
 export const manhattanDistance = (pos1: Position, pos2: Position): number => {
   return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y);
 };
 
-/**
- * checks if a position is next to any tree
- */
 export const isAdjacentToTree = (
   position: Position,
   treePositions: Position[]

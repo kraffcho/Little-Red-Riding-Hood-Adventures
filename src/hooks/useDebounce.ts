@@ -1,8 +1,6 @@
 import { useRef, useCallback } from "react";
 
-/**
- * hook that waits a bit before calling a function, so we don't spam it
- */
+// delays function calls to prevent rapid-fire execution
 export const useDebounce = <T extends (...args: any[]) => void>(
   callback: T,
   delay: number

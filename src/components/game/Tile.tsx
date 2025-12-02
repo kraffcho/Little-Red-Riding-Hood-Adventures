@@ -59,7 +59,7 @@ const Tile: React.FC<Props> = ({
     }
   }, [isTree]);
 
-  // update stun timer
+  // display countdown timer on stunned wolf
   useEffect(() => {
     if (showStunTimer && stunEndTime) {
       const updateTimer = () => {
@@ -75,7 +75,7 @@ const Tile: React.FC<Props> = ({
     }
   }, [showStunTimer, stunEndTime]);
 
-  // check if explosion mark should be fading (last 0.5 seconds before removal)
+  // fade out explosion marks before they disappear
   useEffect(() => {
     if (!explosionMark) {
       setIsFading(false);
@@ -85,7 +85,7 @@ const Tile: React.FC<Props> = ({
     const checkFade = () => {
       const now = Date.now();
       const age = now - explosionMark.createdAt;
-      const fadeStartTime = EXPLOSION_MARK_DURATION - 500; // start fading 0.5 seconds before removal
+      const fadeStartTime = EXPLOSION_MARK_DURATION - 500;
 
       if (age >= fadeStartTime) {
         setIsFading(true);
@@ -95,12 +95,11 @@ const Tile: React.FC<Props> = ({
     };
 
     checkFade();
-    const interval = setInterval(checkFade, 50); // check every 50ms for smooth fade
+    const interval = setInterval(checkFade, 50);
     return () => clearInterval(interval);
   }, [explosionMark]);
 
-  // build className string declaratively using utility function
-  // hide player when wolf wins, or when there's overlap during game over
+  // hide player sprite when wolf catches them
   const shouldShowPlayer = isPlayer && !(gameOver && (wolfWon || isOverlap));
 
   const className = useMemo(

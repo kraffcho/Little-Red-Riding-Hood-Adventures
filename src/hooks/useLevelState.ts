@@ -15,9 +15,7 @@ import {
   pathExists,
 } from "../utils";
 
-/**
- * Hook that manages level-related state: grid, trees, flowers, house, and level generation
- */
+// manages level generation, grid size, trees, flowers, and house position
 export const useLevelState = () => {
   const [levelState, setLevelState] = useState<{
     gridSize: number;

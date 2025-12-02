@@ -4,23 +4,19 @@ import { Position, ItemType } from "../types";
 import { GRID_SIZE } from "../constants/gameConfig";
 import { isValidPosition } from "./gridUtils";
 
-/**
- * generate a random valid position for a special item to spawn
- */
+// finds a random empty position for spawning special items
 export const generateRandomItemPosition = (
   existingPositions: Position[],
   treePositions: Position[],
   gridSize: number = GRID_SIZE,
   grannyHousePosition: Position
 ): Position | null => {
-  // try to find a valid empty position
   const maxAttempts = 100;
   for (let i = 0; i < maxAttempts; i++) {
     const x = Math.floor(Math.random() * gridSize);
     const y = Math.floor(Math.random() * gridSize);
     const position = { x, y };
 
-    // make sure this position is not occupied by trees, existing items, or other entities
     const isOccupied = existingPositions.some(
       (p) => p.x === position.x && p.y === position.y
     );
@@ -29,7 +25,6 @@ export const generateRandomItemPosition = (
       (tree) => tree.x === position.x && tree.y === position.y
     );
 
-    // also avoid player start position and house position
     const isPlayerStart = position.x === 0 && position.y === 0;
     const isHousePosition =
       position.x === grannyHousePosition.x && position.y === grannyHousePosition.y;
@@ -39,12 +34,9 @@ export const generateRandomItemPosition = (
     }
   }
 
-  return null; // couldn't find a valid position
+  return null;
 };
 
-/**
- * check if a position is within the explosion radius
- */
 export const isWithinRadius = (
   position: Position,
   center: Position,
@@ -55,9 +47,6 @@ export const isWithinRadius = (
   return distanceX <= radius && distanceY <= radius;
 };
 
-/**
- * get all positions within a radius for visual effect
- */
 export const getPositionsInRadius = (
   center: Position,
   radius: number,
@@ -80,9 +69,6 @@ export const getPositionsInRadius = (
   return positions;
 };
 
-/**
- * generate a unique id for an item
- */
 export const generateItemId = (): string => {
   return `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };

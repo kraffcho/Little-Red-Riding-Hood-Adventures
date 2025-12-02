@@ -16,14 +16,12 @@ const TemporaryMessage: React.FC<TemporaryMessageProps> = ({
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    // hide the message after the specified duration
     const timer = setTimeout(() => {
       setVisible(false);
-      // call onComplete after fade out animation completes
       if (onComplete) {
         setTimeout(() => {
           onComplete();
-        }, 300); // wait for fade out animation (0.3s)
+        }, 300);
       }
     }, duration);
 

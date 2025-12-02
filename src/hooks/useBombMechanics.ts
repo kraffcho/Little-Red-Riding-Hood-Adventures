@@ -9,17 +9,12 @@ import {
 } from "../constants/gameConfig";
 import { isWithinRadius } from "../utils";
 
-/**
- * Hook that manages bomb mechanics: explosions, stun effects, cooldowns, and explosion marks
- */
+// handles bomb explosions, stun effects, cooldowns, and visual marks
 export const useBombMechanics = () => {
   const [explosionEffect, setExplosionEffect] = useState<ExplosionEffect | null>(null);
   const [explosionMarks, setExplosionMarks] = useState<ExplosionMark[]>([]);
   const [bombCooldownEndTime, setBombCooldownEndTime] = useState<number | null>(null);
 
-  /**
-   * Create an explosion effect at the given position
-   */
   const createExplosion = useCallback((position: Position) => {
     const effect: ExplosionEffect = {
       position,
