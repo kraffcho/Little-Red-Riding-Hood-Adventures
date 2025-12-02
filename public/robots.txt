@@ -2,6 +2,5 @@
 User-agent: *
 Allow: /
 
-# Update the sitemap URL below when you deploy the game
-# Sitemap: https://your-domain.com/sitemap.xml
+Sitemap: https://little-red-riding-hood-adventures.vercel.app/sitemap.xml
 

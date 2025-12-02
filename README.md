@@ -10,6 +10,7 @@ Welcome to the enchanting world of "Little Red Riding Hood Adventures"! A grid-b
   - [Installation](#installation)
   - [Running the Game](#running-the-game)
   - [Building for Production](#building-for-production)
+  - [Deploying to Vercel](#deploying-to-vercel)
 - [🛠️ Tech Stack](#️-tech-stack)
 - [📁 Project Structure](#-project-structure)
 - [🎵 Features](#-features)
@@ -107,6 +108,33 @@ npm run build
 ```
 
 The optimized build will be in the `build` folder.
+
+### Deploying to Vercel
+
+The easiest way to deploy this game is using [Vercel](https://vercel.com):
+
+1. **Install Vercel CLI** (optional):
+   ```bash
+   npm i -g vercel
+   ```
+
+2. **Deploy via CLI**:
+   ```bash
+   vercel
+   ```
+
+3. **Or deploy via Vercel Dashboard**:
+   - Import your GitHub repository at [vercel.com/new](https://vercel.com/new)
+   - Vercel will auto-detect Create React App settings
+   - Click "Deploy"
+
+4. **Configuration**:
+   - The `vercel.json` file is already configured
+   - Build command: `npm run build`
+   - Output directory: `build`
+   - Framework: Create React App
+
+Your game will be live at: `https://little-red-riding-hood-adventures.vercel.app` (or your custom domain)
 
 ## 🛠️ Tech Stack
 
