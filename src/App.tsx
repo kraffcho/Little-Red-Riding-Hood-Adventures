@@ -137,7 +137,7 @@ const App: React.FC = () => {
     }
   }, [gameState.collectedFlowers, gameState.playerEnteredHouse, gameState.isHouseOpen, gameState.currentLevel, countdownComplete]);
 
-  // play a sound when all flowers are collected
+  // play quest completed sound when all flowers are collected
   useEffect(() => {
     const levelConfig = getLevelConfig(gameState.currentLevel);
     const numFlowers = levelConfig.numFlowers;
@@ -190,28 +190,24 @@ const App: React.FC = () => {
     previousWolfStunned.current = gameState.wolfStunned;
   }, [gameState.wolfStunned, playSound]);
 
-  // play a sound when bomb explodes
+  // play explosion sound (once per bomb)
   useEffect(() => {
     if (gameState.explosionEffect) {
       const explosionId = `${gameState.explosionEffect.position.x}-${gameState.explosionEffect.position.y}-${gameState.explosionEffect.startTime}`;
-      // only play sound once per explosion
       if (previousExplosionEffect.current !== explosionId) {
         previousExplosionEffect.current = explosionId;
         playRandomSound(AUDIO_PATHS.BOMB_EXPLOSION);
       }
     } else {
-      // reset when explosion effect is cleared
       previousExplosionEffect.current = null;
     }
   }, [gameState.explosionEffect, playRandomSound]);
 
-  // handle Esc key for pause/unpause
+  // toggle pause with ESC key
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" || event.code === "Escape") {
-        // prevent default browser behavior (e.g., closing modals)
         event.preventDefault();
-        // don't allow pausing if game is over, completed, or stuck
         if (!gameState.gameOver && !gameState.playerEnteredHouse && !gameState.isStuck && countdownComplete) {
           togglePause();
         }
@@ -222,25 +218,22 @@ const App: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, countdownComplete, togglePause]);
 
-  // handle pause menu visibility with fade animations
+  // handle pause menu fade in/out animations
   useEffect(() => {
     if (gameState.paused && countdownComplete) {
-      // Show pause menu immediately when paused
       setShowPauseMenu(true);
-      // Clear any existing timeout
       if (pauseMenuTimeoutRef.current) {
         clearTimeout(pauseMenuTimeoutRef.current);
         pauseMenuTimeoutRef.current = null;
       }
     } else if (!gameState.paused && showPauseMenu) {
-      // When unpaused, wait for fade-out animation before hiding
       if (pauseMenuTimeoutRef.current) {
         clearTimeout(pauseMenuTimeoutRef.current);
       }
       pauseMenuTimeoutRef.current = setTimeout(() => {
         setShowPauseMenu(false);
         pauseMenuTimeoutRef.current = null;
-      }, 300); // Match fade-out animation duration
+      }, 300);
     }
 
     return () => {
@@ -251,8 +244,7 @@ const App: React.FC = () => {
     };
   }, [gameState.paused, countdownComplete]);
 
-  // make the wolf chase the player every so often - wait for countdown to finish
-  // use dynamic delay that decreases after each stun (wolf becomes faster)
+  // wolf movement loop with dynamic speed (gets faster after each stun)
   useEffect(() => {
     if (!countdownComplete || !gameState.wolfMoving || gameState.gameOver || gameState.isStuck || gameState.paused) return;
 
@@ -263,22 +255,19 @@ const App: React.FC = () => {
     return () => clearInterval(intervalId);
   }, [countdownComplete, gameState.wolfMoving, gameState.gameOver, gameState.isStuck, gameState.paused, gameState.currentWolfDelay, moveWolf]);
 
-  // handle when the player moves - play music, check house entry, etc.
   const handlePlayerMove = useCallback((direction: Direction) => {
-    // prevent movement if countdown hasn't finished, player has entered house, is stuck, game is over, or paused
     if (!countdownComplete || gameState.playerEnteredHouse || gameState.isStuck || gameState.gameOver || gameState.paused) {
       return;
     }
 
-    // mark that the user has done something
     markUserInteracted();
 
-    // start playing music on the first move (if not paused before)
+    // start music on first movement
     if (!isPlayingMusic && !checkMusicCookie()) {
       playBackgroundMusic();
     }
 
-    // block entry to the house if quest isn't done yet
+    // prevent entering house until all flowers are collected
     const newPosition = moveInDirection(gameState.playerPosition, direction);
     const isAttemptingHouseEntry = positionsEqual(newPosition, gameState.grannyHousePosition);
 
@@ -328,9 +317,8 @@ const App: React.FC = () => {
     wolfVictorySoundPlayed.current = false;
     previousWolfStunned.current = false;
     previousExplosionEffect.current = null;
-    setCountdownComplete(false); // reset countdown for new game
-    gameResetKey.current += 1; // increment to force countdown remount
-    // reset tooltip milestones
+    setCountdownComplete(false);
+    gameResetKey.current += 1;
     setCurrentTooltipMilestone(null);
     setCurrentTooltipMessage("");
     shownMilestonesRef.current.clear();
@@ -338,50 +326,40 @@ const App: React.FC = () => {
       clearTimeout(tooltipTimeoutRef.current);
       tooltipTimeoutRef.current = null;
     }
-    setIsSettingsOpen(false); // close settings menu on restart
+    setIsSettingsOpen(false);
   }, [resetMusic, resetGame]);
 
   const handleNextLevel = useCallback(() => {
-    // reset countdown state for new level
     setCountdownComplete(false);
-    gameResetKey.current += 1; // increment to force countdown remount
-    // reset tooltip milestones for new level
+    gameResetKey.current += 1;
     shownMilestonesRef.current.clear();
     if (tooltipTimeoutRef.current) {
       clearTimeout(tooltipTimeoutRef.current);
       tooltipTimeoutRef.current = null;
     }
-    // reset quest completed sound flag
     questCompletedSoundPlayed.current = false;
-    // reset previous flower count for new level
     previousFlowerCount.current = 0;
-    // call nextLevel to advance to next level
     nextLevel();
   }, [nextLevel]);
 
   const handleReplayLevel = useCallback(() => {
-    // reset countdown state for replay
     setCountdownComplete(false);
-    gameResetKey.current += 1; // increment to force countdown remount
-    // reset tooltip milestones for replay
+    gameResetKey.current += 1;
     shownMilestonesRef.current.clear();
     if (tooltipTimeoutRef.current) {
       clearTimeout(tooltipTimeoutRef.current);
       tooltipTimeoutRef.current = null;
     }
-    // reset quest completed sound flag
     questCompletedSoundPlayed.current = false;
-    // reset previous flower count for replay
     previousFlowerCount.current = 0;
-    // call replayLevel to regenerate the same level
     replayLevel();
   }, [replayLevel]);
 
   const handleCountdownComplete = useCallback(() => {
     setCountdownComplete(true);
-    // start item spawning timer when countdown completes
     startItemSpawning();
-    // trigger start milestone tooltip after a brief delay (so countdown message can fade)
+    
+    // show granny's welcome message after countdown fades
     setTimeout(() => {
       if (!shownMilestonesRef.current.has("start") && gameState.collectedFlowers === 0) {
         const questMsg = getGrannyQuestMessage(
@@ -406,11 +384,9 @@ const App: React.FC = () => {
     }, 500);
   }, [startItemSpawning, gameState.collectedFlowers]);
 
-  // handle item usage
   const handleUseItem = useCallback((itemType: ItemType) => {
-    // prevent item usage when level is completed, game is over, or paused
     if (gameState.gameOver || gameState.playerEnteredHouse || gameState.isStuck || gameState.paused) {
-      return; // do nothing and don't play sounds
+      return;
     }
 
     if (itemType === "bomb") {
@@ -419,7 +395,6 @@ const App: React.FC = () => {
       useCloak();
       playSound(AUDIO_PATHS.USE_CLOAK);
     }
-    // future items can be handled here
   }, [useBomb, useCloak, playSound, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, gameState.paused]);
 
   // listen for space bar to use bomb
@@ -430,7 +405,7 @@ const App: React.FC = () => {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === " " || event.code === "Space") {
-        event.preventDefault(); // prevent page scroll
+        event.preventDefault();
         handleUseItem("bomb");
       }
     };
@@ -449,7 +424,6 @@ const App: React.FC = () => {
       const key = event.key.toLowerCase();
       if (key === "c" || event.code === "KeyC") {
         event.preventDefault();
-        // check if player has cloak and is not on cooldown
         const hasCloak = gameState.inventory.includes("cloak");
         const isOnCooldown = gameState.cloakCooldownEndTime !== null && Date.now() < gameState.cloakCooldownEndTime;
 
@@ -463,8 +437,7 @@ const App: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [countdownComplete, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, gameState.paused, gameState.inventory, gameState.cloakCooldownEndTime, handleUseItem]);
 
-  // don't render the board until the game is initialized
-  // check if gridSize is set (which is always set during reset) to keep board visible during reset/retry
+  // wait for game initialization before rendering (gridSize check keeps board visible during resets)
   const isGameInitialized = gameState.gridSize > 0;
 
   return (
@@ -489,7 +462,6 @@ const App: React.FC = () => {
           }}
           onSettingsClick={() => {
             markUserInteracted();
-            // if opening settings and game is running (not paused, not game over), pause the game
             if (!isSettingsOpen && !gameState.paused && !gameState.gameOver && countdownComplete) {
               togglePause();
             }
@@ -509,7 +481,6 @@ const App: React.FC = () => {
           onRestart={handleResetGame}
           isOpen={isSettingsOpen}
           onToggle={(shouldUnpause = true) => {
-            // if closing settings and game is paused, unpause it
             if (isSettingsOpen && gameState.paused && !gameState.gameOver && shouldUnpause) {
               unpauseGame();
             }
@@ -532,9 +503,7 @@ const App: React.FC = () => {
             <LevelComplete
               level={gameState.currentLevel}
               show={gameState.playerEnteredHouse}
-              onComplete={() => {
-                // level complete message has been shown, now showing restart message
-              }}
+              onComplete={() => {}}
               onRestart={handleResetGame}
               onNextLevel={handleNextLevel}
               onReplayLevel={handleReplayLevel}
