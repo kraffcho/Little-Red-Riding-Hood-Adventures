@@ -71,6 +71,8 @@ export const useSwipeInput = (
     (event: React.TouchEvent<HTMLDivElement>) => {
       if (!enabled) return;
       if (event.touches.length === 1) {
+        // prevent default to stop pull-to-refresh and browser navigation
+        event.preventDefault();
         touchStartPos.current = {
           x: event.touches[0].clientX,
           y: event.touches[0].clientY,
@@ -80,11 +82,23 @@ export const useSwipeInput = (
     [enabled]
   );
 
+  const handleTouchMove = useCallback(
+    (event: React.TouchEvent<HTMLDivElement>) => {
+      if (!enabled || !touchStartPos.current) return;
+      // prevent scrolling while swiping on the game board
+      event.preventDefault();
+    },
+    [enabled]
+  );
+
   const handleTouchEnd = useCallback(
     (event: React.TouchEvent<HTMLDivElement>) => {
       if (!enabled || !touchStartPos.current || event.changedTouches.length !== 1) {
         return;
       }
+
+      // prevent default to stop any browser behavior
+      event.preventDefault();
 
       const touchEndPos = {
         x: event.changedTouches[0].clientX,
@@ -118,6 +132,6 @@ export const useSwipeInput = (
     [enabled, onMove]
   );
 
-  return { handleTouchStart, handleTouchEnd };
+  return { handleTouchStart, handleTouchMove, handleTouchEnd };
 };
 

@@ -9,6 +9,8 @@
   height: 100vh;
   overflow: hidden;
   padding-top: 44px; /* account for fixed header (34px) with breathing room */
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
 /* wrapper for game board and overlays (game over, level complete) */

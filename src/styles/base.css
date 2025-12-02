@@ -15,4 +15,6 @@ body {
   background: var(--color-green-background)
     url("../assets/images/background-desktop.jpg") no-repeat center center /
     cover;
+  overscroll-behavior: none;
+  touch-action: pan-x pan-y;
 }

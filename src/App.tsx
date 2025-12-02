@@ -320,7 +320,7 @@ const App: React.FC = () => {
   useKeyboardInput(handlePlayerMove, gameState.playerCanMove && countdownComplete && !gameState.paused);
 
   // handle touch/swipe gestures for mobile - disable during countdown
-  const { handleTouchStart, handleTouchEnd } = useSwipeInput(
+  const { handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeInput(
     handlePlayerMove,
     gameState.playerCanMove && countdownComplete && !gameState.paused
   );
@@ -475,7 +475,7 @@ const App: React.FC = () => {
   const isGameInitialized = gameState.gridSize > 0;
 
   return (
-    <div className="App" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <div className="App" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
       {/* header with inventory and settings button */}
       {isGameInitialized && (
         <Header
