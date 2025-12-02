@@ -508,6 +508,9 @@ const App: React.FC = () => {
           onRestart={handleResetGame}
           isOpen={isSettingsOpen}
           onToggle={() => setIsSettingsOpen(!isSettingsOpen)}
+          currentLevel={gameState.currentLevel}
+          collectedFlowers={gameState.collectedFlowers}
+          totalFlowers={getLevelConfig(gameState.currentLevel).numFlowers}
         />
       )}
       {isGameInitialized && (

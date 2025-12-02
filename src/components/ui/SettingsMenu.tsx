@@ -11,6 +11,9 @@ interface SettingsMenuProps {
   onRestart: () => void;
   isOpen: boolean;
   onToggle: () => void;
+  currentLevel: number;
+  collectedFlowers: number;
+  totalFlowers: number;
 }
 
 const SettingsMenu: React.FC<SettingsMenuProps> = ({
@@ -21,8 +24,14 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
   onRestart,
   isOpen,
   onToggle,
+  currentLevel,
+  collectedFlowers,
+  totalFlowers,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
+  const totalLevels = 3; // Update this when adding more levels
+  const levelProgress = (currentLevel / totalLevels) * 100;
+  const currentLevelProgress = (collectedFlowers / totalFlowers) * 100;
 
   // close the menu if user clicks somewhere else (but not the settings button)
   useEffect(() => {
@@ -54,15 +63,57 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
   return (
     <div className="settings-menu-dropdown" ref={menuRef}>
       <div className="settings-menu-header">
-        <h3>Settings</h3>
+        <h3>Game Menu</h3>
       </div>
       <div className="settings-menu-content">
+        {/* Game Progress Section */}
+        <div className="settings-menu-section settings-progress-section">
+          <div className="settings-progress-item">
+            <div className="settings-progress-header">
+              <span className="settings-progress-icon">🎮</span>
+              <div className="settings-progress-text">
+                <span className="settings-progress-label">Overall Progress</span>
+                <span className="settings-progress-value">Level {currentLevel} of {totalLevels}</span>
+              </div>
+            </div>
+            <div className="settings-progress-bar-container">
+              <div 
+                className="settings-progress-bar-fill"
+                style={{ width: `${levelProgress}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="settings-progress-item">
+            <div className="settings-progress-header">
+              <span className="settings-progress-icon">💐</span>
+              <div className="settings-progress-text">
+                <span className="settings-progress-label">Current Level</span>
+                <span className="settings-progress-value">{collectedFlowers} / {totalFlowers} flowers</span>
+              </div>
+            </div>
+            <div className="settings-progress-bar-container">
+              <div 
+                className="settings-progress-bar-fill settings-progress-bar-flowers"
+                style={{ width: `${currentLevelProgress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="settings-menu-divider"></div>
+
+        {/* Audio Controls Section */}
         <div className="settings-menu-section">
-          <div className="settings-menu-section-header">
-            <VolumeIcon className="settings-menu-icon" muted={!isPlayingMusic} />
-            <label htmlFor="volumeSlider" className="settings-menu-label">Volume</label>
+          <div className="settings-section-title">
+            <span>🔊 Audio</span>
           </div>
           <div className="settings-volume-control">
+            <div className="settings-volume-header">
+              <VolumeIcon className="settings-menu-icon" muted={!isPlayingMusic} />
+              <label htmlFor="volumeSlider" className="settings-menu-label">Volume</label>
+              <span className="settings-volume-value">{Math.round(volume * 100)}%</span>
+            </div>
             <input
               type="range"
               id="volumeSlider"
@@ -73,26 +124,24 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
               onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
               className="settings-volume-slider"
             />
-            <span className="settings-volume-value">{Math.round(volume * 100)}%</span>
           </div>
-        </div>
-
-        <div className="settings-menu-divider"></div>
-
-        <div className="settings-menu-section">
           <button
             type="button"
             onClick={onToggleSound}
-            className="settings-action-button settings-toggle-button"
+            className="settings-menu-item-button"
           >
-            <VolumeIcon className="settings-action-icon" muted={!isPlayingMusic} />
+            <VolumeIcon className="settings-item-icon" muted={!isPlayingMusic} />
             <span>{isPlayingMusic ? "Mute Sound" : "Unmute Sound"}</span>
           </button>
         </div>
 
         <div className="settings-menu-divider"></div>
 
+        {/* Actions Section */}
         <div className="settings-menu-section">
+          <div className="settings-section-title">
+            <span>⚙️ Actions</span>
+          </div>
           <button
             type="button"
             onClick={(e) => {
@@ -101,10 +150,10 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
               onToggle();
               onRestart();
             }}
-            className="settings-action-button settings-restart-button"
+            className="settings-menu-item-button settings-restart-button"
           >
-            <RestartIcon className="settings-action-icon" />
-            <span>Restart</span>
+            <RestartIcon className="settings-item-icon" />
+            <span>Restart Game</span>
           </button>
         </div>
 
