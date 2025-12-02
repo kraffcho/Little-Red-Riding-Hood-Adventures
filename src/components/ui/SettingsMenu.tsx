@@ -101,8 +101,6 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
           </div>
         </div>
 
-        <div className="settings-menu-divider"></div>
-
         {/* Audio Controls Section */}
         <div className="settings-menu-section">
           <div className="settings-section-title">
@@ -135,8 +133,6 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
           </button>
         </div>
 
-        <div className="settings-menu-divider"></div>
-
         {/* Actions Section */}
         <div className="settings-menu-section">
           <div className="settings-section-title">
@@ -156,8 +152,6 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
             <span>Restart Game</span>
           </button>
         </div>
-
-        <div className="settings-menu-divider"></div>
 
         <Credits variant="settings-menu" />
       </div>
