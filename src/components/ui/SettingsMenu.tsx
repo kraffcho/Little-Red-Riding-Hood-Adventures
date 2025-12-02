@@ -118,8 +118,16 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
               step="0.01"
               value={volume}
               onChange={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                onVolumeChange(parseFloat(e.target.value));
+                const newVolume = parseFloat(e.target.value);
+                onVolumeChange(newVolume);
+              }}
+              onInput={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const newVolume = parseFloat((e.target as HTMLInputElement).value);
+                onVolumeChange(newVolume);
               }}
               className="settings-volume-slider"
             />
@@ -127,8 +135,12 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
           <button
             type="button"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               onToggleSound();
+            }}
+            onMouseDown={(e) => {
+              e.stopPropagation();
             }}
             className="settings-menu-item-button"
           >
