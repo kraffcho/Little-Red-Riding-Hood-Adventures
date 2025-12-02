@@ -142,7 +142,7 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
                     Continue to Level {displayLevel + 1}
                   </button>
                   <button className="level-complete-button level-complete-button-secondary" onClick={handleRestart}>
-                    Restart Game
+                    Restart
                   </button>
                 </div>
               </>
@@ -156,7 +156,7 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
                     </button>
                   )}
                   <button className={`level-complete-button ${onReplayLevel ? 'level-complete-button-secondary' : 'level-complete-button-primary'}`} onClick={handleRestart}>
-                    Restart Game
+                    Restart
                   </button>
                 </div>
               </>

@@ -3,9 +3,10 @@ import React, { useEffect, useState, useRef } from 'react';
 interface CountdownProps {
   onComplete: () => void;
   isGameInitialized: boolean;
+  currentLevel: number;
 }
 
-const Countdown: React.FC<CountdownProps> = ({ onComplete, isGameInitialized }) => {
+const Countdown: React.FC<CountdownProps> = ({ onComplete, isGameInitialized, currentLevel }) => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const hasStartedRef = useRef(false);
 
@@ -54,6 +55,7 @@ const Countdown: React.FC<CountdownProps> = ({ onComplete, isGameInitialized }) 
   return (
     <div className="countdown-overlay">
       <div className="countdown-content">
+        <div className="countdown-level-badge">LEVEL {currentLevel}</div>
         <div className="countdown-message">GET READY!</div>
         <div className={`countdown-number ${countdown === 0 ? 'countdown-go' : ''}`}>
           {countdown > 0 ? countdown : "GO!"}

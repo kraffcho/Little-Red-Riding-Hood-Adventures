@@ -8,21 +8,25 @@ Welcome to the enchanting world of "Little Red Riding Hood Adventures"! A grid-b
   - `W` = Up, `S` = Down, `A` = Left, `D` = Right
 - On mobile/tablet, swipe in the direction you want to move
 - Press **ESC** or click the pause button (⏸) in the header to pause/unpause the game
-- Wait for the countdown (3-2-1-GO!) before the game starts
-- Collect all flowers scattered throughout the forest
-- **Collect special items** (bombs, Hunter's Cloak) that spawn on the board after gameplay starts
-- **Use bombs** to stun the wolf for 5 seconds (within 3-tile radius)
+- Wait for the countdown (3-2-1-GO!) before the game starts - you'll see which level you're playing!
+- Collect all flowers scattered throughout the forest (level-specific amounts)
+- **Collect special items** (bombs, Hunter's Cloak) - available based on your current level
+- **Use bombs** to stun the wolf (within 3-tile radius)
   - Click/tap the bomb in your inventory, or press **Space bar**
-  - Bombs have a 5-second cooldown before you can use another
+  - Stun duration and cooldown vary by level
+  - Available starting from Level 2
 - ⚠️ **Warning**: Each time the wolf wakes up from a stun, it becomes 10% faster (max 5 times)!
-- **Use Hunter's Cloak** to become invisible for 10 seconds
+- **Use Hunter's Cloak** to become invisible to the wolf
   - Click/tap the cloak icon in your inventory
   - The wolf stops moving and becomes confused while you're invisible
   - The wolf is treated as an obstacle during invisibility (can't move through it)
-  - Cloak has a 30-second cooldown before reuse
+  - Invisibility duration and cooldown vary by level
+  - Available starting from Level 3
 - Avoid the wolf - if it catches you, it's game over!
+  - You can **Try Again** to play the same level again
+  - Or **Restart** to begin from Level 1
 - Once all flowers are collected, Granny's house will open
-- Reach Granny's house to complete the level
+- Reach Granny's house to complete the level and unlock new items!
 
 ## 🚀 Getting Started
 
@@ -93,7 +97,8 @@ src/
 │   ├── PauseMenu.tsx               # Pause menu overlay with game information
 │   └── TemporaryMessage.tsx        # Temporary messages (hit/miss feedback)
 ├── constants/
-│   └── gameConfig.ts               # Game configuration constants
+│   ├── gameConfig.ts               # Game configuration constants
+│   └── levelConfig.ts              # Level-specific configurations and unlocks
 ├── hooks/
 │   ├── index.ts                    # Centralized hook exports
 │   ├── useGameState.ts             # Game state management
@@ -143,19 +148,24 @@ src/
 - 🔄 **Smart level generation** - Retry logic with attempt logging
 - 🎭 **Smooth animations** - GPU-accelerated for optimal performance
 - 🚫 **Stuck detection** - Prevents unwinnable game states for player and wolf
+- 📊 **Multi-Level System** - Progress through 3 distinct levels with increasing difficulty
+- 🔓 **Progressive Item Unlocks** - Unlock bombs after Level 1, cloak after Level 2
+- 📈 **Level-Specific Configurations** - Flowers, wolf speed, and item stats vary by level
 - 💣 **Special Items System** - Collect and use bombs to stun the wolf
 - 🧥 **Hunter's Cloak** - Become invisible to the wolf for strategic gameplay
-- ⏸️ **Pause System** - Pause/unpause with ESC key or header button, shows game information menu
+- ⏸️ **Pause System** - Pause/unpause with ESC key or header button, shows level-specific game information
 - 📦 **Compact Header Inventory** - 3-slot inventory in the header with visual cooldown
-- 🎯 **Quest Progress in Header** - Slim one-liner progress bar showing collected flowers
+- 🎯 **Quest Progress in Header** - Slim one-liner progress bar showing collected flowers (level-specific count)
 - ⚙️ **Settings Menu** - Accessible via SVG gear icon in header (top-right)
-- 🏠 **Granny's Tooltips** - Dynamic quest messages appear above Granny's house
+- 🏠 **Granny's Tooltips** - Dynamic quest messages appear above Granny's house (level-specific)
 - 💥 **Explosion Effects** - Visual feedback with screen shake and marks
 - 🎯 **Hit/Miss Feedback** - Temporary messages show bomb effectiveness
 - ⏱️ **Stun System** - Visual countdown timer above stunned wolf
 - 🐺 **Wolf Speed Increase** - Wolf becomes faster after each stun (10% speed increase, max 5 times)
 - 🔊 **Wolf Howl** - Wolf howls when waking up from stun
-- 📊 **Level Progression** - Complete levels to advance (infinite levels)
+- 🎮 **Improved Countdown UI** - Shows current level before countdown starts
+- 🎯 **Level Complete Screen** - Beautiful overlay with unlock messages and progression options
+- 🔄 **Game Over Options** - Retry current level or restart from Level 1
 
 ## 🏗️ Architecture
 
@@ -280,6 +290,82 @@ All imports use centralized index files for cleaner import paths:
 - **Level Progression** - Complete levels to advance (currently infinite levels)
 - **Explosion Marks** - Visual marks on tiles where bombs were used (fade after 3 seconds)
 - **Responsive Grid System** - Grid size adapts based on viewport width for optimal gameplay
+- **Level System** - Three distinct levels with progressive difficulty and item unlocks
+
+## 🎯 Level System
+
+The game features a multi-level progression system with increasing difficulty and progressive item unlocks. Each level has unique configurations for flowers, wolf speed, and available special items.
+
+### Level Overview
+
+**Level 1 - The Beginning**
+- **Flowers**: 20 flowers to collect
+- **Wolf Speed**: Base speed (500ms movement delay)
+- **Special Items**: None available
+- **Objective**: Learn the basics and reach Granny's house
+
+**Level 2 - The Chase**
+- **Flowers**: 25 flowers to collect
+- **Wolf Speed**: 20% faster (400ms movement delay)
+- **Special Items**: 💣 **Bomb unlocked!**
+  - Stun duration: 5 seconds
+  - Cooldown: 5 seconds
+- **Objective**: Use bombs strategically to escape the faster wolf
+- **Unlock**: Complete Level 1 to unlock bombs
+
+**Level 3+ - The Ultimate Challenge**
+- **Flowers**: 30 flowers to collect
+- **Wolf Speed**: Even faster (350ms movement delay)
+- **Trees**: 10% more trees for added difficulty
+- **Special Items**: Both 💣 **Bomb** and 🧥 **Hunter's Cloak** available
+  - Bomb stun duration: 4 seconds (shorter)
+  - Bomb cooldown: 7 seconds (longer)
+  - Cloak invisibility: 8 seconds (shorter)
+  - Cloak cooldown: 40 seconds (longer)
+- **Objective**: Master both items to survive the ultimate challenge
+- **Unlock**: Complete Level 2 to unlock Hunter's Cloak
+
+### Level Progression
+
+1. **Complete Level 1** → Unlock 💣 Bomb
+   - "New Item Unlocked: 💣 Bomb!" message appears
+   - Option to "Continue to Level 2" or "Restart"
+
+2. **Complete Level 2** → Unlock 🧥 Hunter's Cloak
+   - "New Item Unlocked: 🧥 Hunter's Cloak!" message appears
+   - Option to "Continue to Level 3" or "Restart"
+
+3. **Complete Level 3+** → Master Level
+   - "New levels will be added soon!" message
+   - Option to "Play Again" (replay Level 3) or "Restart"
+
+### Item Unlock System
+
+- Items are unlocked progressively as you complete levels
+- Unlock messages appear on the "Level Complete" screen
+- Available items are shown in the pause menu based on your current level
+- Level 1: No special items
+- Level 2: Bombs available
+- Level 3+: Both bombs and cloak available
+
+### Level-Specific Features
+
+- **Dynamic Configuration**: Each level uses `getLevelConfig(level)` to load level-specific settings
+- **Adaptive Difficulty**: Wolf speed, flower count, and item stats scale with level
+- **Progressive Challenges**: Each level introduces new challenges and tools
+- **Quest Messages**: Granny's quest messages adjust based on level (flower count)
+- **Pause Menu**: Shows level-specific item information and objectives
+
+### Game Over Options
+
+When the wolf catches you, you have two options:
+
+- **Try Again** - Restart the current level with the same configuration
+  - Keeps your current level progress
+  - Same difficulty and items as before
+- **Restart** - Start fresh from Level 1
+  - Resets all progress
+  - Begin the journey from the beginning
 
 ## 📱 Responsive Grid System
 
@@ -346,16 +432,20 @@ The game features an adaptive grid system that adjusts the game board size based
 - **Dropdown Menu** - Opens below the header when settings icon is clicked
 - **Volume Control** - Slider with percentage display
 - **Sound Toggle** - Mute/unmute background music
-- **Restart Game** - Resets the game and closes the menu
+- **Restart** - Resets the game and closes the menu
 - **Click Outside** - Menu closes when clicking outside (but not when clicking the settings button)
 
 ### Quest System
 
 - **Granny's Tooltips** - Dynamic messages appear above Granny's house
-  - Start message: "My sweet RedHood! 💐 Gather 30 flowers for me."
-  - Halfway message: "Halfway there! 🌺"
+  - Start message: "My sweet RedHood! 💐 Gather X flowers for me." (X varies by level)
+  - Halfway message: "Halfway there! 🌺" (appears at 50% of level-specific flower count)
   - All collected: "Perfect! 🌸 Hurry here!"
   - Entered house: "Oh my dear! 🧓 You made it safely!"
+- **Level-Specific Messages** - Flower counts in messages adjust based on current level
+  - Level 1: "Gather 20 flowers for me"
+  - Level 2: "Gather 25 flowers for me"
+  - Level 3+: "Gather 30 flowers for me"
 - **Tooltip Display** - Messages fade in/out over 3 seconds at milestones
 - **Smart Timing** - Messages persist even if game state changes during display
 
@@ -371,8 +461,15 @@ The game features an adaptive grid system that adjusts the game board size based
 ### Visual Feedback
 
 - **Countdown Screen** - Animated "GET READY!" with 3-2-1-GO! countdown
-- **Level Complete Overlay** - "LEVEL X COMPLETED" message centered on board
-- **Game Over Modal** - Clean overlay design without background box
+  - **Level Badge** - Shows "LEVEL X" badge at the top with gold styling and glow effect
+  - Displays current level prominently before gameplay starts
+- **Level Complete Overlay** - "LEVEL X COMPLETED!" message with unlock notifications
+  - Shows item unlock messages when new items are available
+  - "Continue to Level X" button for levels 1-2
+  - "Play Again" and "Restart" buttons for Level 3+
+- **Game Over Modal** - Clean overlay with two action options
+  - **Try Again** - Play the current level again
+  - **Restart** - Start over from Level 1
 - **Temporary Messages** - "WOLF STUNNED!" (white) or "MISSED!" (gold) for bombs, "🧥 INVISIBLE!" for cloak activation, "🧥 HUNTER'S CLOAK APPEARED!" / "🧥 HUNTER'S CLOAK COLLECTED!" for cloak events
 - **Stun Timer** - Countdown above wolf when stunned (no background, text-only)
 - **Explosion Effects** - Screen shake and visual blast animation
@@ -390,15 +487,18 @@ The game features a special items system that adds strategic depth to gameplay. 
 
 ### Item Spawning
 
-- **Bombs**: Begin spawning after **5 seconds** of gameplay
+- **Bombs**: Begin spawning after **5 seconds** of gameplay (Level 2+ only)
   - Timer starts when countdown completes (not during countdown)
   - After the initial delay, new bombs spawn every **5 seconds** (configurable)
   - You can collect multiple bombs - they stack in your inventory
   - Maximum of 3 bombs can exist on the map at the same time
-- **Hunter's Cloak**: Spawns **once per level**
+  - **Available starting from Level 2**
+- **Hunter's Cloak**: Spawns **once per level** (Level 3+ only)
   - Appears randomly between **20-40 seconds** after gameplay starts
   - Only one cloak spawns per level
+  - **Available starting from Level 3**
 - **Random Placement**: All items are placed randomly on valid tiles (avoiding obstacles and entities)
+- **Level-Specific Availability**: Items only spawn if they're unlocked for your current level
 
 ### Collecting Items
 
@@ -420,7 +520,9 @@ Bombs are powerful items that can stun the wolf, giving you precious time to col
 **Bomb Effects:**
 
 - **Explosion Radius**: 3 tiles in all directions from your position
-- **Stun Duration**: If the wolf is within the explosion radius, it's stunned for 5 seconds
+- **Stun Duration**: Varies by level
+  - Level 2: 5 seconds
+  - Level 3+: 4 seconds (shorter)
 - **Visual Effects**:
   - Radial explosion animation at your position
   - Screen shake effect
@@ -446,7 +548,9 @@ Bombs are powerful items that can stun the wolf, giving you precious time to col
 
 **Cooldown System:**
 
-- After using a bomb, there's a **5-second cooldown** before you can use another
+- Cooldown varies by level:
+  - Level 2: 5-second cooldown
+  - Level 3+: 7-second cooldown (longer)
 - A progress bar under the bomb icon in the inventory shows the cooldown progress
 - The bomb button is disabled during cooldown
 
@@ -471,13 +575,28 @@ All special item settings can be adjusted in `src/constants/gameConfig.ts`:
 
 - `ITEM_SPAWN_DELAY` - Time before first item spawns (default: 5000ms / 5 seconds)
 - `MAX_BOMBS_ON_MAP` - Maximum bombs on map simultaneously (default: 3)
-- `BOMB_STUN_DURATION` - How long the wolf stays stunned (default: 5000ms / 5 seconds)
 - `BOMB_EXPLOSION_RADIUS` - Blast radius in tiles (default: 3 tiles)
 - `BOMB_EXPLOSION_DURATION` - Visual effect duration (default: 1000ms / 1 second)
-- `BOMB_COOLDOWN_DURATION` - Cooldown between uses (default: 5000ms / 5 seconds)
 - `EXPLOSION_MARK_DURATION` - How long explosion marks remain visible (default: 3000ms / 3 seconds)
 - `WOLF_SPEED_INCREASE_PERCENTAGE` - Speed increase per stun (default: 0.1 / 10%)
 - `MAX_WOLF_SPEED_INCREASES` - Maximum number of speed increases (default: 5)
+
+**Level-specific configurations** are defined in `src/constants/levelConfig.ts`:
+
+- `getLevelConfig(level)` - Returns level-specific settings:
+  - Number of flowers to collect
+  - Wolf movement delay (speed)
+  - Number of trees
+  - Item unlock status (bombUnlocked, cloakUnlocked)
+  - Item durations and cooldowns (level-specific)
+- `getUnlockedItem(completedLevel)` - Returns which item unlocks after completing a level
+- `getUnlockMessage(completedLevel)` - Returns the unlock message for completed levels
+
+**Level Configuration Details:**
+
+- **Level 1**: 20 flowers, 500ms wolf delay, no items
+- **Level 2**: 25 flowers, 400ms wolf delay, bombs unlocked (5s stun, 5s cooldown)
+- **Level 3+**: 30 flowers, 350ms wolf delay, both items (4s stun, 7s bomb cooldown, 8s cloak invisibility, 40s cloak cooldown)
 
 ### Hunter's Cloak
 
@@ -497,7 +616,8 @@ The Hunter's Cloak is a unique special item that allows you to become invisible 
 
 **Cloak Effects:**
 
-- **Invisibility Duration**: Become invisible for **10 seconds**
+- **Invisibility Duration**: Varies by level
+  - Level 3+: 8 seconds (shorter)
 - **Wolf Behavior**: When you activate the cloak:
   - The wolf **stops moving** completely
   - The wolf becomes **confused** (alternates looking left/right every 5 seconds)
@@ -506,10 +626,12 @@ The Hunter's Cloak is a unique special item that allows you to become invisible 
 - **Visual Effect**: You become semi-transparent with a shimmer animation during invisibility
 - **Activation Message**: Shows "🧥 INVISIBLE!" when activated
 - **Collection Message**: Shows "🧥 HUNTER'S CLOAK COLLECTED!" when picked up
+- **Available starting from Level 3**
 
 **Cooldown System:**
 
-- After using the cloak, there's a **30-second cooldown** before you can use it again
+- Cooldown varies by level:
+  - Level 3+: 40-second cooldown (longer)
 - A progress bar under the cloak icon in the inventory shows the cooldown progress
 - The cloak button is disabled during cooldown
 - The cloak button is also disabled when the level is completed or game is over (no sound feedback)
@@ -525,9 +647,10 @@ The Hunter's Cloak is a unique special item that allows you to become invisible 
 
 - `CLOAK_SPAWN_DELAY_MIN` - Minimum spawn delay (default: 20000ms / 20 seconds)
 - `CLOAK_SPAWN_DELAY_MAX` - Maximum spawn delay (default: 40000ms / 40 seconds)
-- `CLOAK_INVISIBILITY_DURATION` - How long invisibility lasts (default: 10000ms / 10 seconds)
-- `CLOAK_COOLDOWN_DURATION` - Cooldown between uses (default: 30000ms / 30 seconds)
 - `CLOAK_WOLF_CONFUSION_INTERVAL` - How often wolf changes direction when confused (default: 5000ms / 5 seconds)
+
+**Note**: Cloak invisibility duration and cooldown are level-specific (see `levelConfig.ts`):
+- Level 3+: 8 seconds invisibility, 40 seconds cooldown
 
 ### Pause System
 
@@ -552,8 +675,11 @@ When paused, a menu overlay appears with:
 
 - **Game Information**:
   - **Controls Section**: Lists all available controls (Arrow keys, WASD, Space, ESC, Swipe)
-  - **Special Items Section**: Details about bombs and Hunter's Cloak with their mechanics
-  - **Objective Section**: Game goals and objectives
+  - **Special Items Section**: Shows level-specific item details
+    - Level 1: "No special items available in this level"
+    - Level 2: Bomb information (stun duration, cooldown)
+    - Level 3+: Both bomb and cloak information (with level-specific stats)
+  - **Objective Section**: Shows level-specific flower count goal
 - **Resume Button**: Click to continue playing
 - **Smooth Animations**: Fade-in and fade-out transitions
 

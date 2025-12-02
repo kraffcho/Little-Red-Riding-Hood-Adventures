@@ -29,7 +29,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
       const target = event.target as HTMLElement;
       // don't close if clicking on the settings button or its children
       const isSettingsButton = target.closest('.header-settings-button');
-      
+
       if (menuRef.current && !menuRef.current.contains(target) && !isSettingsButton) {
         if (isOpen) {
           onToggle();
@@ -79,9 +79,9 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
         <div className="settings-menu-divider"></div>
 
         <div className="settings-menu-section">
-          <button 
-            type="button" 
-            onClick={onToggleSound} 
+          <button
+            type="button"
+            onClick={onToggleSound}
             className="settings-action-button settings-toggle-button"
           >
             <VolumeIcon className="settings-action-icon" muted={!isPlayingMusic} />
@@ -92,18 +92,18 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
         <div className="settings-menu-divider"></div>
 
         <div className="settings-menu-section">
-          <button 
+          <button
             type="button"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onToggle();
               onRestart();
-            }} 
+            }}
             className="settings-action-button settings-restart-button"
           >
             <RestartIcon className="settings-action-icon" />
-            <span>Restart Game</span>
+            <span>Restart</span>
           </button>
         </div>
       </div>

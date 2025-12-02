@@ -76,10 +76,22 @@
     font-size: calc(var(--font-size-4xl) * 1.2);
   }
 
+  .game-over-buttons {
+    flex-direction: column;
+    max-width: 100%;
+  }
+
   .game-over-cta {
     padding: var(--spacing-xs) var(--spacing-lg);
-    min-width: 80px;
+    min-width: 0;
+    width: 100%;
     font-size: var(--font-size-lg);
+  }
+
+  .countdown-level-badge {
+    font-size: var(--font-size-base);
+    padding: var(--spacing-xs) var(--spacing-lg);
+    letter-spacing: 1px;
   }
 
   .countdown-message {

@@ -46,6 +46,17 @@
   }
 }
 
+@keyframes countdownLevelBadgeFadeIn {
+  0% {
+    transform: translate3d(0, -20px, 0) scale3d(0.8, 0.8, 1);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
 @keyframes downMovePlayer {
   from {
     transform: translate3d(0, -100%, 0);

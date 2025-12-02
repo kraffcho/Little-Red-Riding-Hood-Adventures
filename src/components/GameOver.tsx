@@ -2,20 +2,29 @@ import React, { useState } from 'react';
 
 interface GameOverProps {
   message: string;
-  onRestart: () => void;
+  onRetryLevel: () => void;
+  onRestartGame: () => void;
   isStuck?: boolean;
+  currentLevel?: number;
 }
 
-const GameOver: React.FC<GameOverProps> = ({ message, onRestart, isStuck = false }) => {
+const GameOver: React.FC<GameOverProps> = ({ 
+  message, 
+  onRetryLevel, 
+  onRestartGame, 
+  isStuck = false,
+  currentLevel = 1 
+}) => {
   const [visible, setVisible] = useState<boolean>(true);
 
-  const handleRestart = () => {
+  const handleRetryLevel = () => {
     setVisible(false); // hide this modal
-    onRestart(); // restart the game
+    onRetryLevel(); // retry the current level
   };
 
-  const handleCancel = () => {
-    setVisible(false); // just close the modal
+  const handleRestartGame = () => {
+    setVisible(false); // hide this modal
+    onRestartGame(); // restart from the beginning
   };
 
   return visible ? (
@@ -23,8 +32,12 @@ const GameOver: React.FC<GameOverProps> = ({ message, onRestart, isStuck = false
       <div className="game-over-content">
         <p className="game-over-message" dangerouslySetInnerHTML={{ __html: message }}></p>
         <div className="game-over-buttons">
-          <button className="game-over-cta restart" onClick={handleRestart}>Yes</button>
-          <button className="game-over-cta cancel" onClick={handleCancel}>No</button>
+          <button className="game-over-cta game-over-cta-primary" onClick={handleRetryLevel}>
+            Try Again
+          </button>
+          <button className="game-over-cta game-over-cta-secondary" onClick={handleRestartGame}>
+            Restart
+          </button>
         </div>
       </div>
     </div>

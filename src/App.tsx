@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-// Import all CSS modules in correct order
 import "./styles/variables.css";
 import "./styles/base.css";
 import "./styles/layouts.css";
@@ -39,7 +38,6 @@ const App: React.FC = () => {
     clearTemporaryMessage,
     startItemSpawning,
     togglePause,
-    pauseGame,
     unpauseGame,
   } = useGameState();
 
@@ -518,6 +516,7 @@ const App: React.FC = () => {
               key={`countdown-${gameResetKey.current}`}
               onComplete={handleCountdownComplete}
               isGameInitialized={isGameInitialized}
+              currentLevel={gameState.currentLevel}
             />
             <LevelComplete
               level={gameState.currentLevel}
@@ -575,11 +574,13 @@ const App: React.FC = () => {
               <GameOver
                 message={
                   gameState.isStuck
-                    ? `<strong>YOU'RE STUCK!</strong><br />${gameState.stuckReason || "You cannot reach any remaining flowers or the house."}<br /><br />Restart the game?`
-                    : "<strong>GAME OVER</strong><br />The wolf has caught you!<br />Play again?"
+                    ? `<strong>YOU'RE STUCK!</strong><br />${gameState.stuckReason || "You cannot reach any remaining flowers or the house."}`
+                    : "<strong>GAME OVER</strong><br />The wolf has caught you!"
                 }
-                onRestart={handleResetGame}
+                onRetryLevel={handleReplayLevel}
+                onRestartGame={handleResetGame}
                 isStuck={gameState.isStuck}
+                currentLevel={gameState.currentLevel}
               />
             )}
           </div>

@@ -17,8 +17,27 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-2xl);
   text-align: center;
+}
+
+.countdown-level-badge {
+  font-family: var(--font-family-message);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 215, 0, 0.15));
+  border: 2px solid var(--color-gold);
+  border-radius: var(--radius-full);
+  padding: var(--spacing-sm) var(--spacing-2xl);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 215, 0, 0.4);
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.3),
+    inset 0 0 20px rgba(255, 215, 0, 0.1);
+  letter-spacing: 2px;
+  animation: countdownLevelBadgeFadeIn 0.6s var(--ease-in-out) forwards;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .countdown-message {
@@ -223,8 +242,8 @@
 .level-complete-button-secondary {
   background: linear-gradient(
     180deg,
-    rgba(139, 0, 0, 0.85) 0%,
-    rgba(110, 0, 0, 0.85) 100%
+    rgba(206, 80, 46, 0.95) 0%,
+    rgba(176, 60, 30, 0.95) 100%
   );
   border-color: var(--color-gold);
   -webkit-backdrop-filter: blur(8px);
@@ -238,8 +257,8 @@
     inset 0 2px 4px rgba(255, 215, 0, 0.2);
   background: linear-gradient(
     180deg,
-    rgba(160, 0, 0, 0.9) 0%,
-    rgba(139, 0, 0, 0.9) 100%
+    rgba(220, 95, 55, 1) 0%,
+    rgba(206, 80, 46, 1) 100%
   );
 }
 
@@ -402,11 +421,16 @@
   animation: gameOverButtonsFadeIn 0.5s var(--ease-in-out) 0.3s forwards;
   opacity: 0;
   will-change: opacity;
+  width: 100%;
+  max-width: 500px;
+  align-items: stretch;
 }
 
 .game-over-cta {
-  padding: var(--spacing-md) var(--spacing-2xl);
-  min-width: 120px;
+  flex: 1;
+  min-width: 0;
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  min-height: 56px;
   color: var(--color-white);
   font-family: var(--font-family-message);
   font-size: var(--font-size-xl);
@@ -415,51 +439,66 @@
   letter-spacing: 2px;
   border: var(--border-width-thick) solid var(--color-white);
   border-radius: var(--radius-lg);
-  transition: var(--transition-base) var(--ease-in-out);
   cursor: pointer;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5),
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.5),
     inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  transition: all 0.2s var(--ease-in-out);
   will-change: transform;
   backface-visibility: hidden;
-  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.game-over-cta-primary {
+  background: linear-gradient(
+    180deg,
+    rgba(78, 144, 25, 0.9) 0%,
+    rgba(67, 128, 48, 0.9) 100%
+  );
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
 
-.game-over-cta:hover {
-  transform: translate3d(0, -2px, 0) scale3d(1.05, 1.05, 1);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6),
+.game-over-cta-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.6),
     inset 0 2px 4px rgba(255, 255, 255, 0.3);
-  background-color: rgba(0, 0, 0, 0.8);
+  background: linear-gradient(
+    180deg,
+    rgba(94, 165, 35, 0.95) 0%,
+    rgba(78, 144, 25, 0.95) 100%
+  );
+}
+
+.game-over-cta-secondary {
+  background: linear-gradient(
+    180deg,
+    rgba(206, 80, 46, 0.95) 0%,
+    rgba(176, 60, 30, 0.95) 100%
+  );
+  border-color: var(--color-gold);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.game-over-cta-secondary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.6),
+    inset 0 2px 4px rgba(255, 215, 0, 0.2);
+  background: linear-gradient(
+    180deg,
+    rgba(220, 95, 55, 1) 0%,
+    rgba(206, 80, 46, 1) 100%
+  );
 }
 
 .game-over-cta:active {
-  transform: translate3d(0, 0, 0) scale3d(0.98, 0.98, 1);
+  transform: translateY(0) scale(0.98);
 }
 
-.game-over-cta.restart {
-  background-color: rgba(78, 144, 25, 0.85);
-}
-
-.game-over-cta.restart:hover {
-  background-color: rgba(78, 144, 25, 0.95);
-}
-
-.game-over-cta.restart:focus-visible {
-  outline: var(--border-width-medium) solid var(--color-white);
-  outline-offset: var(--spacing-xs);
-}
-
-.game-over-cta.cancel {
-  background-color: rgba(206, 80, 46, 0.85);
-}
-
-.game-over-cta.cancel:hover {
-  background-color: rgba(206, 80, 46, 0.95);
-}
-
-.game-over-cta.cancel:focus-visible {
+.game-over-cta:focus-visible {
   outline: var(--border-width-medium) solid var(--color-white);
   outline-offset: var(--spacing-xs);
 }
