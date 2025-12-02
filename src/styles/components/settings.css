@@ -275,7 +275,7 @@
   justify-content: flex-start;
   gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-green-primary) 0%, var(--color-green-button) 100%);
+  background-color: var(--color-green-button);
   font-family: var(--font-family-primary);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
@@ -283,14 +283,14 @@
   border: none;
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all var(--transition-base) var(--ease-in-out);
+  transition: background-color 0.3s var(--ease-in-out), box-shadow 0.3s var(--ease-in-out), transform 0.1s var(--ease-in-out);
   width: 100%;
   text-align: left;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .settings-menu-item-button:hover {
-  background: linear-gradient(135deg, var(--color-green-button) 0%, var(--color-green-button-hover) 100%);
+  background-color: var(--color-green-button-hover);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
@@ -312,11 +312,11 @@
 }
 
 .settings-restart-button {
-  background: linear-gradient(135deg, var(--color-orange) 0%, var(--color-orange-dark) 100%);
+  background-color: var(--color-orange);
 }
 
 .settings-restart-button:hover {
-  background: linear-gradient(135deg, #e67700 0%, var(--color-orange) 100%);
+  background-color: #e67700;
 }
 
 .settings-restart-button .settings-item-icon {
