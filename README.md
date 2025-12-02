@@ -316,23 +316,25 @@ All imports use centralized index files for cleaner import paths:
 
 - **Responsive Grid-Based Movement** - Adaptive grid size based on screen width
   - Mobile (<420px): 15x15 grid with 40 trees
-  - Desktop (≥420px): 20x20 grid with 60 trees
+  - Desktop (≥420px): 20x20 grid with 60 trees (Level 3+ has 10% more trees)
   - Grid size is calculated at game initialization and stored in game state
   - All boundary checks and pathfinding respect the responsive grid size
 - **Collision Detection** - Trees block movement, wolf triggers game over
 - **Pathfinding** - Wolf uses A\* algorithm to chase the player intelligently
-- **Dynamic Wolf Speed** - Wolf movement delay adjusts based on stun count (faster after each stun)
-- **Quest System** - Collect flowers to unlock Granny's house
+- **Dynamic Wolf Speed** - Wolf movement delay adjusts based on:
+  - Current level (500ms Level 1, 400ms Level 2, 350ms Level 3+)
+  - Stun count (10% faster after each stun, max 5 increases)
+- **Quest System** - Collect level-specific flowers to unlock Granny's house
 - **Audio System** - Background music and contextual sound effects with cookie persistence
 - **Level Validation** - Flood fill algorithm ensures all objectives are reachable
-- **Stuck Detection** - Runtime detection prevents unwinnable game states
-- **Countdown Timer** - Game starts with a 3-2-1-GO! countdown animation
-- **Special Items** - Bombs spawn continuously, Hunter's Cloak spawns once per level
+- **Stuck Detection** - Runtime detection prevents unwinnable game states (level-aware)
+- **Countdown Timer** - Game starts with a 3-2-1-GO! countdown animation with level badge
+- **Special Items** - Bombs spawn continuously (Level 2+), Hunter's Cloak spawns once per level (Level 3+)
 - **Inventory System** - Compact header-based inventory with 3 fixed slots
-- **Bomb Mechanics** - Stun the wolf within a 3-tile radius for 5 seconds
-- **Hunter's Cloak Mechanics** - Become invisible for 10 seconds, making the wolf confused
-- **Pause System** - Pause/unpause gameplay with ESC key or header button, shows information menu
-- **Cooldown System** - 5-second cooldown between bomb uses with visual progress bar
+- **Bomb Mechanics** - Stun the wolf within a 3-tile radius (duration varies by level: 5s in Level 2, 4s in Level 3+)
+- **Hunter's Cloak Mechanics** - Become invisible to the wolf (duration varies by level: 8s in Level 3+)
+- **Pause System** - Pause/unpause gameplay with ESC key or header button, shows level-specific game information
+- **Cooldown System** - Level-specific cooldowns with visual progress bars (bombs: 5s/7s, cloak: 40s)
 - **Wolf Speed Increase** - Wolf becomes 10% faster after each stun (cumulative, max 5 times)
 - **Wolf Howl Sound** - Wolf howls when waking up from stun, signaling increased speed
 - **Dynamic Wolf Speed** - Wolf movement delay decreases with each stun, making it progressively faster
@@ -348,12 +350,14 @@ The game features a multi-level progression system with increasing difficulty an
 ### Level Overview
 
 **Level 1 - The Beginning**
+
 - **Flowers**: 20 flowers to collect
 - **Wolf Speed**: Base speed (500ms movement delay)
 - **Special Items**: None available
 - **Objective**: Learn the basics and reach Granny's house
 
 **Level 2 - The Chase**
+
 - **Flowers**: 25 flowers to collect
 - **Wolf Speed**: 20% faster (400ms movement delay)
 - **Special Items**: 💣 **Bomb unlocked!**
@@ -363,6 +367,7 @@ The game features a multi-level progression system with increasing difficulty an
 - **Unlock**: Complete Level 1 to unlock bombs
 
 **Level 3+ - The Ultimate Challenge**
+
 - **Flowers**: 30 flowers to collect
 - **Wolf Speed**: Even faster (350ms movement delay)
 - **Trees**: 10% more trees for added difficulty
@@ -377,10 +382,12 @@ The game features a multi-level progression system with increasing difficulty an
 ### Level Progression
 
 1. **Complete Level 1** → Unlock 💣 Bomb
+
    - "New Item Unlocked: 💣 Bomb!" message appears
    - Option to "Continue to Level 2" or "Restart"
 
 2. **Complete Level 2** → Unlock 🧥 Hunter's Cloak
+
    - "New Item Unlocked: 🧥 Hunter's Cloak!" message appears
    - Option to "Continue to Level 3" or "Restart"
 
@@ -519,7 +526,7 @@ The game features an adaptive grid system that adjusts the game board size based
 - **Game Over Modal** - Clean overlay with two action options
   - **Try Again** - Play the current level again
   - **Restart** - Start over from Level 1
-- **Temporary Messages** - "WOLF STUNNED!" (white) or "MISSED!" (gold) for bombs, "🧥 INVISIBLE!" for cloak activation, "🧥 HUNTER'S CLOAK APPEARED!" / "🧥 HUNTER'S CLOAK COLLECTED!" for cloak events
+- **Temporary Messages** - "WOLF STUNNED!" (white) or "MISSED!" (gold) for bombs, "🧥 INVISIBLE!" for cloak activation, "🧥 HUNTER'S CLOAK APPEARED!" when cloak spawns / "+1 💣 BOMB!" or "🧥 HUNTER'S CLOAK!" when collected
 - **Stun Timer** - Countdown above wolf when stunned (no background, text-only)
 - **Explosion Effects** - Screen shake and visual blast animation
 - **Explosion Marks** - Dark marks on tiles where bombs exploded (fade out over 3 seconds)
@@ -554,7 +561,7 @@ The game features a special items system that adds strategic depth to gameplay. 
 - Simply walk over a special item icon on the game board to collect it
 - Collected items are automatically added to your inventory
 - Collection sound effect plays when picking up items
-- Collection messages appear: "💣 BOMB COLLECTED!" or "🧥 HUNTER'S CLOAK COLLECTED!"
+- Collection messages appear: "+1 💣 BOMB!" or "🧥 HUNTER'S CLOAK!"
 - Inventory appears in the header (left section) with 3 fixed slots
 
 ### Using Bombs
@@ -585,15 +592,24 @@ Bombs are powerful items that can stun the wolf, giving you precious time to col
 
 - **Speed Increase**: Wolf movement delay reduces by 10% after each stun (cumulative)
 - **Maximum Increases**: The wolf can only get faster up to **5 times** maximum
-- **Example Progression**:
-  - 1st stun: 500ms → 450ms (10% faster)
-  - 2nd stun: 450ms → 405ms (10% faster)
-  - 3rd stun: 405ms → 364.5ms (10% faster)
-  - 4th stun: 364.5ms → 328ms (10% faster)
-  - 5th stun: 328ms → 295ms (10% faster)
+- **Example Progression (Level 2)**:
+  - Base speed: 400ms
+  - 1st stun: 400ms → 360ms (10% faster)
+  - 2nd stun: 360ms → 324ms (10% faster)
+  - 3rd stun: 324ms → 291.6ms (10% faster)
+  - 4th stun: 291.6ms → 262.4ms (10% faster)
+  - 5th stun: 262.4ms → 236.2ms (10% faster)
+  - After 5 stuns: Speed stays at maximum (no further increase)
+- **Example Progression (Level 3+)**:
+  - Base speed: 350ms (already faster!)
+  - 1st stun: 350ms → 315ms (10% faster)
+  - 2nd stun: 315ms → 283.5ms (10% faster)
+  - 3rd stun: 283.5ms → 255.2ms (10% faster)
+  - 4th stun: 255.2ms → 229.7ms (10% faster)
+  - 5th stun: 229.7ms → 206.7ms (10% faster)
   - After 5 stuns: Speed stays at maximum (no further increase)
 - **Howl Sound**: When the wolf wakes up, it howls to signal its increased speed
-- **Strategic Gameplay**: Use bombs wisely! Each stun makes the wolf more dangerous
+- **Strategic Gameplay**: Use bombs wisely! Each stun makes the wolf more dangerous, especially in higher levels!
 
 **Cooldown System:**
 
@@ -615,7 +631,7 @@ Temporary messages appear in the center of the screen for various events:
 **Hunter's Cloak:**
 
 - **"🧥 HUNTER'S CLOAK APPEARED!"** - Shown when the cloak spawns on the map
-- **"🧥 HUNTER'S CLOAK!"** - Shown when you collect the cloak
+- **"🧥 HUNTER'S CLOAK!"** - Shown when you collect the cloak (replaces old "COLLECTED!" message)
 - **"🧥 INVISIBLE!"** - Shown when you activate the cloak
 
 ### Configuration
@@ -674,7 +690,7 @@ The Hunter's Cloak is a unique special item that allows you to become invisible 
 - **Physical Barrier**: Even when invisible, you **cannot move through the wolf** (it's treated as an obstacle)
 - **Visual Effect**: You become semi-transparent with a shimmer animation during invisibility
 - **Activation Message**: Shows "🧥 INVISIBLE!" when activated
-- **Collection Message**: Shows "🧥 HUNTER'S CLOAK COLLECTED!" when picked up
+- **Collection Message**: Shows "🧥 HUNTER'S CLOAK!" when picked up
 - **Available starting from Level 3**
 
 **Cooldown System:**
@@ -699,6 +715,7 @@ The Hunter's Cloak is a unique special item that allows you to become invisible 
 - `CLOAK_WOLF_CONFUSION_INTERVAL` - How often wolf changes direction when confused (default: 5000ms / 5 seconds)
 
 **Note**: Cloak invisibility duration and cooldown are level-specific (see `levelConfig.ts`):
+
 - Level 3+: 8 seconds invisibility, 40 seconds cooldown
 
 ### Pause System
@@ -800,8 +817,12 @@ A\* is a heuristic search algorithm that finds the shortest path from a starting
 
 ### Implementation Details
 
-- The wolf recalculates its path every 500ms initially (configurable via `ENEMY_DELAY`)
+- The wolf recalculates its path based on level-specific delays:
+  - **Level 1**: 500ms (base speed)
+  - **Level 2**: 400ms (20% faster)
+  - **Level 3+**: 350ms (even faster)
 - **Dynamic Delay**: Wolf movement delay decreases by 10% after each stun (maximum 5 speed increases)
+  - This compounds with the level-specific base speed, making higher levels significantly more challenging
 - Manhattan distance is used because movement is restricted to 4 directions (no diagonals)
 - Trees are treated as impassable obstacles
 - **Responsive Boundaries**: Pathfinding respects the responsive grid size (15x15 on mobile, 20x20 on desktop)
