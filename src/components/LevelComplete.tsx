@@ -18,37 +18,34 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const restartMessageShownRef = useRef<boolean>(false);
 
-  // store onComplete in a ref so we can call it without causing effect re-runs
+  // prevent effect re-runs by storing callback in ref
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
   useEffect(() => {
-    // once restart message is shown, keep it visible - don't let show prop changes hide it
     if (restartMessageShownRef.current) {
       return;
     }
 
-    // only show the message once per level - track which level we've shown
     if (show && hasShownRef.current !== level) {
       hasShownRef.current = level;
       setVisible(true);
       setShowRestartMessage(false);
       restartMessageShownRef.current = false;
 
-      // clear any existing timer before starting a new one
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
 
-      // show the "LEVEL X COMPLETED" message for 3 seconds, then switch to restart message
+      // show completion animation for 3s, then show action buttons
       timerRef.current = setTimeout(() => {
-        completedLevelRef.current = level; // store the level when showing restart message
+        completedLevelRef.current = level;
         restartMessageShownRef.current = true;
         setShowRestartMessage(true);
-        setVisible(true); // keep visible when showing restart message
-        onCompleteRef.current(); // call the callback using ref
+        setVisible(true);
+        onCompleteRef.current();
         timerRef.current = null;
       }, 3000);
 
@@ -59,17 +56,14 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
         }
       };
     } else if (!show && hasShownRef.current !== level && !restartMessageShownRef.current) {
-      // only reset when show becomes false AND we're on a different level
-      // don't reset if we're showing the restart message
       setVisible(false);
       if (hasShownRef.current === level) {
         hasShownRef.current = null;
       }
     }
-  }, [show, level]); // removed onComplete from dependencies
+  }, [show, level]);
 
   const handleRestart = () => {
-    // clear any pending timers
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -83,7 +77,6 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
   };
 
   const handleNextLevel = () => {
-    // clear any pending timers
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -99,7 +92,6 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
   };
 
   const handleReplayLevel = () => {
-    // clear any pending timers
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -114,7 +106,6 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
     }
   };
 
-  // show restart message after completion animation - this takes priority
   if (showRestartMessage) {
     const displayLevel = completedLevelRef.current ?? level;
     const unlockMessage = getUnlockMessage(displayLevel);
@@ -163,12 +154,10 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
     );
   }
 
-  // don't show anything if not visible and not showing restart message
   if (!visible) {
     return null;
   }
 
-  // show completion animation first
   return (
     <div className="level-complete-overlay">
       <div className="level-complete-content">

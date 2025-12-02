@@ -1,14 +1,12 @@
-// all the game settings and constants
+// game configuration and constants
 
-// default values (for desktop and larger screens)
 export const GRID_SIZE_DESKTOP = 20;
 export const NUM_TREES_DESKTOP = 60;
 
-// mobile values (for screens < 420px)
 export const GRID_SIZE_MOBILE = 15;
 export const NUM_TREES_MOBILE = 40;
 
-// responsive grid size and number of trees based on viewport width
+// responsive grid size based on viewport width
 export const getGridSize = (width?: number): number => {
   const viewportWidth = width ?? (typeof window !== "undefined" ? window.innerWidth : GRID_SIZE_DESKTOP);
   if (viewportWidth < 420) {
@@ -25,16 +23,14 @@ export const getNumTrees = (width?: number): number => {
   return NUM_TREES_DESKTOP;
 };
 
-// legacy exports for backwards compatibility (use getGridSize() instead)
 export const GRID_SIZE = GRID_SIZE_DESKTOP;
 export const NUM_TREES = NUM_TREES_DESKTOP;
 
 export const NUM_FLOWERS = 30;
-export const PLAYER_DELAY = 100; // how long to wait between player moves
-export const ENEMY_DELAY = 500; // how often the wolf moves
+export const PLAYER_DELAY = 100;
+export const ENEMY_DELAY = 500;
 export const DEFAULT_VOLUME = 0.3;
 
-// where things start on the grid
 export const PLAYER_START_POSITION = { x: 0, y: 0 };
 export const getWolfStartPosition = (gridSize?: number) => {
   const size = gridSize ?? GRID_SIZE_DESKTOP;
@@ -51,7 +47,6 @@ export const getGrannyHousePosition = (gridSize?: number) => {
   };
 };
 
-// paths to all the sound files
 export const AUDIO_PATHS = {
   BACKGROUND_MUSIC: "/assets/audio/background.mp3",
   COLLECT_ITEM: "/assets/audio/collect-item.mp3",
@@ -73,31 +68,29 @@ export const AUDIO_PATHS = {
   USE_CLOAK: "/assets/audio/use-cloak.mp3",
 } as const;
 
-// cookie names for storing settings
 export const COOKIE_KEYS = {
   BACKGROUND_MUSIC_PAUSED: "backgroundMusicPaused",
 } as const;
 
-// special items configuration
-export const ITEM_SPAWN_DELAY = 20000; // 20 seconds in milliseconds
-export const MAX_BOMBS_ON_MAP = 3; // maximum number of bombs that can be on the map at the same time
-export const BOMB_STUN_DURATION = 5000; // 5 seconds in milliseconds
-export const BOMB_EXPLOSION_RADIUS = 3; // 3 tiles in each direction
-export const BOMB_EXPLOSION_DURATION = 1000; // 1 second visual effect
-export const BOMB_COOLDOWN_DURATION = 5000; // 5 seconds cooldown before next bomb can be used
-export const EXPLOSION_MARK_DURATION = 3000; // 3 seconds before explosion mark disappears
+// bomb mechanics
+export const ITEM_SPAWN_DELAY = 20000;
+export const MAX_BOMBS_ON_MAP = 3;
+export const BOMB_STUN_DURATION = 5000;
+export const BOMB_EXPLOSION_RADIUS = 3;
+export const BOMB_EXPLOSION_DURATION = 1000;
+export const BOMB_COOLDOWN_DURATION = 5000;
+export const EXPLOSION_MARK_DURATION = 3000;
 
-// wolf speed increase after stun
-export const WOLF_SPEED_INCREASE_PERCENTAGE = 0.1; // 10% speed increase (delay reduction) per stun
-export const MAX_WOLF_SPEED_INCREASES = 5; // maximum number of times the wolf can get faster
+// wolf gets 10% faster after each stun (max 5 times)
+export const WOLF_SPEED_INCREASE_PERCENTAGE = 0.1;
+export const MAX_WOLF_SPEED_INCREASES = 5;
 
-// hunter's cloak configuration
-export const CLOAK_SPAWN_DELAY_MIN = 20000; // 20 seconds minimum spawn delay
-export const CLOAK_SPAWN_DELAY_MAX = 40000; // 40 seconds maximum spawn delay
-export const CLOAK_INVISIBILITY_DURATION = 10000; // 10 seconds invisibility duration
-export const CLOAK_COOLDOWN_DURATION = 30000; // 30 seconds cooldown before can use again
-export const CLOAK_WOLF_CONFUSION_INTERVAL = 2000; // how often wolf changes direction when confused (milliseconds)
+// hunter's cloak mechanics
+export const CLOAK_SPAWN_DELAY_MIN = 20000;
+export const CLOAK_SPAWN_DELAY_MAX = 40000;
+export const CLOAK_INVISIBILITY_DURATION = 10000;
+export const CLOAK_COOLDOWN_DURATION = 30000;
+export const CLOAK_WOLF_CONFUSION_INTERVAL = 2000;
 
-// level configuration is now in levelConfig.ts - import getLevelConfig from there
 export { getLevelConfig, getUnlockedItem, getUnlockMessage } from "./levelConfig";
 
