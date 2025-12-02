@@ -2,5 +2,6 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kraffcho.github.io/Little-Red-Riding-Hood-Adventures/sitemap.xml
+# Update the sitemap URL below when you deploy the game
+# Sitemap: https://your-domain.com/sitemap.xml
 

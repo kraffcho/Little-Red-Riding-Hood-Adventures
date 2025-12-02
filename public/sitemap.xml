@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Update the URL below when you deploy the game -->
   <url>
-    <loc>https://kraffcho.github.io/Little-Red-Riding-Hood-Adventures/</loc>
+    <loc>https://your-domain.com/</loc>
     <lastmod>2025-12-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
