@@ -29,7 +29,6 @@ const PauseMenu: React.FC<PauseMenuProps> = ({ onResume, isVisible, currentLevel
 
         <div className="pause-menu-footer">
           <p className="pause-menu-instruction pause-menu-instruction-desktop">Press ESC or click Resume to continue</p>
-          <p className="pause-menu-instruction pause-menu-instruction-mobile">Tap Resume to continue</p>
           <button className="pause-menu-resume" onClick={handleResume}>
             Resume
           </button>
