@@ -100,7 +100,8 @@ const Tile: React.FC<Props> = ({
   }, [explosionMark]);
 
   // build className string declaratively using utility function
-  const shouldShowPlayer = isPlayer && !(gameOver && wolfWon);
+  // hide player when wolf wins, or when there's overlap during game over
+  const shouldShowPlayer = isPlayer && !(gameOver && (wolfWon || isOverlap));
 
   const className = useMemo(
     () =>

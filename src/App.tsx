@@ -468,8 +468,9 @@ const App: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [countdownComplete, gameState.gameOver, gameState.playerEnteredHouse, gameState.isStuck, gameState.paused, gameState.inventory, gameState.cloakCooldownEndTime, handleUseItem]);
 
-  // don't render the board until the game is initialized (positions are valid)
-  const isGameInitialized = gameState.playerPosition.x >= 0 && gameState.playerPosition.y >= 0;
+  // don't render the board until the game is initialized
+  // check if gridSize is set (which is always set during reset) to keep board visible during reset/retry
+  const isGameInitialized = gameState.gridSize > 0;
 
   return (
     <div className="App" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>

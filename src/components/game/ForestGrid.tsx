@@ -103,7 +103,7 @@ const ForestGrid: React.FC<Props> = ({
             key={`${rowIndex}-${columnIndex}`}
             isPlayer={
               playerPosition.x === rowIndex && playerPosition.y === columnIndex &&
-              !(gameOver && wolfWon) // hide player when wolf wins
+              !(gameOver && (wolfWon || isPlayerWolfOverlap)) // hide player when wolf wins or when overlapping on game over
             }
             isWolf={isWolfTile}
             isTree={isWall}
