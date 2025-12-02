@@ -72,7 +72,6 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
             <div className="settings-progress-header">
               <span className="settings-progress-icon">🎮</span>
               <div className="settings-progress-text">
-                <span className="settings-progress-label">Overall Progress</span>
                 <span className="settings-progress-value">Level {currentLevel} of {totalLevels}</span>
               </div>
             </div>
@@ -88,7 +87,6 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
             <div className="settings-progress-header">
               <span className="settings-progress-icon">💐</span>
               <div className="settings-progress-text">
-                <span className="settings-progress-label">Flowers Collected</span>
                 <span className="settings-progress-value">{collectedFlowers} / {totalFlowers} flowers</span>
               </div>
             </div>

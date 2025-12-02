@@ -168,8 +168,8 @@
 }
 
 .settings-progress-bar-flowers {
-  background: linear-gradient(90deg, #9c27b0 0%, #ba68c8 100%);
-  box-shadow: 0 1px 3px rgba(156, 39, 176, 0.3);
+  background: linear-gradient(90deg, var(--color-gold) 0%, var(--color-gold-light) 100%);
+  box-shadow: 0 1px 3px rgba(255, 215, 0, 0.3);
 }
 
 /* Audio Controls */
