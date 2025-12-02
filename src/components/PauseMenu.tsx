@@ -1,5 +1,6 @@
 import React from "react";
 import { getLevelConfig } from "../constants/levelConfig";
+import Credits from "./ui/Credits";
 
 interface PauseMenuProps {
   onResume: () => void;
@@ -9,10 +10,10 @@ interface PauseMenuProps {
 
 const PauseMenu: React.FC<PauseMenuProps> = ({ onResume, isVisible, currentLevel }) => {
   const levelConfig = getLevelConfig(currentLevel);
-  
+
   // format milliseconds to seconds for display (round to avoid decimals)
   const formatSeconds = (ms: number) => Math.round(ms / 1000);
-  
+
   const bombStunSeconds = formatSeconds(levelConfig.bombStunDuration);
   const bombCooldownSeconds = formatSeconds(levelConfig.bombCooldown);
   const cloakInvisibilitySeconds = formatSeconds(levelConfig.cloakInvisibilityDuration);
@@ -84,19 +85,7 @@ const PauseMenu: React.FC<PauseMenuProps> = ({ onResume, isVisible, currentLevel
               </ul>
             </div>
 
-            <div className="pause-menu-credits">
-              <p>
-                Built with ❤️ by{" "}
-                <a
-                  href="https://www.linkedin.com/in/kraffcho/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="pause-menu-credits-link"
-                >
-                  Kraffcho
-                </a>
-              </p>
-            </div>
+            <Credits variant="pause-menu" />
           </div>
         </div>
       </div>

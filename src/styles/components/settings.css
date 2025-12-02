@@ -219,3 +219,35 @@
 .settings-restart-button:hover {
   background-color: #e67700;
 }
+
+.settings-menu-credits {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  text-align: center;
+}
+
+.settings-menu-credits p {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-600);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.settings-menu-credits-link {
+  color: var(--color-green-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+  transition: all 0.2s var(--ease-in-out);
+}
+
+.settings-menu-credits-link:hover {
+  color: var(--color-green-button-hover);
+  text-decoration: underline;
+}
+
+.settings-menu-credits-link:focus-visible {
+  outline: 2px solid var(--color-green-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

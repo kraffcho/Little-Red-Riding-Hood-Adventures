@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import VolumeIcon from "./icons/VolumeIcon";
 import RestartIcon from "./icons/RestartIcon";
+import Credits from "./Credits";
 
 interface SettingsMenuProps {
   volume: number;
@@ -106,6 +107,10 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
             <span>Restart</span>
           </button>
         </div>
+
+        <div className="settings-menu-divider"></div>
+
+        <Credits variant="settings-menu" />
       </div>
     </div>
   );
