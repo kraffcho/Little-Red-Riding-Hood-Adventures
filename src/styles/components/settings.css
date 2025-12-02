@@ -339,6 +339,7 @@
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
+  -webkit-user-select: none;
   user-select: none;
   margin-top: var(--spacing-sm);
 }
