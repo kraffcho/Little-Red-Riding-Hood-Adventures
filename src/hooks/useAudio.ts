@@ -1,9 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { AUDIO_PATHS, DEFAULT_VOLUME, COOKIE_KEYS } from "../constants/gameConfig";
 
-/**
- * hook that handles all the audio stuff - music, sounds, and volume
- */
+// manages background music, sound effects, and volume control
 export const useAudio = () => {
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const [isSoundEffectsEnabled, setIsSoundEffectsEnabled] = useState(true);
@@ -14,7 +12,7 @@ export const useAudio = () => {
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
 
-  // set up the background music
+  // initialize background music on mount
   useEffect(() => {
     backgroundMusicRef.current = new Audio(AUDIO_PATHS.BACKGROUND_MUSIC);
     backgroundMusicRef.current.volume = volume;
@@ -28,7 +26,7 @@ export const useAudio = () => {
     };
   }, []);
 
-  // load the sound effect for picking up flowers
+  // preload flower collection sound using Web Audio API for better performance
   useEffect(() => {
     const loadFlowerCollectSound = async () => {
       try {
@@ -47,7 +45,7 @@ export const useAudio = () => {
     loadFlowerCollectSound();
   }, []);
 
-  // adjust volume when slider changes
+  // sync volume changes to background music
   useEffect(() => {
     if (backgroundMusicRef.current) {
       backgroundMusicRef.current.volume = volume;
@@ -55,12 +53,11 @@ export const useAudio = () => {
   }, [volume]);
 
   const playSound = useCallback((audioPath: string, requireInteraction: boolean = true) => {
-    // don't play sounds if the user hasn't clicked or moved yet
+    // wait for user interaction before playing (browser autoplay policy)
     if (requireInteraction && !hasUserInteracted.current) {
       return;
     }
     
-    // don't play if sound effects are disabled
     if (!isSoundEffectsEnabled) {
       return;
     }
@@ -68,7 +65,7 @@ export const useAudio = () => {
     const sound = new Audio(audioPath);
     sound.volume = volume;
     sound.play().catch((error) => {
-      // ignore autoplay errors - browsers block sound until user clicks something
+      // browsers block sound until user interacts with the page
       const isAutoplayError = error.name === "NotAllowedError" || 
                              error.message?.includes("user didn't interact") ||
                              error.message?.includes("play() failed");
@@ -85,9 +82,8 @@ export const useAudio = () => {
 
   const playBackgroundMusic = useCallback(() => {
     if (backgroundMusicRef.current) {
-      hasUserInteracted.current = true; // mark that user has done something
+      hasUserInteracted.current = true;
       backgroundMusicRef.current.play().catch((error) => {
-        // ignore autoplay errors - browsers need user interaction first
         const isAutoplayError = error.name === "NotAllowedError" || 
                                error.message?.includes("user didn't interact") ||
                                error.message?.includes("play() failed");
@@ -107,12 +103,7 @@ export const useAudio = () => {
   }, []);
 
   const playFlowerCollectSound = useCallback(() => {
-    if (!hasUserInteracted.current) {
-      return; // wait until user has clicked or moved
-    }
-    
-    // don't play if sound effects are disabled
-    if (!isSoundEffectsEnabled) {
+    if (!hasUserInteracted.current || !isSoundEffectsEnabled) {
       return;
     }
     
@@ -125,7 +116,7 @@ export const useAudio = () => {
   }, [flowerCollectSoundBuffer, isSoundEffectsEnabled]);
 
   const handleToggleSound = useCallback(() => {
-    hasUserInteracted.current = true; // user clicked something
+    hasUserInteracted.current = true;
     if (isPlayingMusic) {
       stopBackgroundMusic();
       document.cookie = `${COOKIE_KEYS.BACKGROUND_MUSIC_PAUSED}=true; path=/`;
@@ -155,7 +146,6 @@ export const useAudio = () => {
     }
   }, []);
 
-  // let the hook know that the user has done something
   const markUserInteracted = useCallback(() => {
     hasUserInteracted.current = true;
   }, []);

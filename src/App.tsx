@@ -57,26 +57,32 @@ const App: React.FC = () => {
     markUserInteracted,
   } = useAudio();
 
+  // track sound effects to avoid repetition
   const [playedRestrictedEntrySound, setPlayedRestrictedEntrySound] = useState(false);
   const previousFlowerCount = useRef(0);
   const previousInventorySize = useRef(0);
   const questCompletedSoundPlayed = useRef(false);
   const wolfVictorySoundPlayed = useRef(false);
   const previousWolfStunned = useRef(false);
+  
+  // countdown and game initialization
   const [countdownComplete, setCountdownComplete] = useState(false);
   const gameResetKey = useRef(0);
   const previousExplosionEffect = useRef<string | null>(null);
+  
+  // granny's tooltip system
   const [currentTooltipMilestone, setCurrentTooltipMilestone] = useState<QuestMilestone | null>(null);
   const [currentTooltipMessage, setCurrentTooltipMessage] = useState<string>("");
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const shownMilestonesRef = useRef<Set<QuestMilestone>>(new Set());
+  
+  // menu states
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showPauseMenu, setShowPauseMenu] = useState(false);
   const pauseMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // detect quest milestones and show tooltip for 3 seconds
+  // show granny's tooltip when player reaches quest milestones
   useEffect(() => {
-    // only check milestones when countdown is complete and game is initialized
     if (!countdownComplete || gameState.playerPosition.x === -1) return;
 
     const levelConfig = getLevelConfig(gameState.currentLevel);
@@ -84,14 +90,11 @@ const App: React.FC = () => {
     const halfwayPoint = Math.ceil(numFlowers / 2);
     let milestone: QuestMilestone | null = null;
 
-    // start milestone is handled in handleCountdownComplete, skip it here
-
-    // check for entered house milestone (highest priority - if player enters house, show that message first)
+    // prioritize: entered house > all flowers > halfway point
     if (gameState.playerEnteredHouse && !shownMilestonesRef.current.has("entered_house")) {
       milestone = "entered_house";
       shownMilestonesRef.current.add("entered_house");
     }
-    // check for all collected milestone (higher priority than halfway - show immediately when all collected)
     else if (
       gameState.collectedFlowers === numFlowers &&
       !shownMilestonesRef.current.has("all_collected")
@@ -99,7 +102,6 @@ const App: React.FC = () => {
       milestone = "all_collected";
       shownMilestonesRef.current.add("all_collected");
     }
-    // check for halfway milestone (lowest priority)
     else if (
       gameState.collectedFlowers >= halfwayPoint &&
       gameState.collectedFlowers < numFlowers &&
@@ -109,9 +111,7 @@ const App: React.FC = () => {
       shownMilestonesRef.current.add("halfway");
     }
 
-    // show tooltip if we have a new milestone
     if (milestone) {
-      // get the message for this milestone
       const questMsg = getGrannyQuestMessage(
         gameState.collectedFlowers,
         gameState.isHouseOpen,
@@ -120,15 +120,14 @@ const App: React.FC = () => {
         gameState.currentLevel
       );
 
-      // only set tooltip if we have a valid message
       if (questMsg.message && questMsg.message.trim() !== "") {
         setCurrentTooltipMilestone(milestone);
         setCurrentTooltipMessage(questMsg.message);
-        // clear any existing timeout
+        
         if (tooltipTimeoutRef.current) {
           clearTimeout(tooltipTimeoutRef.current);
         }
-        // hide tooltip after 3 seconds
+        
         tooltipTimeoutRef.current = setTimeout(() => {
           setCurrentTooltipMilestone(null);
           setCurrentTooltipMessage("");
@@ -148,7 +147,7 @@ const App: React.FC = () => {
     }
   }, [gameState.collectedFlowers, gameState.currentLevel, playSound]);
 
-  // play a sound effect when we pick up a flower
+  // play sound when collecting flowers
   useEffect(() => {
     if (gameState.collectedFlowers > previousFlowerCount.current) {
       playFlowerCollectSound();
@@ -156,41 +155,35 @@ const App: React.FC = () => {
     }
   }, [gameState.collectedFlowers, playFlowerCollectSound]);
 
-  // play a sound effect when we collect a bomb item
+  // play sound when collecting items (bombs or cloaks)
   useEffect(() => {
     if (gameState.inventory.length > previousInventorySize.current) {
-      // inventory size increased - a new item was collected
-      // check if the last item added is a bomb
       const lastItem = gameState.inventory[gameState.inventory.length - 1];
       if (lastItem === "bomb") {
         playSound(AUDIO_PATHS.COLLECT_BOMB);
       } else if (lastItem === "cloak") {
-        playSound(AUDIO_PATHS.COLLECT_ITEM); // reuse collect-item sound for cloak
+        playSound(AUDIO_PATHS.COLLECT_ITEM);
       }
       previousInventorySize.current = gameState.inventory.length;
     } else if (gameState.inventory.length < previousInventorySize.current) {
-      // inventory decreased (item was used)
       previousInventorySize.current = gameState.inventory.length;
     }
   }, [gameState.inventory, playSound]);
 
-  // play a sound when the wolf catches us (only if player hasn't entered house)
+  // play wolf victory sound when caught
   useEffect(() => {
     if (gameState.wolfWon && gameState.gameOver && !gameState.playerEnteredHouse) {
-      // only play sound if we haven't already played it for this game over
       if (!wolfVictorySoundPlayed.current) {
         wolfVictorySoundPlayed.current = true;
         playRandomSound(AUDIO_PATHS.WOLF_VICTORY);
       }
     } else if (!gameState.gameOver) {
-      // reset when game is not over
       wolfVictorySoundPlayed.current = false;
     }
   }, [gameState.wolfWon, gameState.gameOver, gameState.playerEnteredHouse, playRandomSound]);
 
-  // play howl sound when wolf wakes up from stun
+  // play howl when wolf wakes up from stun
   useEffect(() => {
-    // check if wolf just woke up (was stunned, now not stunned)
     if (previousWolfStunned.current && !gameState.wolfStunned) {
       playSound(AUDIO_PATHS.WOLF_HOWL);
     }

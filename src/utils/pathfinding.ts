@@ -2,10 +2,7 @@ import { Position, AStarNode } from "../types";
 import { isValidPosition, getAdjacentPositions, manhattanDistance } from "./gridUtils";
 import { GRID_SIZE } from "../constants/gameConfig";
 
-/**
- * A* pathfinding algorithm to find the shortest path from start to goal
- * returns the next position to move to, or null if no path exists
- */
+// A* pathfinding algorithm - finds the shortest path avoiding obstacles
 export const findPath = (
   start: Position,
   goal: Position,
@@ -15,14 +12,12 @@ export const findPath = (
   const openList: AStarNode[] = [];
   const closedList: AStarNode[] = [];
 
-  // helper function to check if a position is in the closed list
   const isInClosedList = (position: Position): boolean => {
     return closedList.some(
       (node) => node.position.x === position.x && node.position.y === position.y
     );
   };
 
-  // helper function to find the node with the lowest f value (g + h)
   const findLowestFNode = (): number => {
     let lowestIndex = 0;
     for (let i = 1; i < openList.length; i++) {

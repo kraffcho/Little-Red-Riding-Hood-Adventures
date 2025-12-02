@@ -3,9 +3,7 @@ import { Direction } from "../types";
 import { useDebounce } from "./useDebounce";
 import { PLAYER_DELAY } from "../constants/gameConfig";
 
-/**
- * hook that listens for keyboard presses and moves the player
- */
+// handles keyboard input (arrow keys + WASD) for player movement
 export const useKeyboardInput = (
   onMove: (direction: Direction) => void,
   enabled: boolean = true
@@ -18,11 +16,9 @@ export const useKeyboardInput = (
     const handleKeyDown = (event: KeyboardEvent) => {
       let direction: Direction | null = null;
 
-      // check both event.key and event.code for better compatibility
       const key = event.key.toLowerCase();
       const code = event.code;
 
-      // handle arrow keys
       if (event.key === "ArrowUp" || code === "ArrowUp") {
         direction = "up";
       } else if (event.key === "ArrowDown" || code === "ArrowDown") {
@@ -42,11 +38,9 @@ export const useKeyboardInput = (
       } else if (key === "d" || code === "KeyD") {
         direction = "right";
       } else {
-        // not a movement key, ignore
         return;
       }
 
-      // prevent default browser behavior for these keys
       if (direction) {
         event.preventDefault();
         debouncedMove(direction);
@@ -58,9 +52,7 @@ export const useKeyboardInput = (
   }, [debouncedMove, enabled]);
 };
 
-/**
- * hook that handles touch/swipe gestures for mobile
- */
+// handles touch/swipe gestures for mobile devices
 export const useSwipeInput = (
   onMove: (direction: Direction) => void,
   enabled: boolean = true
@@ -71,8 +63,7 @@ export const useSwipeInput = (
     (event: React.TouchEvent<HTMLDivElement>) => {
       if (!enabled) return;
       if (event.touches.length === 1) {
-        // prevent default to stop pull-to-refresh and browser navigation
-        event.preventDefault();
+        event.preventDefault(); // prevents pull-to-refresh and browser navigation
         touchStartPos.current = {
           x: event.touches[0].clientX,
           y: event.touches[0].clientY,
@@ -85,8 +76,7 @@ export const useSwipeInput = (
   const handleTouchMove = useCallback(
     (event: React.TouchEvent<HTMLDivElement>) => {
       if (!enabled || !touchStartPos.current) return;
-      // prevent scrolling while swiping on the game board
-      event.preventDefault();
+      event.preventDefault(); // prevents page scrolling during swipes
     },
     [enabled]
   );
@@ -97,7 +87,6 @@ export const useSwipeInput = (
         return;
       }
 
-      // prevent default to stop any browser behavior
       event.preventDefault();
 
       const touchEndPos = {
@@ -110,7 +99,6 @@ export const useSwipeInput = (
       const absDeltaX = Math.abs(deltaX);
       const absDeltaY = Math.abs(deltaY);
 
-      // need to swipe at least this far for it to count
       const minSwipeDistance = 10;
 
       if (absDeltaX < minSwipeDistance && absDeltaY < minSwipeDistance) {
@@ -120,6 +108,7 @@ export const useSwipeInput = (
 
       let direction: Direction;
 
+      // determine swipe direction based on which axis had more movement
       if (absDeltaX > absDeltaY) {
         direction = deltaX > 0 ? "right" : "left";
       } else {
