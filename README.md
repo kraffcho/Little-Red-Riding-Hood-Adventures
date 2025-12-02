@@ -519,15 +519,27 @@ The game features an adaptive grid system that adjusts the game board size based
 
 ### Settings Menu
 
+The **Game Menu** provides comprehensive control over audio and game settings:
+
+- **Auto-Pause** - Opening the menu automatically pauses the game during gameplay
 - **Toggle Behavior** - Settings icon in header serves as both open and close button
   - Click to open menu when closed
   - Click again to close menu when open
   - Dynamic aria-label provides accessibility feedback
-- **Dropdown Menu** - Opens below the header when settings icon is clicked
-- **Volume Control** - Slider with percentage display
-- **Sound Toggle** - Mute/unmute background music
-- **Restart** - Resets the game and closes the menu
+- **Dropdown Menu** - Opens below the header (positioned at top-right)
+- **Game Progress Section**
+  - 🏆 Overall Progress: Visual progress bar showing current level out of total levels
+  - 💐 Flowers Collected: Progress bar showing flowers collected in current level
+- **Audio Controls**
+  - Volume slider with real-time percentage display
+  - Adjusting volume automatically unmutes if sound was muted
+  - **Mute Music** button - Toggle background music on/off
+  - **Enable Sound Effects** checkbox - Toggle all game sound effects (footsteps, item collection, wolf sounds, etc.)
+- **Actions**
+  - **Restart Game** button - Resets to Level 1 and closes the menu
+- **Credits** - Developer attribution with LinkedIn link (always visible at bottom)
 - **Click Outside** - Menu closes when clicking outside (but not when clicking the settings button)
+- **Mobile Friendly** - Optimized layout for smaller screens
 
 ### Quest System
 

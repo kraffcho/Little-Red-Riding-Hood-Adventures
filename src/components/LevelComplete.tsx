@@ -32,7 +32,6 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
 
     // only show the message once per level - track which level we've shown
     if (show && hasShownRef.current !== level) {
-      console.log('LevelComplete: Starting level completion for level', level);
       hasShownRef.current = level;
       setVisible(true);
       setShowRestartMessage(false);
@@ -40,14 +39,11 @@ const LevelComplete: React.FC<LevelCompleteProps> = ({ level, onComplete, onRest
 
       // clear any existing timer before starting a new one
       if (timerRef.current) {
-        console.log('LevelComplete: Clearing existing timer');
         clearTimeout(timerRef.current);
       }
 
       // show the "LEVEL X COMPLETED" message for 3 seconds, then switch to restart message
-      console.log('LevelComplete: Setting timer for 3 seconds');
       timerRef.current = setTimeout(() => {
-        console.log('LevelComplete: Timer fired - showing restart message');
         completedLevelRef.current = level; // store the level when showing restart message
         restartMessageShownRef.current = true;
         setShowRestartMessage(true);
