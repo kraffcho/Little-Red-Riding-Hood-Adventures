@@ -164,6 +164,7 @@
 
 .settings-progress-bar-fill {
   height: 100%;
+  width: var(--progress, 0%);
   background: linear-gradient(
     90deg,
     var(--color-green-primary) 0%,
