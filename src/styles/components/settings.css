@@ -103,13 +103,6 @@
 
 /* Progress Section */
 .settings-progress-section {
-  background: linear-gradient(
-    135deg,
-    rgba(33, 123, 35, 0.05) 0%,
-    rgba(33, 123, 35, 0.02) 100%
-  );
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-md);
   gap: var(--spacing-md);
 }
 
