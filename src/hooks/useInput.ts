@@ -62,8 +62,15 @@ export const useSwipeInput = (
   const handleTouchStart = useCallback(
     (event: React.TouchEvent<HTMLDivElement>) => {
       if (!enabled) return;
+      
+      // don't prevent default on buttons or interactive elements
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'BUTTON' || target.tagName === 'INPUT' || target.closest('button') || target.closest('input')) {
+        return;
+      }
+      
       if (event.touches.length === 1) {
-        event.preventDefault(); // prevents pull-to-refresh and browser navigation
+        event.preventDefault();
         touchStartPos.current = {
           x: event.touches[0].clientX,
           y: event.touches[0].clientY,
@@ -76,7 +83,14 @@ export const useSwipeInput = (
   const handleTouchMove = useCallback(
     (event: React.TouchEvent<HTMLDivElement>) => {
       if (!enabled || !touchStartPos.current) return;
-      event.preventDefault(); // prevents page scrolling during swipes
+      
+      // don't prevent default on buttons or interactive elements
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'BUTTON' || target.tagName === 'INPUT' || target.closest('button') || target.closest('input')) {
+        return;
+      }
+      
+      event.preventDefault();
     },
     [enabled]
   );
@@ -84,6 +98,13 @@ export const useSwipeInput = (
   const handleTouchEnd = useCallback(
     (event: React.TouchEvent<HTMLDivElement>) => {
       if (!enabled || !touchStartPos.current || event.changedTouches.length !== 1) {
+        return;
+      }
+
+      // don't prevent default on buttons or interactive elements
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'BUTTON' || target.tagName === 'INPUT' || target.closest('button') || target.closest('input')) {
+        touchStartPos.current = null;
         return;
       }
 

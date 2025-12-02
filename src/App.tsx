@@ -492,7 +492,7 @@ const App: React.FC = () => {
       )}
       {isGameInitialized && (
         <>
-          <div 
+          <div
             className={`game-board-wrapper ${gameState.explosionEffect ? 'screen-shake' : ''}`}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
