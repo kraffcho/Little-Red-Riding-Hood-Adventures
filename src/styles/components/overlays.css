@@ -741,6 +741,20 @@
   will-change: opacity;
 }
 
+.pause-menu-instruction-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .pause-menu-instruction-desktop {
+    display: none;
+  }
+  
+  .pause-menu-instruction-mobile {
+    display: block;
+  }
+}
+
 .pause-menu-resume {
   padding: var(--spacing-md) var(--spacing-2xl);
   min-width: 120px;
