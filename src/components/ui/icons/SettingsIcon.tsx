@@ -5,7 +5,6 @@ interface SettingsIconProps {
 }
 
 const SettingsIcon: React.FC<SettingsIconProps> = ({ className }) => {
-  // gear icon with 12 teeth for a classic wheel appearance
   const centerX = 10;
   const centerY = 10;
   const innerRadius = 4;
@@ -13,7 +12,6 @@ const SettingsIcon: React.FC<SettingsIconProps> = ({ className }) => {
   const teeth = 12;
   const toothDepth = 1.5;
 
-  // generate gear path
   const points: string[] = [];
   for (let i = 0; i < teeth * 2; i++) {
     const angle = (i * Math.PI) / teeth - Math.PI / 2;
@@ -36,7 +34,6 @@ const SettingsIcon: React.FC<SettingsIconProps> = ({ className }) => {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      {/* gear outer shape */}
       <path
         d={gearPath}
         stroke="currentColor"
@@ -45,7 +42,6 @@ const SettingsIcon: React.FC<SettingsIconProps> = ({ className }) => {
         strokeLinejoin="round"
         fill="none"
       />
-      {/* center hub circle */}
       <circle
         cx={centerX}
         cy={centerY}
