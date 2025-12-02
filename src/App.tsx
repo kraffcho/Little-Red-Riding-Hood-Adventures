@@ -511,9 +511,9 @@ const App: React.FC = () => {
           onToggleSound={handleToggleSound}
           onRestart={handleResetGame}
           isOpen={isSettingsOpen}
-          onToggle={() => {
+          onToggle={(shouldUnpause = true) => {
             // if closing settings and game is paused, unpause it
-            if (isSettingsOpen && gameState.paused && !gameState.gameOver) {
+            if (isSettingsOpen && gameState.paused && !gameState.gameOver && shouldUnpause) {
               unpauseGame();
             }
             setIsSettingsOpen(!isSettingsOpen);

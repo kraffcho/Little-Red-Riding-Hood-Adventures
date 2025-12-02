@@ -10,7 +10,7 @@ interface SettingsMenuProps {
   onToggleSound: () => void;
   onRestart: () => void;
   isOpen: boolean;
-  onToggle: () => void;
+  onToggle: (shouldUnpause?: boolean) => void;
   currentLevel: number;
   collectedFlowers: number;
   totalFlowers: number;
@@ -42,7 +42,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
 
       if (menuRef.current && !menuRef.current.contains(target) && !isSettingsButton) {
         if (isOpen) {
-          onToggle();
+          onToggle(true);
         }
       }
     };
@@ -88,7 +88,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
             <div className="settings-progress-header">
               <span className="settings-progress-icon">💐</span>
               <div className="settings-progress-text">
-                <span className="settings-progress-label">Current Level</span>
+                <span className="settings-progress-label">Flowers Collected</span>
                 <span className="settings-progress-value">{collectedFlowers} / {totalFlowers} flowers</span>
               </div>
             </div>
