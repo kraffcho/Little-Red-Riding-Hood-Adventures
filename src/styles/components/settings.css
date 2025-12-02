@@ -91,6 +91,10 @@
   padding: var(--spacing-md) 0;
 }
 
+.settings-menu-section:last-of-type {
+  padding-bottom: 0;
+}
+
 .settings-section-title {
   font-family: var(--font-family-primary);
   font-size: var(--font-size-sm);
