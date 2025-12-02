@@ -494,6 +494,10 @@ const App: React.FC = () => {
           }}
           onSettingsClick={() => {
             markUserInteracted();
+            // if opening settings and game is running (not paused, not game over), pause the game
+            if (!isSettingsOpen && !gameState.paused && !gameState.gameOver && countdownComplete) {
+              togglePause();
+            }
             setIsSettingsOpen(!isSettingsOpen);
           }}
           isSettingsOpen={isSettingsOpen}
@@ -507,7 +511,13 @@ const App: React.FC = () => {
           onToggleSound={handleToggleSound}
           onRestart={handleResetGame}
           isOpen={isSettingsOpen}
-          onToggle={() => setIsSettingsOpen(!isSettingsOpen)}
+          onToggle={() => {
+            // if closing settings and game is paused, unpause it
+            if (isSettingsOpen && gameState.paused && !gameState.gameOver) {
+              unpauseGame();
+            }
+            setIsSettingsOpen(!isSettingsOpen);
+          }}
           currentLevel={gameState.currentLevel}
           collectedFlowers={gameState.collectedFlowers}
           totalFlowers={getLevelConfig(gameState.currentLevel).numFlowers}
