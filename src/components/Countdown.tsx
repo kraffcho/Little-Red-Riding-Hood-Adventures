@@ -11,14 +11,12 @@ const Countdown: React.FC<CountdownProps> = ({ onComplete, isGameInitialized, cu
   const hasStartedRef = useRef(false);
 
   useEffect(() => {
-    // reset when game is not initialized (game restart or level change)
     if (!isGameInitialized) {
       hasStartedRef.current = false;
       setCountdown(null);
       return;
     }
 
-    // start countdown when game is initialized
     if (isGameInitialized && !hasStartedRef.current) {
       hasStartedRef.current = true;
       setCountdown(3);
@@ -31,15 +29,13 @@ const Countdown: React.FC<CountdownProps> = ({ onComplete, isGameInitialized, cu
     }
 
     if (countdown === 0) {
-      // show "GO!" for a moment, then complete
       const goTimer = setTimeout(() => {
-        setCountdown(-1); // mark as complete
+        setCountdown(-1);
         onComplete();
       }, 800);
       return () => clearTimeout(goTimer);
     }
 
-    // decrement countdown every second
     const timer = setTimeout(() => {
       setCountdown((prev) => (prev !== null ? prev - 1 : null));
     }, 1000);
@@ -47,7 +43,6 @@ const Countdown: React.FC<CountdownProps> = ({ onComplete, isGameInitialized, cu
     return () => clearTimeout(timer);
   }, [countdown, onComplete]);
 
-  // don't render if countdown hasn't started or is finished
   if (countdown === null || countdown < 0) {
     return null;
   }

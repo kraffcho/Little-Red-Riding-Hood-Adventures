@@ -4,8 +4,8 @@ import { getNumTrees } from "./gameConfig";
 export type LevelConfig = {
   level: number;
   numFlowers: number;
-  enemyDelay: number; // wolf movement delay in ms
-  numTrees: number | ((width?: number) => number); // can be number or function for responsive
+  enemyDelay: number;
+  numTrees: number | ((width?: number) => number);
   bombUnlocked: boolean;
   cloakUnlocked: boolean;
   bombStunDuration: number;
@@ -14,23 +14,20 @@ export type LevelConfig = {
   cloakCooldown: number;
 };
 
-/**
- * Get level-specific configuration
- */
 export const getLevelConfig = (level: number, width?: number): LevelConfig => {
   const numTrees = typeof window !== "undefined"
     ? getNumTrees(width ?? window.innerWidth)
-    : 60; // fallback for SSR
+    : 60;
 
   switch (level) {
     case 1:
       return {
         level: 1,
         numFlowers: 20,
-        enemyDelay: 500, // base speed
+        enemyDelay: 500,
         numTrees,
-        bombUnlocked: false, // bombs not available in level 1
-        cloakUnlocked: false, // cloak not available in level 1
+        bombUnlocked: false,
+        cloakUnlocked: false,
         bombStunDuration: 5000,
         bombCooldown: 5000,
         cloakInvisibilityDuration: 10000,
@@ -41,10 +38,10 @@ export const getLevelConfig = (level: number, width?: number): LevelConfig => {
       return {
         level: 2,
         numFlowers: 25,
-        enemyDelay: 400, // 20% faster
+        enemyDelay: 400,
         numTrees,
-        bombUnlocked: true, // unlocked after level 1
-        cloakUnlocked: false, // cloak not available in level 2
+        bombUnlocked: true,
+        cloakUnlocked: false,
         bombStunDuration: 5000,
         bombCooldown: 5000,
         cloakInvisibilityDuration: 10000,
@@ -53,25 +50,21 @@ export const getLevelConfig = (level: number, width?: number): LevelConfig => {
 
     case 3:
     default:
-      // level 3+ has both items unlocked
       return {
         level: level >= 3 ? level : 3,
-        numFlowers: 30, // more flowers for level 3+
-        enemyDelay: 350, // even faster
-        numTrees: typeof numTrees === 'number' ? Math.floor(numTrees * 1.1) : numTrees, // 10% more trees
+        numFlowers: 30,
+        enemyDelay: 350,
+        numTrees: typeof numTrees === 'number' ? Math.floor(numTrees * 1.1) : numTrees,
         bombUnlocked: true,
-        cloakUnlocked: true, // unlocked after level 2
-        bombStunDuration: 4000, // shorter stun
-        bombCooldown: 7000, // longer cooldown
-        cloakInvisibilityDuration: 8000, // shorter invisibility
-        cloakCooldown: 40000, // longer cooldown
+        cloakUnlocked: true,
+        bombStunDuration: 4000,
+        bombCooldown: 7000,
+        cloakInvisibilityDuration: 8000,
+        cloakCooldown: 40000,
       };
   }
 };
 
-/**
- * Get what item is unlocked after completing a level
- */
 export const getUnlockedItem = (completedLevel: number): "bomb" | "cloak" | null => {
   if (completedLevel === 1) {
     return "bomb";
@@ -79,12 +72,9 @@ export const getUnlockedItem = (completedLevel: number): "bomb" | "cloak" | null
   if (completedLevel === 2) {
     return "cloak";
   }
-  return null; // no new items unlocked after level 2
+  return null;
 };
 
-/**
- * Get unlock message for completed level
- */
 export const getUnlockMessage = (completedLevel: number): string | null => {
   const item = getUnlockedItem(completedLevel);
   if (item === "bomb") {

@@ -18,13 +18,13 @@ const GameOver: React.FC<GameOverProps> = ({
   const [visible, setVisible] = useState<boolean>(true);
 
   const handleRetryLevel = () => {
-    setVisible(false); // hide this modal
-    onRetryLevel(); // retry the current level
+    setVisible(false);
+    onRetryLevel();
   };
 
   const handleRestartGame = () => {
-    setVisible(false); // hide this modal
-    onRestartGame(); // restart from the beginning
+    setVisible(false);
+    onRestartGame();
   };
 
   return visible ? (

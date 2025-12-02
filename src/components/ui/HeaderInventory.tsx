@@ -27,7 +27,6 @@ const HeaderInventory: React.FC<HeaderInventoryProps> = ({
   const [cooldownProgress, setCooldownProgress] = useState<number>(0);
   const cooldownRef = useRef<HTMLDivElement>(null);
 
-  // count items by type (cloak is special - only 0 or 1, no count badge)
   const itemCounts: Record<ItemType, number> = {
     bomb: inventory.filter((item) => item === "bomb").length,
     cloak: inventory.filter((item) => item === "cloak").length,
@@ -38,7 +37,6 @@ const HeaderInventory: React.FC<HeaderInventoryProps> = ({
   const [cloakCooldownProgress, setCloakCooldownProgress] = useState<number>(0);
   const cloakCooldownRef = useRef<HTMLDivElement>(null);
 
-  // update bomb cooldown progress
   useEffect(() => {
     if (bombCooldownEndTime) {
       const updateProgress = () => {
@@ -56,7 +54,6 @@ const HeaderInventory: React.FC<HeaderInventoryProps> = ({
     }
   }, [bombCooldownEndTime]);
 
-  // update cloak cooldown progress
   useEffect(() => {
     if (cloakCooldownEndTime) {
       const updateProgress = () => {
@@ -74,14 +71,12 @@ const HeaderInventory: React.FC<HeaderInventoryProps> = ({
     }
   }, [cloakCooldownEndTime]);
 
-  // update CSS custom property for cooldown progress width
   useEffect(() => {
     if (cooldownRef.current) {
       cooldownRef.current.style.setProperty('--cooldown-progress', `${cooldownProgress * 100}%`);
     }
   }, [cooldownProgress]);
 
-  // update CSS custom property for cloak cooldown progress width
   useEffect(() => {
     if (cloakCooldownRef.current) {
       cloakCooldownRef.current.style.setProperty('--cooldown-progress', `${cloakCooldownProgress * 100}%`);
@@ -97,7 +92,6 @@ const HeaderInventory: React.FC<HeaderInventoryProps> = ({
   const isBombOnCooldown = bombCooldownEndTime !== null && Date.now() < bombCooldownEndTime;
   const isCloakOnCooldown = cloakCooldownEndTime !== null && Date.now() < cloakCooldownEndTime;
 
-  // get item icon
   const getItemIcon = (itemType: ItemType): string => {
     switch (itemType) {
       case "bomb":
@@ -120,13 +114,10 @@ const HeaderInventory: React.FC<HeaderInventoryProps> = ({
         const hasItem = count > 0;
         const isBombCooldown = itemType === "bomb" && isBombOnCooldown;
         const isCloakCooldown = itemType === "cloak" && isCloakOnCooldown;
-        // bomb is disabled when level is completed or game is over
         const isBombDisabled = itemType === "bomb" && (gameOver || playerEnteredHouse || isStuck);
-        // cloak is disabled when level is completed or game is over
         const isCloakDisabled = itemType === "cloak" && (gameOver || playerEnteredHouse || isStuck);
         const isCooldown = isBombCooldown || isCloakCooldown;
         const isDisabled = isBombDisabled || isCloakDisabled;
-        // cloak doesn't show count badge (it's a special reusable item)
         const showCount = itemType !== "cloak";
 
         return (

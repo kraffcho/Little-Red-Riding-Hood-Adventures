@@ -11,7 +11,6 @@ interface PauseMenuProps {
 const PauseMenu: React.FC<PauseMenuProps> = ({ onResume, isVisible, currentLevel }) => {
   const levelConfig = getLevelConfig(currentLevel);
 
-  // format milliseconds to seconds for display (round to avoid decimals)
   const formatSeconds = (ms: number) => Math.round(ms / 1000);
 
   const bombStunSeconds = formatSeconds(levelConfig.bombStunDuration);

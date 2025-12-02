@@ -49,7 +49,6 @@ const ForestGrid: React.FC<Props> = ({
   showTooltip = false,
   playerInvisible = false,
 }) => {
-  // check if we're in portrait mode (mobile)
   const [isViewportWidthSmaller, setIsViewportWidthSmaller] = useState(
     typeof window !== "undefined" && window.innerWidth < window.innerHeight
   );
@@ -63,9 +62,8 @@ const ForestGrid: React.FC<Props> = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // use mobile styles if we're in portrait mode
   const gridClassName = isViewportWidthSmaller ? "ForestGrid Mobile" : "ForestGrid";
-  // create all the tiles for the grid
+  
   const forestGrid = [...Array(gridSize)].map((_, rowIndex) => (
     <div className="row" key={rowIndex}>
       {[...Array(gridSize)].map((_, columnIndex) => {

@@ -45,7 +45,6 @@ const Header: React.FC<HeaderProps> = ({
   const allFlowersCollected = collectedFlowers === numFlowers;
   const progressBarRef = useRef<HTMLDivElement>(null);
 
-  // update CSS custom property for progress bar width
   useEffect(() => {
     if (progressBarRef.current) {
       progressBarRef.current.style.setProperty('--quest-progress', `${progress}%`);

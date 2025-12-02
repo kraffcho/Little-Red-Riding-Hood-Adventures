@@ -10,7 +10,6 @@ const QuestProgress: React.FC<QuestProgressProps> = ({ collectedFlowers }) => {
   const allFlowersCollected = collectedFlowers === NUM_FLOWERS;
   const progressBarRef = useRef<HTMLDivElement>(null);
 
-  // update CSS custom property for progress bar width
   useEffect(() => {
     if (progressBarRef.current) {
       progressBarRef.current.style.setProperty('--quest-progress', `${progress}%`);

@@ -25,7 +25,6 @@ const handleVolumeChangeWithUnmute = (
   onToggleSound: () => void
 ) => {
   onVolumeChange(newVolume);
-  // if sound is muted and user changes volume, unmute it
   if (!isPlayingMusic && newVolume > 0) {
     onToggleSound();
   }
@@ -46,15 +45,14 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
   totalFlowers,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
-  const totalLevels = 3; // Update this when adding more levels
+  const totalLevels = 3;
   const levelProgress = (currentLevel / totalLevels) * 100;
   const currentLevelProgress = (collectedFlowers / totalFlowers) * 100;
 
-  // close the menu if user clicks somewhere else (but not the settings button)
+  // close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      // don't close if clicking on the settings button or its children
       const isSettingsButton = target.closest('.header-settings-button');
 
       if (menuRef.current && !menuRef.current.contains(target) && !isSettingsButton) {
