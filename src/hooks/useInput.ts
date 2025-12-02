@@ -62,13 +62,13 @@ export const useSwipeInput = (
   const handleTouchStart = useCallback(
     (event: React.TouchEvent<HTMLDivElement>) => {
       if (!enabled) return;
-      
+
       // don't prevent default on buttons or interactive elements
       const target = event.target as HTMLElement;
       if (target.tagName === 'BUTTON' || target.tagName === 'INPUT' || target.closest('button') || target.closest('input')) {
         return;
       }
-      
+
       if (event.touches.length === 1) {
         event.preventDefault();
         touchStartPos.current = {
@@ -83,13 +83,13 @@ export const useSwipeInput = (
   const handleTouchMove = useCallback(
     (event: React.TouchEvent<HTMLDivElement>) => {
       if (!enabled || !touchStartPos.current) return;
-      
+
       // don't prevent default on buttons or interactive elements
       const target = event.target as HTMLElement;
       if (target.tagName === 'BUTTON' || target.tagName === 'INPUT' || target.closest('button') || target.closest('input')) {
         return;
       }
-      
+
       event.preventDefault();
     },
     [enabled]

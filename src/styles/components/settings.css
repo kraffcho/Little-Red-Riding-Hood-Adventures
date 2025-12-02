@@ -399,4 +399,8 @@
   .settings-progress-icon {
     font-size: var(--font-size-lg);
   }
+
+  .settings-menu-credits {
+    display: none;
+  }
 }
