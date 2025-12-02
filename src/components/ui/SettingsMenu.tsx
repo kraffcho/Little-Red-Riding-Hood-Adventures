@@ -16,6 +16,19 @@ interface SettingsMenuProps {
   totalFlowers: number;
 }
 
+const handleVolumeChangeWithUnmute = (
+  newVolume: number,
+  isPlayingMusic: boolean,
+  onVolumeChange: (volume: number) => void,
+  onToggleSound: () => void
+) => {
+  onVolumeChange(newVolume);
+  // if sound is muted and user changes volume, unmute it
+  if (!isPlayingMusic && newVolume > 0) {
+    onToggleSound();
+  }
+};
+
 const SettingsMenu: React.FC<SettingsMenuProps> = ({
   volume,
   isPlayingMusic,
@@ -121,13 +134,13 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
                 e.preventDefault();
                 e.stopPropagation();
                 const newVolume = parseFloat(e.target.value);
-                onVolumeChange(newVolume);
+                handleVolumeChangeWithUnmute(newVolume, isPlayingMusic, onVolumeChange, onToggleSound);
               }}
               onInput={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 const newVolume = parseFloat((e.target as HTMLInputElement).value);
-                onVolumeChange(newVolume);
+                handleVolumeChangeWithUnmute(newVolume, isPlayingMusic, onVolumeChange, onToggleSound);
               }}
               className="settings-volume-slider"
             />

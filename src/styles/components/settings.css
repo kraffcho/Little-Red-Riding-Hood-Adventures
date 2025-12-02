@@ -283,10 +283,12 @@
   border: none;
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: background-color 0.3s var(--ease-in-out), box-shadow 0.3s var(--ease-in-out), transform 0.1s var(--ease-in-out);
+  transition: background-color 0.3s var(--ease-in-out),
+    box-shadow 0.3s var(--ease-in-out), transform 0.1s var(--ease-in-out);
   width: 100%;
   text-align: left;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: var(--spacing-md);
 }
 
 .settings-menu-item-button:hover {
