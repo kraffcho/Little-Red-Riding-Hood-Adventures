@@ -83,7 +83,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
             </div>
           </div>
 
-          <div className="settings-progress-item">
+          <div className="settings-progress-item settings-progress-item-flowers">
             <div className="settings-progress-header">
               <span className="settings-progress-icon">💐</span>
               <div className="settings-progress-text">
