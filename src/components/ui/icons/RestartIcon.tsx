@@ -8,31 +8,48 @@ const RestartIcon: React.FC<RestartIconProps> = ({ className }) => {
   return (
     <svg
       className={className}
-      width="20"
-      height="20"
-      viewBox="0 0 20 20"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
+      {/* Circular arrow for restart */}
       <path
-        d="M3 10C3 6.13 6.13 3 10 3C12.5 3 14.65 4.2 16 6.07M17 10C17 13.87 13.87 17 10 17C7.5 17 5.35 15.8 4 13.93"
+        d="M4 12C4 7.58172 7.58172 4 12 4C14.5264 4 16.7792 5.17108 18.2454 7"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
-        d="M6 6L3 3V6H6Z"
-        fill="currentColor"
+        d="M20 12C20 16.4183 16.4183 20 12 20C9.47362 20 7.22082 18.8289 5.75463 17"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
+      {/* Arrow head at top */}
       <path
-        d="M14 14L17 17V14H14Z"
-        fill="currentColor"
+        d="M18 3V7H14"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Arrow head at bottom */}
+      <path
+        d="M6 21V17H10"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
 };
 
 export default RestartIcon;
+
 

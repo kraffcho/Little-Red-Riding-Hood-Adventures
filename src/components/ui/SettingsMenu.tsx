@@ -164,7 +164,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
             <VolumeIcon className="settings-item-icon" muted={!isPlayingMusic} />
             <span>{isPlayingMusic ? "Mute Music" : "Unmute Music"}</span>
           </button>
-          
+
           <label className="settings-checkbox-label">
             <input
               type="checkbox"
