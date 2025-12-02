@@ -114,16 +114,19 @@ The optimized build will be in the `build` folder.
 The easiest way to deploy this game is using [Vercel](https://vercel.com):
 
 1. **Install Vercel CLI** (optional):
+
    ```bash
    npm i -g vercel
    ```
 
 2. **Deploy via CLI**:
+
    ```bash
    vercel
    ```
 
 3. **Or deploy via Vercel Dashboard**:
+
    - Import your GitHub repository at [vercel.com/new](https://vercel.com/new)
    - Vercel will auto-detect Create React App settings
    - Click "Deploy"
