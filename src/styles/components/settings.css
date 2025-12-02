@@ -39,8 +39,8 @@
 
 .settings-menu-dropdown {
   position: fixed;
-  top: 50px; /* below the header */
-  right: var(--spacing-lg);
+  top: 54px; /* below the header */
+  right: var(--spacing-md);
   background-color: var(--color-white);
   border: var(--border-width-thick) solid var(--color-green-primary);
   border-radius: var(--radius-xl);

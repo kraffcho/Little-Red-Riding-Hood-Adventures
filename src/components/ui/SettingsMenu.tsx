@@ -83,7 +83,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
         <div className="settings-menu-section settings-progress-section">
           <div className="settings-progress-item">
             <div className="settings-progress-header">
-              <span className="settings-progress-icon">🎮</span>
+              <span className="settings-progress-icon">🏆</span>
               <div className="settings-progress-text">
                 <span className="settings-progress-value">Level {currentLevel} of {totalLevels}</span>
               </div>
