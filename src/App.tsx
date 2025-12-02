@@ -441,8 +441,7 @@ const App: React.FC = () => {
   const isGameInitialized = gameState.gridSize > 0;
 
   return (
-    <div className="App" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
-      {/* header with inventory and settings button */}
+    <div className="App">
       {isGameInitialized && (
         <Header
           inventory={gameState.inventory}
@@ -493,7 +492,12 @@ const App: React.FC = () => {
       )}
       {isGameInitialized && (
         <>
-          <div className={`game-board-wrapper ${gameState.explosionEffect ? 'screen-shake' : ''}`}>
+          <div 
+            className={`game-board-wrapper ${gameState.explosionEffect ? 'screen-shake' : ''}`}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <Countdown
               key={`countdown-${gameResetKey.current}`}
               onComplete={handleCountdownComplete}
