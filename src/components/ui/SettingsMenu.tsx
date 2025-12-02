@@ -119,13 +119,19 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
               max="1"
               step="0.01"
               value={volume}
-              onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
+              onChange={(e) => {
+                e.stopPropagation();
+                onVolumeChange(parseFloat(e.target.value));
+              }}
               className="settings-volume-slider"
             />
           </div>
           <button
             type="button"
-            onClick={onToggleSound}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSound();
+            }}
             className="settings-menu-item-button"
           >
             <VolumeIcon className="settings-item-icon" muted={!isPlayingMusic} />
