@@ -59,7 +59,11 @@
   align-items: center;
   padding: var(--spacing-lg) var(--spacing-xl);
   border-bottom: var(--border-width-medium) solid var(--color-green-primary);
-  background: linear-gradient(135deg, var(--color-green-primary) 0%, var(--color-green-button) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-green-primary) 0%,
+    var(--color-green-button) 100%
+  );
 }
 
 .settings-menu-header h3 {
@@ -99,7 +103,11 @@
 
 /* Progress Section */
 .settings-progress-section {
-  background: linear-gradient(135deg, rgba(33, 123, 35, 0.05) 0%, rgba(33, 123, 35, 0.02) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(33, 123, 35, 0.05) 0%,
+    rgba(33, 123, 35, 0.02) 100%
+  );
   border-radius: var(--radius-lg);
   padding: var(--spacing-md);
   gap: var(--spacing-md);
@@ -131,7 +139,7 @@
 
 .settings-progress-label {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--color-gray-600);
   text-transform: uppercase;
@@ -156,7 +164,11 @@
 
 .settings-progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-green-primary) 0%, var(--color-green-button) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-green-primary) 0%,
+    var(--color-green-button) 100%
+  );
   border-radius: var(--radius-full);
   transition: width 0.3s var(--ease-in-out);
   box-shadow: 0 1px 3px rgba(33, 123, 35, 0.3);
@@ -242,7 +254,7 @@
 
 .settings-volume-value {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   color: var(--color-green-primary);
   min-width: 40px;
@@ -317,7 +329,7 @@
 
 .settings-menu-credits p {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--color-gray-600);
   margin: 0;
   line-height: 1.5;

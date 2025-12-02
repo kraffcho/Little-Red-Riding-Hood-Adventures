@@ -77,7 +77,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
               </div>
             </div>
             <div className="settings-progress-bar-container">
-              <div 
+              <div
                 className="settings-progress-bar-fill"
                 style={{ width: `${levelProgress}%` }}
               />
@@ -93,7 +93,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
               </div>
             </div>
             <div className="settings-progress-bar-container">
-              <div 
+              <div
                 className="settings-progress-bar-fill settings-progress-bar-flowers"
                 style={{ width: `${currentLevelProgress}%` }}
               />
