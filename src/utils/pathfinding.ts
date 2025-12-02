@@ -30,7 +30,6 @@ export const findPath = (
     return lowestIndex;
   };
 
-  // start with the initial position
   openList.push({
     position: start,
     g: 0,
@@ -39,17 +38,13 @@ export const findPath = (
   });
 
   while (openList.length > 0) {
-    // get the node with the lowest f value
     const currentIndex = findLowestFNode();
     const currentNode = openList[currentIndex];
 
-    // move this node to the closed list
     openList.splice(currentIndex, 1);
     closedList.push(currentNode);
 
-    // check if we reached the goal
     if (currentNode.position.x === goal.x && currentNode.position.y === goal.y) {
-      // reconstruct the path to get the first step
       const path: Position[] = [];
       let current: AStarNode | null = currentNode;
 
@@ -58,15 +53,12 @@ export const findPath = (
         current = current.parent;
       }
 
-      // return the first position to move to (or null if already at goal)
       return path.length > 0 ? path[0] : null;
     }
 
-    // check all positions next to this one
     const adjacentPositions = getAdjacentPositions(currentNode.position);
 
     for (const adjacentPos of adjacentPositions) {
-      // skip if invalid or already checked
       if (
         !isValidPosition(adjacentPos, treePositions, gridSize) ||
         isInClosedList(adjacentPos)
@@ -76,7 +68,6 @@ export const findPath = (
 
       const tentativeG = currentNode.g + 1;
 
-      // check if we've already seen this position
       const existingNodeIndex = openList.findIndex(
         (node) =>
           node.position.x === adjacentPos.x &&
@@ -84,14 +75,12 @@ export const findPath = (
       );
 
       if (existingNodeIndex !== -1) {
-        // if we found a better path, update it
         const existingNode = openList[existingNodeIndex];
         if (tentativeG < existingNode.g) {
           existingNode.g = tentativeG;
           existingNode.parent = currentNode;
         }
       } else {
-        // add this new position to explore
         openList.push({
           position: adjacentPos,
           g: tentativeG,
@@ -102,14 +91,10 @@ export const findPath = (
     }
   }
 
-  // couldn't find a path
   return null;
 };
 
-/**
- * checks if a path exists from start to goal (just returns true/false, doesn't find the actual path)
- * faster than findPath when you only need to know if a path exists
- */
+// faster path existence check - returns true/false without finding actual path
 export const pathExists = (
   start: Position,
   goal: Position,
@@ -123,7 +108,6 @@ export const pathExists = (
   const openList: AStarNode[] = [];
   const closedSet = new Set<string>();
 
-  // helper to turn a position into a string key
   const posKey = (pos: Position) => `${pos.x},${pos.y}`;
 
   openList.push({
@@ -134,7 +118,6 @@ export const pathExists = (
   });
 
   while (openList.length > 0) {
-    // find the node with the lowest f value
     let lowestIndex = 0;
     for (let i = 1; i < openList.length; i++) {
       const currentF = openList[i].g + openList[i].h;
@@ -148,18 +131,15 @@ export const pathExists = (
     openList.splice(lowestIndex, 1);
     closedSet.add(posKey(currentNode.position));
 
-    // check if we reached the goal
     if (currentNode.position.x === goal.x && currentNode.position.y === goal.y) {
       return true;
     }
 
-    // check all positions next to this one
     const adjacentPositions = getAdjacentPositions(currentNode.position);
 
     for (const adjacentPos of adjacentPositions) {
       const adjKey = posKey(adjacentPos);
 
-      // skip if invalid, already visited, or already queued
       if (
         !isValidPosition(adjacentPos, treePositions, gridSize) ||
         closedSet.has(adjKey) ||
@@ -180,10 +160,7 @@ export const pathExists = (
   return false;
 };
 
-/**
- * finds all positions we can reach from the starting position
- * uses a flood fill to explore everything we can get to
- */
+// flood fill algorithm to find all reachable positions from start
 export const findAllReachablePositions = (
   start: Position,
   treePositions: Position[],
