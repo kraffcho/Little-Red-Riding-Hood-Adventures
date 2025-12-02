@@ -132,7 +132,7 @@ const HeaderInventory: React.FC<HeaderInventoryProps> = ({
         return (
           <button
             key={itemType}
-            className={`header-inventory-slot ${hasItem ? `has-item ${itemType}-item` : "empty"} ${isCooldown || isDisabled ? "on-cooldown" : ""}`}
+            className={`header-inventory-slot ${hasItem ? `has-item ${itemType}-item` : "empty"} ${hasItem && (isCooldown || isDisabled) ? "on-cooldown" : ""}`}
             onClick={() => hasItem && !isCooldown && !isDisabled && handleItemClick(itemType)}
             disabled={isCooldown || isDisabled}
           >
