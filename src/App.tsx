@@ -358,7 +358,7 @@ const App: React.FC = () => {
   const handleCountdownComplete = useCallback(() => {
     setCountdownComplete(true);
     startItemSpawning();
-    
+
     // show granny's welcome message after countdown fades
     setTimeout(() => {
       if (!shownMilestonesRef.current.has("start") && gameState.collectedFlowers === 0) {
@@ -503,7 +503,7 @@ const App: React.FC = () => {
             <LevelComplete
               level={gameState.currentLevel}
               show={gameState.playerEnteredHouse}
-              onComplete={() => {}}
+              onComplete={() => { }}
               onRestart={handleResetGame}
               onNextLevel={handleNextLevel}
               onReplayLevel={handleReplayLevel}
