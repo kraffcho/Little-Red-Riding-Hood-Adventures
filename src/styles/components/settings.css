@@ -102,7 +102,6 @@
   color: var(--color-gray-600);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: var(--spacing-xs);
 }
 
 /* Progress Section */
@@ -327,6 +326,32 @@
 
 .settings-restart-button .settings-item-icon {
   color: var(--color-white);
+}
+
+/* Checkbox */
+.settings-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+  cursor: pointer;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  user-select: none;
+  margin-top: var(--spacing-sm);
+}
+
+.settings-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--color-green-primary);
+}
+
+.settings-checkbox-label:hover {
+  color: var(--color-green-primary);
 }
 
 .settings-menu-credits {

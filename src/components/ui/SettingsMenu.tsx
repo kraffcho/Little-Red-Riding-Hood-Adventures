@@ -6,8 +6,10 @@ import Credits from "./Credits";
 interface SettingsMenuProps {
   volume: number;
   isPlayingMusic: boolean;
+  isSoundEffectsEnabled: boolean;
   onVolumeChange: (volume: number) => void;
   onToggleSound: () => void;
+  onToggleSoundEffects: () => void;
   onRestart: () => void;
   isOpen: boolean;
   onToggle: (shouldUnpause?: boolean) => void;
@@ -32,8 +34,10 @@ const handleVolumeChangeWithUnmute = (
 const SettingsMenu: React.FC<SettingsMenuProps> = ({
   volume,
   isPlayingMusic,
+  isSoundEffectsEnabled,
   onVolumeChange,
   onToggleSound,
+  onToggleSoundEffects,
   onRestart,
   isOpen,
   onToggle,
@@ -158,8 +162,21 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
             className="settings-menu-item-button"
           >
             <VolumeIcon className="settings-item-icon" muted={!isPlayingMusic} />
-            <span>{isPlayingMusic ? "Mute Sound" : "Unmute Sound"}</span>
+            <span>{isPlayingMusic ? "Mute Music" : "Unmute Music"}</span>
           </button>
+          
+          <label className="settings-checkbox-label">
+            <input
+              type="checkbox"
+              checked={isSoundEffectsEnabled}
+              onChange={(e) => {
+                e.stopPropagation();
+                onToggleSoundEffects();
+              }}
+              className="settings-checkbox"
+            />
+            <span>Enable Sound Effects</span>
+          </label>
         </div>
 
         {/* Actions Section */}

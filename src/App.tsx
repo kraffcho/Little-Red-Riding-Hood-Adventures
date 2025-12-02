@@ -43,12 +43,14 @@ const App: React.FC = () => {
 
   const {
     isPlayingMusic,
+    isSoundEffectsEnabled,
     volume,
     playSound,
     playRandomSound,
     playBackgroundMusic,
     playFlowerCollectSound,
     handleToggleSound,
+    handleToggleSoundEffects,
     handleVolumeChange,
     checkMusicCookie,
     resetMusic,
@@ -507,8 +509,10 @@ const App: React.FC = () => {
         <SettingsMenu
           volume={volume}
           isPlayingMusic={isPlayingMusic}
+          isSoundEffectsEnabled={isSoundEffectsEnabled}
           onVolumeChange={handleVolumeChange}
           onToggleSound={handleToggleSound}
+          onToggleSoundEffects={handleToggleSoundEffects}
           onRestart={handleResetGame}
           isOpen={isSettingsOpen}
           onToggle={(shouldUnpause = true) => {

@@ -6,6 +6,7 @@ import { AUDIO_PATHS, DEFAULT_VOLUME, COOKIE_KEYS } from "../constants/gameConfi
  */
 export const useAudio = () => {
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
+  const [isSoundEffectsEnabled, setIsSoundEffectsEnabled] = useState(true);
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
   const [flowerCollectSoundBuffer, setFlowerCollectSoundBuffer] = useState<AudioBuffer | null>(null);
   const hasUserInteracted = useRef(false);
@@ -59,6 +60,11 @@ export const useAudio = () => {
       return;
     }
     
+    // don't play if sound effects are disabled
+    if (!isSoundEffectsEnabled) {
+      return;
+    }
+    
     const sound = new Audio(audioPath);
     sound.volume = volume;
     sound.play().catch((error) => {
@@ -70,7 +76,7 @@ export const useAudio = () => {
         console.error("Failed to play sound:", error);
       }
     });
-  }, [volume]);
+  }, [volume, isSoundEffectsEnabled]);
 
   const playRandomSound = useCallback((audioPaths: readonly string[], requireInteraction: boolean = true) => {
     const randomIndex = Math.floor(Math.random() * audioPaths.length);
@@ -105,13 +111,18 @@ export const useAudio = () => {
       return; // wait until user has clicked or moved
     }
     
+    // don't play if sound effects are disabled
+    if (!isSoundEffectsEnabled) {
+      return;
+    }
+    
     if (flowerCollectSoundBuffer && audioContextRef.current) {
       const source = audioContextRef.current.createBufferSource();
       source.buffer = flowerCollectSoundBuffer;
       source.connect(audioContextRef.current.destination);
       source.start();
     }
-  }, [flowerCollectSoundBuffer]);
+  }, [flowerCollectSoundBuffer, isSoundEffectsEnabled]);
 
   const handleToggleSound = useCallback(() => {
     hasUserInteracted.current = true; // user clicked something
@@ -126,6 +137,10 @@ export const useAudio = () => {
 
   const handleVolumeChange = useCallback((newVolume: number) => {
     setVolume(newVolume);
+  }, []);
+
+  const handleToggleSoundEffects = useCallback(() => {
+    setIsSoundEffectsEnabled(prev => !prev);
   }, []);
 
   const checkMusicCookie = useCallback((): boolean => {
@@ -147,6 +162,7 @@ export const useAudio = () => {
 
   return {
     isPlayingMusic,
+    isSoundEffectsEnabled,
     volume,
     playSound,
     playRandomSound,
@@ -154,6 +170,7 @@ export const useAudio = () => {
     stopBackgroundMusic,
     playFlowerCollectSound,
     handleToggleSound,
+    handleToggleSoundEffects,
     handleVolumeChange,
     checkMusicCookie,
     resetMusic,
