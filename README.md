@@ -150,10 +150,17 @@ src/
 │   └── levelConfig.ts              # Level-specific configurations and unlocks
 ├── hooks/
 │   ├── index.ts                    # Centralized hook exports
-│   ├── useGameState.ts             # Game state management
+│   ├── useGameState.ts             # Main game state management and orchestration
 │   ├── useAudio.ts                 # Audio playback management
 │   ├── useInput.ts                 # Keyboard (arrow keys + WASD + Space) and touch input
-│   └── useDebounce.ts              # Debounce utility
+│   ├── useDebounce.ts              # Debounce utility
+│   ├── useLevelState.ts            # Level generation logic
+│   ├── usePlayerState.ts           # Player movement and state management
+│   ├── useWolfState.ts             # Wolf AI and state management
+│   ├── useBombMechanics.ts         # Bomb explosion and stun mechanics
+│   ├── useCloakMechanics.ts        # Hunter's Cloak invisibility mechanics
+│   ├── useInventoryState.ts        # Item spawning and inventory management
+│   └── useGameLifecycle.ts         # Game lifecycle and timing management
 ├── types/
 │   ├── index.ts                    # Centralized type exports
 │   └── game.ts                     # TypeScript type definitions
