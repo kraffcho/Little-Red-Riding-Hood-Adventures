@@ -83,6 +83,20 @@ const PauseMenu: React.FC<PauseMenuProps> = ({ onResume, isVisible, currentLevel
                 <li>🐺 Avoid the wolf!</li>
               </ul>
             </div>
+
+            <div className="pause-menu-credits">
+              <p>
+                Built with ❤️ by{" "}
+                <a
+                  href="https://www.linkedin.com/in/kraffcho/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pause-menu-credits-link"
+                >
+                  Kraffcho
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </div>
